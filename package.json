@@ -1,6 +1,10 @@
 {
   "name": "workpaper",
   "version": "0.0.1",
+  "description": "A wallpaper schedule",
+  "author": {
+    "name": "Jarvay"
+  },
   "main": "dist-electron/main/index.js",
   "license": "MIT",
   "private": true,

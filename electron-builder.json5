@@ -4,7 +4,6 @@
 {
   "appId": "YourAppID",
   "productName": "Workpaper",
-  "author": "Jarvay",
   "asar": true,
   "directories": {
     "output": "release/${version}"
