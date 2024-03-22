@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "yarn"
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Build Release Files
+        run: yarn build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/*/*.dmg
+            release/*/*.exe
+            release/*/*.blockmap
+            release/*/latest*.yml
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
