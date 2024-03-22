@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "A wallpaper schedule",
   "author": {
-    "name": "Jarvay"
+    "name": "Jarvay",
+    "email": "jarvay@163.com"
   },
   "main": "dist-electron/main/index.js",
   "license": "MIT",
