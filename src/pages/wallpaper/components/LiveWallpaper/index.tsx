@@ -75,6 +75,7 @@ const LiveWallpaper: React.FC<LiveWallpaperProps> = (props) => {
 
   return (
     <video
+      style={{ ...props.style }}
       ref={(ref) => {
         if (ref) {
           videoRef.current = ref;

@@ -6,12 +6,15 @@ import {
   BrowserWindowConstructorOptions,
   Rectangle,
   Display,
+  app,
 } from 'electron';
 import { platform } from 'os';
 import { Events } from '../../../cross/enums';
 import { indexHtml, url } from './utils';
 import { Subject } from 'rxjs';
 import { omit } from 'lodash';
+
+const DEBUG = false;
 
 const windowsMap: Map<number, BrowserWindow> = new Map();
 
@@ -63,9 +66,11 @@ async function createWindows(
     const win = windowsMap.get(displayId) as BrowserWindow;
 
     if (platform() === 'win32') {
-      win.maximize();
-      const { attach } = require('electron-as-wallpaper');
-      attach(win);
+      if (!DEBUG || app.isPackaged) {
+        win.maximize();
+        const { attach } = require('electron-as-wallpaper');
+        attach(win);
+      }
     }
     if (platform() === 'linux') {
       win.maximize();
@@ -90,10 +95,16 @@ async function createWindows(
     ...winOptions(display.bounds),
   });
   windowsMap.set(display.id, childWin);
-  // childWin.webContents.openDevTools();
-  // childWin.setFocusable(true);
+
   childWin.setIgnoreMouseEvents(true);
 
+  if (DEBUG && !app.isPackaged) {
+    childWin.webContents.openDevTools();
+    childWin.setFocusable(true);
+    childWin.setIgnoreMouseEvents(false);
+    childWin.setResizable(true);
+    childWin.setFocusable(true);
+  }
   await loadUrl(childWin, display.id);
 }
 

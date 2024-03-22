@@ -42,7 +42,7 @@ const StaticWallpaper: React.FC<StaticWallpaperProps> = (props) => {
   }, [paths]);
 
   return (
-    <div className={styles.wallpaperContainer}>
+    <div className={styles.wallpaperContainer} style={{ ...props.style }}>
       {paths.map((item, index) => (
         <img
           key={item}
@@ -51,8 +51,6 @@ const StaticWallpaper: React.FC<StaticWallpaperProps> = (props) => {
           src={`file://${item}`}
           className={[styles.fadeIn, styles.wallpaper].join(' ')}
           style={{
-            width: '100vw',
-            height: '100vh',
             objectFit: settings?.webScaleMode,
             zIndex: index + 5,
           }}
