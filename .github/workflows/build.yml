@@ -40,6 +40,7 @@ jobs:
             release/*/*.blockmap
             release/*/latest*.yml
             release/*/*.AppImage
+            release/*/*.deb
           draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
