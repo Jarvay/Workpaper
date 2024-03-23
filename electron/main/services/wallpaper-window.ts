@@ -143,7 +143,7 @@ async function createWin32Win(displayId: number) {
 }
 
 async function createLinuxWin(displayId: number) {
-  await createWindows(displayId, ({ width, height, x, y }) => {
+  await createWindows(displayId, ({ width, height }) => {
     return {
       ...omit(defaultWinOptions, ['frame', 'focusable', 'resizable']),
       type: 'desktop',

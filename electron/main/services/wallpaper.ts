@@ -59,19 +59,21 @@ export async function setWallpaper(
 
 export async function updateWallpaper(rule: Rule, currentIndex: number) {
   const extList = typeExtMap.get(rule.wallpaperType) as string[];
+  const paths = readRuleFilePaths(rule, extList);
+
   if (rule.type !== ChangeType.Fixed && rule.isRandom) {
-    const max = readRuleFilePaths(rule, extList).length - 1;
+    const max = paths.length - 1;
     currentIndex = randomByRange(0, max);
   }
 
-  let filePath = readRuleFilePaths(rule, extList)[currentIndex];
+  let filePath = paths[currentIndex];
 
   const displays = screen.getAllDisplays();
   for (const display of displays) {
     if (rule.type !== ChangeType.Fixed && rule.screenRandom) {
-      const max = readRuleFilePaths(rule, extList).length - 1;
+      const max = paths.length - 1;
       currentIndex = randomByRange(0, max);
-      filePath = readRuleFilePaths(rule, extList)[currentIndex];
+      filePath = paths[currentIndex];
     }
     await setWallpaper(rule, filePath, display.id, currentIndex);
   }
@@ -80,7 +82,7 @@ export async function updateWallpaper(rule: Rule, currentIndex: number) {
 function increaseImgIndex(currentIndex: number, rule: Rule) {
   const total = readRuleFilePaths(rule, IMAGE_EXT_LIST).length;
 
-  if (currentIndex + 1 === total) {
+  if (currentIndex + 1 >= total) {
     return 0;
   }
   return currentIndex + 1;
@@ -134,7 +136,7 @@ export async function resetSchedule() {
   await gracefulShutdown();
 
   for (const timerMapElement of timerMap) {
-    const [id, timer] = timerMapElement;
+    const [, timer] = timerMapElement;
     clearInterval(timer);
   }
   timerMap.clear();
