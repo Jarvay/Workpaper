@@ -4,6 +4,8 @@ import { Events, WallpaperType } from '../../../../../cross/enums';
 import { useParams } from 'react-router-dom';
 import { useMount, useUnmount, useUpdateEffect } from 'ahooks';
 import styles from './index.module.less';
+import { settingsService } from '@/services/settings';
+import { Settings } from '../../../../../cross/interface';
 
 export interface LiveWallpaperProps {
   style?: React.CSSProperties;
@@ -12,6 +14,7 @@ export interface LiveWallpaperProps {
 const LiveWallpaper: React.FC<LiveWallpaperProps> = (props) => {
   const [paths, setPaths] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [settings, setSettings] = useState<Settings>();
   const { displayId } = useParams();
 
   const videoRef = useRef<HTMLVideoElement>();
@@ -58,8 +61,10 @@ const LiveWallpaper: React.FC<LiveWallpaperProps> = (props) => {
     ipcRenderer.off(Events.SetLiveWallpaperVolume, liveWallpaperVolumeHandler);
   }
 
-  useMount(() => {
+  useMount(async () => {
     registerLiveWallpaperEvents();
+
+    setSettings(await settingsService.get());
   });
 
   useUnmount(() => {
@@ -75,7 +80,7 @@ const LiveWallpaper: React.FC<LiveWallpaperProps> = (props) => {
 
   return (
     <video
-      style={{ ...props.style }}
+      style={{ ...props.style, objectFit: settings?.webScaleMode }}
       ref={(ref) => {
         if (ref) {
           videoRef.current = ref;

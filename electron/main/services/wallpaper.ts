@@ -134,6 +134,7 @@ function getWeekdayById(id: string) {
 
 export async function resetSchedule() {
   await gracefulShutdown();
+  detachWallpaperWin();
 
   for (const timerMapElement of timerMap) {
     const [, timer] = timerMapElement;

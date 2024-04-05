@@ -6,36 +6,33 @@ import { ipcRenderer } from 'electron';
 import {
   Events,
   MacOSScaleMode,
+  ScaleType,
   WallpaperMode,
   WebScaleMode,
   WindowsScaleMode,
 } from '../../../cross/enums';
-import { Settings, TranslationFunc } from '../../../cross/interface';
-import { settingsService } from '@/services/settings';
+import { TranslationFunc } from '../../../cross/interface';
 
 export interface ScaleModeComponentProps {
   children?: (
     scaleModeOptions: DefaultOptionType[],
   ) => React.ReactNode | JSX.Element;
+  scaleType: ScaleType;
 }
 
 const ScaleModeComponent: React.FC<ScaleModeComponentProps> = (props) => {
   const { t }: { t: TranslationFunc } = useTranslation();
 
   const [platform, setPlatform] = useState<NodeJS.Platform>();
-  const [settings, setSettings] = useState<Settings>();
 
   useMount(async () => {
     setPlatform(await ipcRenderer.invoke(Events.GetPlatform));
-
-    setSettings(await settingsService.get());
   });
 
   let scaleModeOptions: DefaultOptionType[] = [];
 
-  if (settings?.wallpaperMode === WallpaperMode.Cover) {
+  if (props.scaleType === ScaleType.Web) {
     scaleModeOptions = [
-      { label: t('scaleMode.default'), value: undefined },
       { label: t('webScaleMode.fill'), value: WebScaleMode.Fill },
       { label: t('webScaleMode.contain'), value: WebScaleMode.Contain },
       { label: t('webScaleMode.cover'), value: WebScaleMode.Cover },
@@ -45,7 +42,6 @@ const ScaleModeComponent: React.FC<ScaleModeComponentProps> = (props) => {
       default:
       case 'win32':
         scaleModeOptions = [
-          { label: t('scaleMode.default'), value: undefined },
           { label: t('scaleMode.fit'), value: WindowsScaleMode.Fit },
           { label: t('scaleMode.center'), value: WindowsScaleMode.Center },
           { label: t('scaleMode.stretch'), value: WindowsScaleMode.Stretch },
@@ -56,7 +52,6 @@ const ScaleModeComponent: React.FC<ScaleModeComponentProps> = (props) => {
         break;
       case 'darwin':
         scaleModeOptions = [
-          { label: t('scaleMode.default'), value: undefined },
           { label: t('scaleMode.fit'), value: MacOSScaleMode.Fit },
           { label: t('scaleMode.center'), value: MacOSScaleMode.Center },
           { label: t('scaleMode.stretch'), value: MacOSScaleMode.Stretch },

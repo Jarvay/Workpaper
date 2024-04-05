@@ -38,6 +38,7 @@ export enum Events {
 
   GetVersion = 'GetVersion',
   OpenExternal = 'OpenExternal',
+  IsPackaged = 'IsPackaged',
 }
 
 export enum Locale {
@@ -78,4 +79,9 @@ export enum WallpaperType {
 export enum WallpaperMode {
   Replace = 'replace',
   Cover = 'cover',
+}
+
+export enum ScaleType {
+  Web = 'web',
+  Native = 'native',
 }

@@ -10,7 +10,6 @@ export interface ITranslation {
   update: string;
   currentVersion: string;
   latestVersion: string;
-  close: string;
   wallpaperMode: string;
   'wallpaperMode.replace': string;
   'wallpaperMode.cover': string;
@@ -21,6 +20,10 @@ export interface ITranslation {
   delete: string;
   yes: string;
   no: string;
+  ok: string;
+  cancel: string;
+  close: string;
+  apply: string;
 
   monday: string;
   tuesday: string;
@@ -38,6 +41,8 @@ export interface ITranslation {
   choose: string;
   language: string;
   settings: string;
+  about: string;
+  updateTips: string;
 
   'rule.timeSlot': string;
   'rule.period': string;

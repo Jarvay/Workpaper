@@ -219,6 +219,7 @@ export function detachWallpaperWin() {
     }
     win.hide();
   });
+  windowsMap.clear();
 }
 
 export function closeWallpaperWin() {
@@ -230,6 +231,7 @@ export function closeWallpaperWin() {
       refresh();
     }
   });
+  windowsMap.clear();
 }
 
 export function setLiveWallpaperMuted(muted: boolean) {

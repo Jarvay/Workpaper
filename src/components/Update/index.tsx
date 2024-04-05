@@ -27,6 +27,7 @@ const Update: React.FC<UpdateProps> = (props) => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [progressModalOpen, setProgressModalOpen] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [downloading, setDownloading] = useState(false);
 
   const onUpdateCanAvailable = useCallback(
     (_event: Electron.IpcRendererEvent, arg1: VersionInfo) => {
@@ -58,6 +59,16 @@ const Update: React.FC<UpdateProps> = (props) => {
     [],
   );
 
+  function showInstallModal() {
+    Modal.confirm({
+      content: t('updateTips'),
+      onOk: async () => {
+        await ipcRenderer.invoke('quit-and-install');
+        setDownloading(false);
+      },
+    });
+  }
+
   useMount(() => {
     ipcRenderer.on('update-can-available', onUpdateCanAvailable);
     ipcRenderer.on('update-error', onUpdateError);
@@ -82,10 +93,21 @@ const Update: React.FC<UpdateProps> = (props) => {
     }
   }, [props.versionInfo]);
 
+  useUpdateEffect(() => {
+    if (progress >= 100) {
+      showInstallModal();
+    }
+  }, [progress]);
+
   return (
     <>
+      {downloading && <Progress showInfo={false} percent={progress} />}
+
       {!updateAvailable ? (
         <Button
+          style={{
+            width: '100%',
+          }}
           loading={loading}
           onClick={async () => {
             setLoading(true);
@@ -103,10 +125,14 @@ const Update: React.FC<UpdateProps> = (props) => {
         </Button>
       ) : (
         <Button
+          style={{
+            width: '100%',
+          }}
           type="primary"
-          onClick={() => {
-            setProgressModalOpen(true);
-            ipcRenderer.invoke('start-download');
+          disabled={downloading}
+          onClick={async () => {
+            setDownloading(true);
+            await ipcRenderer.invoke('start-download');
           }}
         >
           {t('download')}
@@ -128,8 +154,11 @@ const Update: React.FC<UpdateProps> = (props) => {
 
           {progress === 100 ? (
             <Button
-              onClick={() => {
-                ipcRenderer.invoke('quit-and-install');
+              style={{
+                width: '100%',
+              }}
+              onClick={async () => {
+                await ipcRenderer.invoke('quit-and-install');
               }}
             >
               {t('update')}

@@ -12,7 +12,6 @@ export const zhCN: ITranslation = {
   update: '更新',
   currentVersion: '当前版本',
   latestVersion: '最新版本',
-  close: '关闭',
   wallpaperMode: '壁纸模式',
   'wallpaperMode.replace': '替换原壁纸',
   'wallpaperMode.cover': '覆盖在原壁纸上',
@@ -23,6 +22,10 @@ export const zhCN: ITranslation = {
   delete: '删除',
   yes: '是',
   no: '否',
+  ok: '确定',
+  cancel: '取消',
+  close: '关闭',
+  apply: '应用',
 
   monday: '星期一',
   tuesday: '星期二',
@@ -40,6 +43,8 @@ export const zhCN: ITranslation = {
   choose: '选择',
   language: '语言',
   settings: '设置',
+  about: '关于',
+  updateTips: '下载完毕，是否立即安装？',
 
   'rule.timeSlot': '时间段',
   'rule.period': '周期',

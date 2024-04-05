@@ -38,7 +38,7 @@ const RuleIndex: React.FC = () => {
   }
 
   useMount(async () => {
-    refresh();
+    await refresh();
     setWeekday(
       (await weekdayService.get()).find((item) => item.id === weekdayId),
     );
@@ -65,7 +65,7 @@ const RuleIndex: React.FC = () => {
       title: t('rule.period'),
       dataIndex: 'days',
       width: 200,
-      render: (value, record) => {
+      render: () => {
         return (
           <WeekComponent>
             {(weekMap) => {
@@ -120,6 +120,9 @@ const RuleIndex: React.FC = () => {
                     {record.paths?.map((item) => {
                       return (
                         <Image
+                          style={{
+                            objectFit: 'contain',
+                          }}
                           key={item}
                           height={64}
                           width={64}
@@ -191,7 +194,7 @@ const RuleIndex: React.FC = () => {
               title={t('deleteConfirmTips')}
               onConfirm={async () => {
                 await ruleService.delete(record.id as string);
-                refresh();
+                await refresh();
               }}
             >
               <a>{t('delete')}</a>
@@ -226,7 +229,7 @@ const RuleIndex: React.FC = () => {
             onCancel={() => setCreateModalOpen(false)}
             onChange={async () => {
               setCreateModalOpen(false);
-              refresh();
+              await refresh();
             }}
           />
         </div>

@@ -105,6 +105,10 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
     shell.openExternal(url);
   });
 
+  ipcMain.handle(Events.IsPackaged, () => {
+    return app.isPackaged;
+  });
+
   powerMonitor.on('resume', async () => {
     await resetSchedule();
   });

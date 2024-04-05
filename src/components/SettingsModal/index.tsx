@@ -1,36 +1,49 @@
-import React, { useState } from 'react';
-import { Badge, Button, Form, Modal, Select, Slider, Space } from 'antd';
+import React, { useCallback, useState } from 'react';
+import { Button, Form, Modal, Select, Slider } from 'antd';
 import {
   ModalFormProps,
   Settings,
   TranslationFunc,
 } from '../../../cross/interface';
-import { debounce, omit } from 'lodash';
+import { cloneDeep, debounce, omit } from 'lodash';
 import { useMount, useUpdateEffect } from 'ahooks';
 import { settingsService } from '@/services/settings';
-import { Events, Locale, WallpaperMode } from '../../../cross/enums';
+import { Events, Locale, ScaleType, WallpaperMode } from '../../../cross/enums';
 import { useTranslation } from 'react-i18next';
 import ScaleModeComponent from '@/components/ScaleModeComponent';
 import styles from './index.module.less';
 import { ipcRenderer } from 'electron';
-import Update from '@/components/Update';
+import {
+  DEFAULT_NATIVE_SCALE_MODE,
+  DEFAULT_WEB_SCALE_MODE,
+} from '../../../cross/consts';
 
-export interface SettingsModalProps extends ModalFormProps<Settings> {
-  versionInfo?: VersionInfo;
-}
+export interface SettingsModalProps extends ModalFormProps<Settings> {}
 
 const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [form] = Form.useForm();
-  const [version, setVersion] = useState('');
-  const [versionInfo, setVersionInfo] = useState<VersionInfo>();
   const [settings, setSettings] = useState<Settings>();
   const [platform, setPlatform] = useState<NodeJS.Platform>();
+  const [isChanged, setIsChanged] = useState(false);
 
   const { t }: { t: TranslationFunc } = useTranslation();
 
-  async function getVersion() {
-    const ver = await ipcRenderer.invoke(Events.GetVersion);
-    setVersion(ver);
+  const checkIsChanged = useCallback(() => {
+    if (!settings) return false;
+    const currentSettings = form.getFieldsValue() as Settings;
+
+    const changed =
+      currentSettings.wallpaperMode !== settings.wallpaperMode ||
+      currentSettings.scaleMode !== settings.scaleMode ||
+      currentSettings.webScaleMode !== settings.webScaleMode;
+    setIsChanged(changed);
+  }, [settings]);
+
+  async function fetchSettings() {
+    const s = await settingsService.get();
+    setSettings(cloneDeep(s));
+    form.resetFields();
+    form.setFieldsValue(s);
   }
 
   useMount(async () => {
@@ -39,36 +52,35 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
 
   useUpdateEffect(() => {
     if (props.open) {
-      settingsService.get().then((settings) => {
-        setSettings(settings);
+      settingsService.get().then((s) => {
+        setSettings(cloneDeep(s));
         form.resetFields();
-        form.setFieldsValue({
-          ...settings,
-        });
+        form.setFieldsValue(s);
       });
-
-      getVersion();
-
-      if (props.versionInfo) {
-        setVersionInfo(props.versionInfo);
-      }
     }
   }, [props.open]);
 
   return (
     <Modal
       {...omit(props, ['values', 'onOk'])}
-      footer={
-        <Button
-          onClick={(event) =>
-            props.onCancel?.(
-              event as React.MouseEvent<HTMLButtonElement, MouseEvent>,
-            )
-          }
-        >
+      footer={[
+        isChanged ? (
+          <Button
+            key="apply"
+            type="primary"
+            onClick={async (event) => {
+              await ipcRenderer.invoke(Events.ResetSchedule);
+              await fetchSettings();
+              setIsChanged(false);
+            }}
+          >
+            {t('apply')}
+          </Button>
+        ) : null,
+        <Button key="close" onClick={props.onCancel}>
           {t('close')}
-        </Button>
-      }
+        </Button>,
+      ]}
       destroyOnClose
       title={t('settings')}
     >
@@ -79,6 +91,7 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
         onValuesChange={async (changedValues, values) => {
           await settingsService.save(values);
           await props.onChange?.(values as Settings);
+          checkIsChanged();
         }}
       >
         <Form.Item label={t('language')} name="locale">
@@ -101,6 +114,18 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
                 value: WallpaperMode.Replace,
               },
             ]}
+            onChange={async (value) => {
+              if (value === WallpaperMode.Replace) {
+                form.setFieldsValue({
+                  // @ts-ignore
+                  scaleMode: DEFAULT_NATIVE_SCALE_MODE[platform],
+                });
+              } else {
+                form.setFieldsValue({
+                  webScaleMode: DEFAULT_WEB_SCALE_MODE,
+                });
+              }
+            }}
           />
         </Form.Item>
 
@@ -113,23 +138,43 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             ) {
               return null;
             }
+
             return (
-              <ScaleModeComponent>
-                {(scaleModeOptions) => {
-                  const name =
-                    settings?.wallpaperMode === WallpaperMode.Cover
-                      ? 'webScaleMode'
-                      : 'scaleMode';
-                  return (
-                    <Form.Item label={t('scaleMode')} name={name}>
-                      <Select
-                        className={styles.formItem}
-                        options={scaleModeOptions}
-                      />
-                    </Form.Item>
-                  );
-                }}
-              </ScaleModeComponent>
+              <>
+                <ScaleModeComponent scaleType={ScaleType.Native}>
+                  {(scaleModeOptions) => {
+                    return (
+                      <Form.Item
+                        hidden={wallpaperMode === WallpaperMode.Cover}
+                        label={t('scaleMode')}
+                        name="scaleMode"
+                      >
+                        <Select
+                          className={styles.formItem}
+                          options={scaleModeOptions}
+                        />
+                      </Form.Item>
+                    );
+                  }}
+                </ScaleModeComponent>
+
+                <ScaleModeComponent scaleType={ScaleType.Web}>
+                  {(scaleModeOptions) => {
+                    return (
+                      <Form.Item
+                        hidden={wallpaperMode === WallpaperMode.Replace}
+                        label={t('scaleMode')}
+                        name="webScaleMode"
+                      >
+                        <Select
+                          className={styles.formItem}
+                          options={scaleModeOptions}
+                        />
+                      </Form.Item>
+                    );
+                  }}
+                </ScaleModeComponent>
+              </>
             );
           }}
         </Form.Item>
@@ -148,29 +193,6 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
               });
             }, 200)}
           />
-        </Form.Item>
-
-        <Form.Item label={t('currentVersion')}>
-          <span>{version}</span>
-        </Form.Item>
-
-        <Form.Item label={t('latestVersion')}>
-          <Space>
-            {!!versionInfo?.newVersion ? (
-              <Badge dot>
-                <span>{versionInfo?.newVersion}</span>
-              </Badge>
-            ) : (
-              <span>-</span>
-            )}
-
-            <Update
-              versionInfo={versionInfo}
-              onUpdateAvailable={(versionInfo) => {
-                setVersionInfo(versionInfo);
-              }}
-            />
-          </Space>
         </Form.Item>
       </Form>
     </Modal>

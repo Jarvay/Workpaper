@@ -12,7 +12,6 @@ export const en: ITranslation = {
   update: 'Update',
   currentVersion: 'Current version',
   latestVersion: 'Latest version',
-  close: 'Close',
   wallpaperMode: 'Wallpaper Mode',
   'wallpaperMode.replace': 'Replace system wallpaper',
   'wallpaperMode.cover': 'Cover on current wallpaper',
@@ -23,6 +22,10 @@ export const en: ITranslation = {
   delete: 'Delete',
   yes: 'Yes',
   no: 'No',
+  ok: 'Ok',
+  cancel: 'Cancel',
+  close: 'Close',
+  apply: 'Apply',
 
   monday: 'Mon',
   tuesday: 'Tue',
@@ -40,6 +43,8 @@ export const en: ITranslation = {
   choose: 'Choose',
   language: 'Language',
   settings: 'Settings',
+  about: 'About',
+  updateTips: 'Download completed, do you want to install it now?',
 
   'rule.timeSlot': 'Time slot',
   'rule.period': 'Period',

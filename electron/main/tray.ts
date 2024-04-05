@@ -81,13 +81,6 @@ export function setTray(
       },
     },
     {
-      label: t('checkUpdate'),
-      type: 'normal',
-      click: async () => {
-        await createWindow();
-      },
-    },
-    {
       label: t('autoCheckUpdate'),
       type: 'checkbox',
       checked: configServiceMain.getItem('settings').autoCheckUpdate,
