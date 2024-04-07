@@ -4,6 +4,7 @@ import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../../cross/consts';
 import { Rule } from '../../../cross/interface';
 import { ChangeType, WallpaperMode, WallpaperType } from '../../../cross/enums';
 import {
+  closeWallpaperWin,
   detachWallpaperWin,
   setLiveWallpaper,
   setStaticWallpaper,
@@ -134,7 +135,7 @@ function getWeekdayById(id: string) {
 
 export async function resetSchedule() {
   await gracefulShutdown();
-  detachWallpaperWin();
+  closeWallpaperWin();
 
   for (const timerMapElement of timerMap) {
     const [, timer] = timerMapElement;
@@ -171,7 +172,7 @@ export async function resetSchedule() {
       jobRule.second = 0;
       jobRule.minute = startMinute;
       jobRule.hour = startHour;
-      jobRule.dayOfWeek = day;
+      jobRule.dayOfWeek = day === 7 ? 0 : day;
 
       function setFixedWallpaper() {
         let index = 0;
