@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/github/release/Jarvay/Workpaper.svg?style=flat-square" alt="">
   </a>
 
-  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20MacOS%20%7C%20Linux-lightgrey" alt="" />
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20MacOS%20%7C%20Linux-lightgreen" alt="" />
 </div>
 
 ## 一个定时换壁纸的软件，你可以在不同时间段设置不同的壁纸。
