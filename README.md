@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Workpaper</h1>
-<a target="_blank" href="https://github.com/siyuan-note/siyuan/actions/workflows/build.yml">
+<a target="_blank" href="https://github.com/Jarvay/Workpaper/actions/workflows/build.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/Jarvay/Workpaper/build.yml?style=flat-square" alt="">
 </a>
   <a href="https://github.com/Jarvay/Workpaper/actions">
