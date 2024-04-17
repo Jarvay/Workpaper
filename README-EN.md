@@ -42,13 +42,13 @@ Display [I will not be working tomorrow] all day on Friday.
 - Time period: the time period when the rule takes effect. For example, if you want to display the wallpaper between 9:00-10:30, select 9:00-10:30
 - Wallpaper type: Picture | Video
 - type:
-- Fixed wallpaper: Fixed display of the wallpaper selected below during the time period of your choice
-- Screen [n]: single monitor or multiple screens but do not need to display different wallpapers on each screen. Setting screen 1 is sufficient. If multiple screens with different wallpapers are required, [Add screen] and then set the wallpaper as needed.
-- Automatic change: Automatically change the wallpaper in the folder you choose within the time period you choose.
-- picture:
-- Random switching: Randomly display the pictures in the folder of your choice
-- Randomize each screen: As the name suggests, if it is not turned on, the same picture will be displayed on multiple screens.
-- Replacement interval: Wallpaper replacement interval
-- video:
-- The videos in the folder will be played in sequence and in a loop
-- Wallpaper directory: The pictures or video wallpapers in it will be read, but those in subfolders will not be read.
+  - Fixed wallpaper: Fixed display of the wallpaper selected below during the time period of your choice
+    - Screen [n]: single monitor or multiple screens but do not need to display different wallpapers on each screen. Setting screen 1 is sufficient. If multiple screens with different wallpapers are required, [Add screen] and then set the wallpaper as needed.
+  - Automatic change: Automatically change the wallpaper in the folder you choose within the time period you choose.
+    - picture:
+      - Random switching: Randomly display the pictures in the folder of your choice
+      - Randomize each screen: As the name suggests, if it is not turned on, the same picture will be displayed on multiple screens.
+      - Replacement interval: Wallpaper replacement interval
+    - video:
+      - The videos in the folder will be played in sequence and in a loop
+      - Wallpaper directory: The pictures or video wallpapers in it will be read, but those in subfolders will not be read.
