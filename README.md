@@ -16,6 +16,8 @@
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20MacOS%20%7C%20Linux-lightgreen" alt="" />
 </div>
 
+[English](https://github.com/Jarvay/Workpaper/blob/main/README-EN.md)
+
 ## 一个定时换壁纸的软件，你可以在不同时间段设置不同的壁纸。
 
 比如在工作日9:00-10:30显示壁纸[摸鱼中]，<br>
