@@ -73,7 +73,8 @@ const WeekdayModal: React.FC<ModalFormProps> = (props) => {
           await doUpdate();
         }
       }}
-      {...props}
+      {...(props.modalProps || {})}
+      open={props.open}
       title={t('selectPeriodTips')}
       width="60%"
     >

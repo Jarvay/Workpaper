@@ -261,8 +261,9 @@ const WallpaperRuleModal: React.FC<
   return (
     <Modal
       title={t('rule.timeSlot')}
-      width="40%"
-      {...props}
+      width="50%"
+      {...(props.modalProps || {})}
+      open={props.open}
       onOk={async () => {
         if (props.mode === FormMode.Create) {
           await doCreate();

@@ -18,6 +18,7 @@ export const zhCN: ITranslation = {
 
   check: '查看',
   create: '创建',
+  add: '添加',
   edit: '编辑',
   delete: '删除',
   yes: '是',
@@ -26,6 +27,7 @@ export const zhCN: ITranslation = {
   cancel: '取消',
   close: '关闭',
   apply: '应用',
+  sync: '同步',
 
   monday: '星期一',
   tuesday: '星期二',
@@ -80,4 +82,39 @@ export const zhCN: ITranslation = {
 
   'settings.mute': '静音',
   'settings.volume': '音量',
+
+  'menu.rules': '规则',
+  'menu.libs': '壁纸库',
+
+  'lib.wallpaperLib': '壁纸库',
+  'lib.name': '名称',
+  'lib.type': '类型',
+  'lib.type.api': 'API',
+  'lib.type.website': '网页',
+  'lib.request.url': 'Url',
+  'lib.request.method': '请求方法',
+  'lib.request.params': '请求参数',
+  'lib.request.params.key': '键',
+  'lib.request.params.value': '值',
+  'lib.request.params.type': '类型',
+  'lib.request.params.type.placeholder': '占位符',
+  'lib.request.params.type.string': '字符串',
+  'lib.request.params.type.number': '数字',
+  'lib.request.params.placeholder.currentCount': '当前数量',
+  'lib.request.params.placeholder.page': '页数',
+  'lib.request.params.placeholder.pageSize': '分页大小',
+  'lib.responseKey.list': '图片列表key',
+  'lib.responseKey.thumbInItem': '缩略图Key',
+  'lib.responseKey.originInItem': '原图Key',
+  'lib.browse': '浏览',
+  'lib.syncFailed': '同步失败',
+
+  downloadStarted: '已开始下载',
+  downloadExists: '已在下载列表中',
+
+  'appMenu.edit.cut': '剪切',
+  'appMenu.edit.copy': '复制',
+  'appMenu.edit.paste': '粘贴',
+  'appMenu.edit.selectAll': '选择全部',
+  'appMenu.edit.undo': '撤销',
 };

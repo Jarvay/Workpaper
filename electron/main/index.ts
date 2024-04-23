@@ -1,4 +1,12 @@
-import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  shell,
+  MenuItem,
+  MenuItemConstructorOptions,
+} from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
 import { registerHandlers } from './handlers';
@@ -8,17 +16,12 @@ import { resetSchedule } from './services/wallpaper';
 import { indexHtml, url } from './services/utils';
 import {
   closeWallpaperWin,
-  createWallpaperWin,
   detachWallpaperWin,
 } from './services/wallpaper-window';
 import { t as _t } from 'i18next';
 import { TranslationFunc } from '../../cross/interface';
 import { update } from './update';
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-} from 'electron-devtools-installer';
-import { configServiceMain } from './services/db-service';
-import { WallpaperMode } from '../../cross/enums';
+import { handleDownload } from './services/download';
 
 const t: TranslationFunc = _t;
 
@@ -53,7 +56,7 @@ let win: BrowserWindow | null = null;
 // Here, you can also use other preload
 const preload = join(__dirname, '../preload/index.js');
 
-const template: any[] = [
+const template: MenuItemConstructorOptions[] = [
   {
     label: t('help'),
     role: 'help',
@@ -69,6 +72,41 @@ const template: any[] = [
         click: function () {
           if (win !== null) win.webContents.openDevTools();
         },
+      },
+    ],
+  },
+  {
+    label: t('edit'),
+    submenu: [
+      {
+        label: t('appMenu.edit.cut'),
+        accelerator: 'CmdOrCtrl+X',
+        // @ts-ignore
+        selector: 'cut:',
+      },
+      {
+        label: t('appMenu.edit.copy'),
+        accelerator: 'CmdOrCtrl+C',
+        // @ts-ignore
+        selector: 'copy:',
+      },
+      {
+        label: t('appMenu.edit.paste'),
+        accelerator: 'CmdOrCtrl+V',
+        // @ts-ignore
+        selector: 'paste:',
+      },
+      {
+        label: t('appMenu.edit.selectAll'),
+        accelerator: 'CmdOrCtrl+A',
+        // @ts-ignore
+        selector: 'selectAll:',
+      },
+      {
+        label: t('appMenu.edit.undo'),
+        accelerator: 'CmdOrCtrl+Z',
+        // @ts-ignore
+        selector: 'undo:',
       },
     ],
   },
@@ -99,6 +137,10 @@ async function createWindow() {
 
   win.on('closed', () => {
     win = null;
+  });
+
+  win.on('show', () => {
+    handleDownload(win);
   });
 
   if (url) {

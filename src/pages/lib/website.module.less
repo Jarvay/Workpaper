@@ -1,0 +1,32 @@
+@import '../../styles/variables';
+
+@media screen {
+  .website-wallpaper-image {
+    width: 100%;
+    object-fit: cover;
+
+    @media (max-width: @screen-xs-max-width) {
+      min-height: 120px;
+    }
+
+    @media (min-width: @screen-sm-min-width) {
+      min-height: 160px;
+    }
+
+    @media (min-width: @screen-md-min-width) {
+      min-height: 160px;
+    }
+
+    @media (min-width: @screen-lg-min-width) {
+      min-height: 120px;
+    }
+
+    @media (min-width: @screen-xl-min-width) {
+      min-height: 150px;
+    }
+
+    @media (min-width: @screen-xxl-min-width) {
+      min-height: 120px;
+    }
+  }
+}

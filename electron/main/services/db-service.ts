@@ -12,6 +12,7 @@ import { LowSync } from 'lowdb';
 import { userDataDir } from './utils';
 import { platform } from 'os';
 import { merge } from 'lodash';
+import { app } from 'electron';
 
 export class DBServiceMain implements IDBService {
   private db: LowSync<DBData>;
@@ -42,8 +43,10 @@ const defaultData: DBData = {
     wallpaperMode: WallpaperMode.Cover,
     autoCheckUpdate: true,
     openAtLogin: true,
+    downloadsDir: join(app.getPath('downloads'), 'Workpaper'),
   },
   currentIndex: 0,
+  websites: [],
 };
 
 if (platform() === 'darwin') {

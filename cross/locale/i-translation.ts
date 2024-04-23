@@ -16,6 +16,7 @@ export interface ITranslation {
 
   check: string;
   create: string;
+  add: string;
   edit: string;
   delete: string;
   yes: string;
@@ -24,6 +25,7 @@ export interface ITranslation {
   cancel: string;
   close: string;
   apply: string;
+  sync: string;
 
   monday: string;
   tuesday: string;
@@ -78,4 +80,39 @@ export interface ITranslation {
 
   'settings.mute': string;
   'settings.volume': string;
+
+  'menu.rules': string;
+  'menu.libs': string;
+
+  'lib.wallpaperLib': string;
+  'lib.name': string;
+  'lib.type': string;
+  'lib.type.api': string;
+  'lib.type.website': string;
+  'lib.request.url': string;
+  'lib.request.method': string;
+  'lib.request.params': string;
+  'lib.request.params.key': string;
+  'lib.request.params.value': string;
+  'lib.request.params.type': string;
+  'lib.request.params.type.placeholder': string;
+  'lib.request.params.type.string': string;
+  'lib.request.params.type.number': string;
+  'lib.request.params.placeholder.currentCount': string;
+  'lib.request.params.placeholder.page': string;
+  'lib.request.params.placeholder.pageSize': string;
+  'lib.responseKey.list': string;
+  'lib.responseKey.thumbInItem': string;
+  'lib.responseKey.originInItem': string;
+  'lib.browse': string;
+  'lib.syncFailed': string;
+
+  downloadStarted: string;
+  downloadExists: string;
+
+  'appMenu.edit.cut': string;
+  'appMenu.edit.copy': string;
+  'appMenu.edit.paste': string;
+  'appMenu.edit.selectAll': string;
+  'appMenu.edit.undo': string;
 }

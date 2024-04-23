@@ -32,8 +32,10 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
   return (
     <Modal
       title={t('about')}
-      {...props}
-      footer={<Button onClick={props.onCancel}>{t('close')}</Button>}
+      {...(props.modalProps || {})}
+      footer={
+        <Button onClick={props.modalProps?.onCancel}>{t('close')}</Button>
+      }
       destroyOnClose
     >
       <Space direction="vertical">

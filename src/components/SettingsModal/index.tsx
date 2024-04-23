@@ -62,7 +62,8 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
 
   return (
     <Modal
-      {...omit(props, ['values', 'onOk'])}
+      {...(props.modalProps || {})}
+      open={props.open}
       footer={[
         isChanged ? (
           <Button
@@ -77,7 +78,7 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             {t('apply')}
           </Button>
         ) : null,
-        <Button key="close" onClick={props.onCancel}>
+        <Button key="close" onClick={props.modalProps?.onCancel}>
           {t('close')}
         </Button>,
       ]}

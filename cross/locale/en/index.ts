@@ -18,6 +18,7 @@ export const en: ITranslation = {
 
   check: 'Detail',
   create: 'Create',
+  add: 'Add',
   edit: 'Edit',
   delete: 'Delete',
   yes: 'Yes',
@@ -26,6 +27,7 @@ export const en: ITranslation = {
   cancel: 'Cancel',
   close: 'Close',
   apply: 'Apply',
+  sync: 'Sync',
 
   monday: 'Mon',
   tuesday: 'Tue',
@@ -80,4 +82,39 @@ export const en: ITranslation = {
 
   'settings.mute': 'Mute',
   'settings.volume': 'Volume',
+
+  'menu.rules': 'Rules',
+  'menu.libs': 'Wallpaper libs',
+
+  'lib.wallpaperLib': 'Wallpaper lib',
+  'lib.name': 'Name',
+  'lib.type': 'Type',
+  'lib.type.api': 'API',
+  'lib.type.website': 'Website',
+  'lib.request.url': 'Url',
+  'lib.request.method': 'Request method',
+  'lib.request.params': 'Request params',
+  'lib.request.params.key': 'Key of param',
+  'lib.request.params.value': 'Value of param',
+  'lib.request.params.type': 'Type of param',
+  'lib.request.params.type.placeholder': 'Placeholder',
+  'lib.request.params.type.string': 'String',
+  'lib.request.params.type.number': 'Number',
+  'lib.request.params.placeholder.currentCount': 'Current count',
+  'lib.request.params.placeholder.page': 'Page',
+  'lib.request.params.placeholder.pageSize': 'Page size',
+  'lib.responseKey.list': 'List key in response',
+  'lib.responseKey.thumbInItem': 'Thumbnail key in response',
+  'lib.responseKey.originInItem': 'Origin key in response',
+  'lib.browse': 'Browse',
+  'lib.syncFailed': 'Sync failed',
+
+  downloadStarted: 'Download started',
+  downloadExists: 'Download exists',
+
+  'appMenu.edit.cut': 'Cut',
+  'appMenu.edit.copy': 'Copy',
+  'appMenu.edit.paste': 'Paste',
+  'appMenu.edit.selectAll': 'Select All',
+  'appMenu.edit.undo': 'Undo',
 };
