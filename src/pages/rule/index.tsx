@@ -243,8 +243,10 @@ const RuleIndex: React.FC = () => {
               {(weekMap) => {
                 return (
                   <div>
-                    {weekday?.days.map((day) => (
-                      <Tag color="blue">{weekMap.get(day)}</Tag>
+                    {weekday?.days.map((day, index) => (
+                      <Tag color="blue" key={index}>
+                        {weekMap.get(day)}
+                      </Tag>
                     ))}
                   </div>
                 );
@@ -252,13 +254,6 @@ const RuleIndex: React.FC = () => {
             </WeekComponent>
           )}
           bordered
-          title={() => (
-            <WeekComponent>
-              {(weekMap) => {
-                return weekday?.days?.map((day) => weekMap.get(day)).join(', ');
-              }}
-            </WeekComponent>
-          )}
           pagination={false}
           scroll={{ y: 600 }}
           rowKey="id"

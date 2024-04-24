@@ -95,8 +95,10 @@ const Home: React.FC = () => {
                   {(weekMap) => {
                     return (
                       <div>
-                        {item.days.map((day) => (
-                          <Tag color="blue">{weekMap.get(day)}</Tag>
+                        {item.days.map((day, index) => (
+                          <Tag color="blue" key={index}>
+                            {weekMap.get(day)}
+                          </Tag>
                         ))}
                       </div>
                     );

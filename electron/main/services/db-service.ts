@@ -12,6 +12,7 @@ import { LowSync } from 'lowdb';
 import { userDataDir } from './utils';
 import { platform } from 'os';
 import { merge } from 'lodash';
+import { app } from 'electron';
 
 export class DBServiceMain implements IDBService {
   private db: LowSync<DBData>;
