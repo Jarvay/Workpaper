@@ -29,7 +29,7 @@ export abstract class BaseService<
         list[index] = item;
       }
     });
-    return this.save(list);
+    return await this.save(list);
   }
 
   async delete(id: string) {
