@@ -266,7 +266,8 @@ const WallpaperRuleModal: React.FC<
       style={{
         minWidth: '720px',
       }}
-      {...props}
+      {...(props.modalProps || {})}
+      open={props.open}
       onOk={async () => {
         if (props.mode === FormMode.Create) {
           await doCreate();

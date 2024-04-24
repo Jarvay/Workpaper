@@ -39,6 +39,9 @@ export enum Events {
   GetVersion = 'GetVersion',
   OpenExternal = 'OpenExternal',
   IsPackaged = 'IsPackaged',
+
+  Download = 'Download',
+  OnDownloadUpdated = 'OnDownloadUpdated',
 }
 
 export enum Locale {
@@ -89,4 +92,21 @@ export enum ScaleType {
 export enum WallpaperDirection {
   Vertical = 'vertical',
   Horizontal = 'horizontal',
+}
+
+export enum WallpaperWebsiteRequestParamType {
+  Number = 'number',
+  String = 'string',
+  Placeholder = 'placeholder',
+}
+
+export enum WebsitePlaceholder {
+  Page = '$(PAGE)$',
+  PageSize = '$(PAGE_SIZE)$',
+  CurrentCount = '$(CURRENT_COUNT)$',
+}
+
+export enum WallpaperWebsiteType {
+  Api = 'api',
+  Website = 'website',
 }

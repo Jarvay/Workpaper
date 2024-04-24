@@ -2,10 +2,10 @@ import i18next from 'i18next';
 import { Events } from '../../cross/enums';
 import { ipcRenderer } from 'electron';
 import { Settings } from '../../cross/interface';
-import { configServiceRenderer } from '@/services/config-service';
+import { ConfigServiceRenderer } from '@/services/config-service';
 import { isEqual } from 'lodash';
 
-class SettingsService {
+class SettingsService extends ConfigServiceRenderer<'settings'> {
   public static readonly SETTINGS_KEY = 'settings';
 
   async save(settings: Settings, oldSettings?: Settings) {
@@ -23,7 +23,7 @@ class SettingsService {
   }
 
   async get() {
-    return await configServiceRenderer.getItem('settings');
+    return await this.getItem('settings');
   }
 }
 

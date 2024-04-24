@@ -227,7 +227,9 @@ const RuleIndex: React.FC = () => {
             mode={FormMode.Create}
             weekdayId={weekdayId}
             open={createModalOpen}
-            onCancel={() => setCreateModalOpen(false)}
+            modalProps={{
+              onCancel: () => setCreateModalOpen(false),
+            }}
             onChange={async () => {
               setCreateModalOpen(false);
               await refresh();
@@ -250,6 +252,13 @@ const RuleIndex: React.FC = () => {
             </WeekComponent>
           )}
           bordered
+          title={() => (
+            <WeekComponent>
+              {(weekMap) => {
+                return weekday?.days?.map((day) => weekMap.get(day)).join(', ');
+              }}
+            </WeekComponent>
+          )}
           pagination={false}
           scroll={{ y: 600 }}
           rowKey="id"
@@ -259,7 +268,9 @@ const RuleIndex: React.FC = () => {
 
         <WallpaperRule
           open={updateModalOpen}
-          onCancel={() => setUpdateModalOpen(false)}
+          modalProps={{
+            onCancel: () => setUpdateModalOpen(false),
+          }}
           values={currentRow}
           mode={FormMode.Update}
           onChange={() => {

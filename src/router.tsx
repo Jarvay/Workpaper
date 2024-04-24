@@ -3,11 +3,21 @@ import Home from '@/pages/home';
 import Rule from '@/pages/rule';
 import StaticWallpaper from '@/pages/wallpaper/static';
 import LiveWallpaper from '@/pages/wallpaper/live';
+import Lib from '@/pages/lib';
+import Website from '@/pages/lib/website';
 
 export const routes: RouteObject[] = [
   {
     path: '/',
     element: <Home />,
+  },
+  {
+    path: '/libs',
+    element: <Lib />,
+  },
+  {
+    path: '/website/:id',
+    element: <Website />,
   },
   {
     path: '/weekday/:id',

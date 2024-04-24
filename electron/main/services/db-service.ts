@@ -42,8 +42,10 @@ const defaultData: DBData = {
     wallpaperMode: WallpaperMode.Cover,
     autoCheckUpdate: true,
     openAtLogin: true,
+    downloadsDir: join(app.getPath('downloads'), 'Workpaper'),
   },
   currentIndex: 0,
+  websites: [],
   migrations: [],
 };
 

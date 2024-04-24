@@ -40,9 +40,11 @@ const Home: React.FC = () => {
             open={createWeekDayOpen}
             onChange={async () => {
               setCreateWeekDayOpen(false);
-              refresh();
+              await refresh();
             }}
-            onCancel={() => setCreateWeekDayOpen(false)}
+            modalProps={{
+              onCancel: () => setCreateWeekDayOpen(false),
+            }}
           />
         </div>
         <List
@@ -68,7 +70,9 @@ const Home: React.FC = () => {
                     <WeekdayModal
                       mode={FormMode.Update}
                       open={updateWeekDayOpen}
-                      onCancel={() => setUpdateWeekDayOpen(false)}
+                      modalProps={{
+                        onCancel: () => setUpdateWeekDayOpen(false),
+                      }}
                       onChange={async () => {
                         setUpdateWeekDayOpen(false);
                         refresh();
@@ -80,7 +84,7 @@ const Home: React.FC = () => {
                     title={t('deleteConfirmTips')}
                     onConfirm={async () => {
                       await weekdayService.delete(item?.id as string);
-                      refresh();
+                      await refresh();
                     }}
                   >
                     <a key="delete">{t('delete')}</a>

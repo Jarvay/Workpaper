@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { app, ipcMain } from 'electron';
+import { app } from 'electron';
 import { mkdirSync } from 'node:fs';
 
 process.env.DIST_ELECTRON = join(__dirname, '../');

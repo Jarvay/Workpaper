@@ -12,3 +12,7 @@
     align-items: center;
     justify-content: center;
 }
+
+.form-item-input {
+    width: 320px !important;
+}
