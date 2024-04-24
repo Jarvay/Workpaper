@@ -6,10 +6,11 @@ import {
   ChangeType,
   Events,
   FormMode,
+  WallpaperDirection,
   WallpaperType,
 } from '../../../cross/enums';
 import { ColumnsType } from 'antd/es/table/InternalTable';
-import { Button, Image, Popconfirm, Space } from 'antd';
+import { Button, Image, Popconfirm, Space, Tag } from 'antd';
 import WallpaperRule from './components/WallpaperRuleModal';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -62,20 +63,6 @@ const RuleIndex: React.FC = () => {
       },
     },
     {
-      title: t('rule.period'),
-      dataIndex: 'days',
-      width: 200,
-      render: () => {
-        return (
-          <WeekComponent>
-            {(weekMap) => {
-              return weekday?.days?.map((day) => weekMap.get(day)).join(', ');
-            }}
-          </WeekComponent>
-        );
-      },
-    },
-    {
       title: t('rule.wallpaperType'),
       dataIndex: 'wallpaperType',
       width: 120,
@@ -100,6 +87,20 @@ const RuleIndex: React.FC = () => {
             return t('rule.type.fixed');
           case ChangeType.AutoChange:
             return t('rule.type.autoChange');
+        }
+      },
+    },
+    {
+      title: t('rule.direction'),
+      dataIndex: 'type',
+      width: 100,
+      render: (value) => {
+        switch (value) {
+          default:
+          case WallpaperDirection.Vertical:
+            return t('rule.direction.vertical');
+          case WallpaperDirection.Horizontal:
+            return t('rule.direction.horizontal');
         }
       },
     },
@@ -207,7 +208,7 @@ const RuleIndex: React.FC = () => {
 
   return (
     <PageContainer>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space size={16} direction="vertical" style={{ width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Button
             shape="circle"
@@ -235,6 +236,19 @@ const RuleIndex: React.FC = () => {
         </div>
 
         <CenterTable
+          title={() => (
+            <WeekComponent>
+              {(weekMap) => {
+                return (
+                  <div>
+                    {weekday?.days.map((day) => (
+                      <Tag color="blue">{weekMap.get(day)}</Tag>
+                    ))}
+                  </div>
+                );
+              }}
+            </WeekComponent>
+          )}
           bordered
           pagination={false}
           scroll={{ y: 600 }}

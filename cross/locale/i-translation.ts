@@ -61,6 +61,10 @@ export interface ITranslation {
   'rule.screenRandom': string;
   'rule.addScreen': string;
   'rule.paths.requiredMessage': string;
+  'rule.direction': string;
+  'rule.direction.vertical': string;
+  'rule.direction.horizontal': string;
+  'rule.column': string;
 
   scaleMode: string;
   'scaleMode.default': string;

@@ -4,6 +4,7 @@ import {
   FormMode,
   Locale,
   MacOSScaleMode,
+  WallpaperDirection,
   WallpaperMode,
   WallpaperType,
   WebScaleMode,
@@ -30,6 +31,8 @@ export interface Rule {
   remark?: string;
   isRandom?: boolean;
   screenRandom?: boolean;
+  direction: WallpaperDirection;
+  column: number;
 }
 
 export interface Weekday {
@@ -55,6 +58,7 @@ export interface DBData {
   weekdays: Weekday[];
   settings: Settings;
   currentIndex: number;
+  migrations: string[];
 }
 
 export interface IDBService {
@@ -66,4 +70,10 @@ export interface IDBService {
   getItem<Key extends keyof DBData>(
     key: Key,
   ): DBData[Key] | Promise<DBData[Key]>;
+}
+
+export interface StaticWallpaperEventArg {
+  path: string;
+  rule: Rule;
+  paths: string[];
 }

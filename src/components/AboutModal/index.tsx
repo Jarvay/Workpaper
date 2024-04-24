@@ -38,6 +38,7 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
     >
       <Space direction="vertical">
         <Descriptions
+          className={styles.descContainer}
           column={1}
           items={[
             {

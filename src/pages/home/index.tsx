@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, List, Popconfirm, Space } from 'antd';
+import { Button, List, Popconfirm, Space, Tag } from 'antd';
 import WeekdayModal from './components/WeekdayModal';
 import { FormMode } from '../../../cross/enums';
 import { useMount } from 'ahooks';
@@ -25,11 +25,6 @@ const Home: React.FC = () => {
 
   useMount(() => {
     refresh();
-
-    ipcRenderer.on('test', () => {
-      alert('test');
-      console.log('test');
-    });
   });
 
   return (
@@ -94,7 +89,13 @@ const Home: React.FC = () => {
               >
                 <WeekComponent>
                   {(weekMap) => {
-                    return item.days.map((day) => weekMap.get(day)).join(', ');
+                    return (
+                      <div>
+                        {item.days.map((day) => (
+                          <Tag color="blue">{weekMap.get(day)}</Tag>
+                        ))}
+                      </div>
+                    );
                   }}
                 </WeekComponent>
               </List.Item>

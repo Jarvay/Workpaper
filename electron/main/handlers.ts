@@ -18,7 +18,10 @@ import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../cross/consts';
 import { platform } from 'os';
 import { t as _t, changeLanguage } from 'i18next';
 import { configServiceMain } from './services/db-service';
-import { setLiveWallpaperVolume } from './services/wallpaper-window';
+import {
+  registerWallpaperWinHandler,
+  setLiveWallpaperVolume,
+} from './services/wallpaper-window';
 import { setTray } from './tray';
 
 const t = _t as TranslationFunc;
@@ -112,4 +115,6 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
   powerMonitor.on('resume', async () => {
     await resetSchedule();
   });
+
+  registerWallpaperWinHandler();
 }

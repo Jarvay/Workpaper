@@ -85,3 +85,8 @@ export enum ScaleType {
   Web = 'web',
   Native = 'native',
 }
+
+export enum WallpaperDirection {
+  Vertical = 'vertical',
+  Horizontal = 'horizontal',
+}

@@ -63,6 +63,10 @@ export const en: ITranslation = {
   'rule.screenRandom': 'Random alone every screen',
   'rule.addScreen': 'Add screen',
   'rule.paths.requiredMessage': 'Please select wallpaper',
+  'rule.direction': 'Wallpaper direction',
+  'rule.direction.vertical': 'Vertical',
+  'rule.direction.horizontal': 'Horizontal',
+  'rule.column': 'Column',
 
   scaleMode: 'Scale Mode',
   'scaleMode.default': 'Default',

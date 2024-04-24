@@ -19,6 +19,7 @@ import installExtension, {
 } from 'electron-devtools-installer';
 import { configServiceMain } from './services/db-service';
 import { WallpaperMode } from '../../cross/enums';
+import { runMigrations } from './services/migration';
 
 const t: TranslationFunc = _t;
 
@@ -128,6 +129,8 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  await runMigrations();
+
   registerHandlers(createWindow);
 
   setTray(process.env.VITE_PUBLIC, createWindow);

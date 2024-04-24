@@ -44,6 +44,7 @@ const defaultData: DBData = {
     openAtLogin: true,
   },
   currentIndex: 0,
+  migrations: [],
 };
 
 if (platform() === 'darwin') {
