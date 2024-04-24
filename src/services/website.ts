@@ -22,20 +22,25 @@ export class WebsiteService extends BaseService<'websites', WallpaperWebsite> {
         WebsiteService.SUB_URLS[index],
       );
       const olds = await this.get();
-      olds.forEach((item) => {
-        data.forEach((it) => {
-          if (it.name === item.name && it.type === item.type) {
-            item = {
-              ...item,
+      for (let itemInSub of data) {
+        for (const it of olds) {
+          if (it.name === itemInSub.name && it.type === itemInSub.type) {
+            await this.update({
               ...it,
-            };
-          } else {
-            this.create(it);
+              ...itemInSub,
+            });
           }
-        });
-      });
+        }
+      }
 
-      await this.save(olds);
+      for (const itemInSub of data) {
+        const exists = olds.some(
+          (it) => it.name === itemInSub.name && it.type === itemInSub.type,
+        );
+        if (!exists) {
+          await this.create(itemInSub);
+        }
+      }
     } catch (e) {
       if (index + 1 >= WebsiteService.SUB_URLS.length) {
         message.error(t('lib.syncFailed'));
