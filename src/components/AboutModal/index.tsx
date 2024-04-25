@@ -33,6 +33,7 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
     <Modal
       title={t('about')}
       {...(props.modalProps || {})}
+      open={props.open}
       footer={
         <Button onClick={props.modalProps?.onCancel}>{t('close')}</Button>
       }
