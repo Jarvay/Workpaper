@@ -4,12 +4,17 @@ import WeekdayModal from './components/WeekdayModal';
 import { FormMode } from '../../../cross/enums';
 import { useMount } from 'ahooks';
 import { weekdayService } from '@/services/weekday';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import WeekComponent from '@/components/WeekComponent';
 import { TranslationFunc, Weekday } from '../../../cross/interface';
-import { ipcRenderer } from 'electron';
 import PageContainer from '@/components/PageContainer';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  FolderViewOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 
 const Home: React.FC = () => {
   const [dateSource, setDataSource] = useState<Weekday[]>([]);
@@ -18,6 +23,7 @@ const Home: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<Weekday>();
 
   const { t }: { t: TranslationFunc } = useTranslation();
+  const navigate = useNavigate();
 
   async function refresh() {
     setDataSource(await weekdayService.get());
@@ -32,6 +38,7 @@ const Home: React.FC = () => {
       <Space direction="vertical" style={{ width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="primary" onClick={() => setCreateWeekDayOpen(true)}>
+            <PlusOutlined />
             {t('create')}
           </Button>
 
@@ -54,18 +61,20 @@ const Home: React.FC = () => {
             return (
               <List.Item
                 actions={[
-                  <Link to={`/weekday/${item.id}`} key="detail">
-                    {t('check')}
-                  </Link>,
+                  <FolderViewOutlined
+                    className="icon-button"
+                    onClick={() => {
+                      navigate(`/weekday/${item.id}`);
+                    }}
+                  />,
                   <React.Fragment key="update">
-                    <a
+                    <EditOutlined
+                      className="icon-button"
                       onClick={() => {
                         setCurrentRow(item);
                         setUpdateWeekDayOpen(true);
                       }}
-                    >
-                      {t('edit')}
-                    </a>
+                    />
 
                     <WeekdayModal
                       mode={FormMode.Update}
@@ -87,7 +96,7 @@ const Home: React.FC = () => {
                       await refresh();
                     }}
                   >
-                    <a key="delete">{t('delete')}</a>
+                    <DeleteOutlined className="icon-button" key="delete" />
                   </Popconfirm>,
                 ]}
               >

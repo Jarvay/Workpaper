@@ -1,4 +1,4 @@
-import './styles/App.css';
+import './styles/App.less';
 import { ConfigProvider, FloatButton, Layout, Menu, MenuProps } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
@@ -20,7 +20,6 @@ import { Settings, TranslationFunc } from '../cross/interface';
 import { ipcRenderer } from 'electron';
 import AboutModal from '@/components/AboutModal';
 import { useTranslation } from 'react-i18next';
-import { info } from 'autoprefixer';
 import DownloadDrawer, {
   DownloadDrawerActions,
 } from '@/components/DownloadDrawer';
@@ -118,7 +117,7 @@ function App() {
         downloadDrawerRef: downloadDrawerRef.current,
       }}
     >
-      <ConfigProvider locale={locale}>
+      <ConfigProvider locale={locale} theme={{ cssVar: true }}>
         {!isWallpaperMode ? (
           <Layout style={{ width: '100%', height: '100%' }}>
             <Layout.Sider theme="light">

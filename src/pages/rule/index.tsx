@@ -10,10 +10,15 @@ import {
   WallpaperType,
 } from '../../../cross/enums';
 import { ColumnsType } from 'antd/es/table/InternalTable';
-import { Button, Image, Popconfirm, Space, Tag } from 'antd';
+import { Button, Divider, Image, Popconfirm, Space, Tag } from 'antd';
 import WallpaperRule from './components/WallpaperRuleModal';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import {
+  ArrowLeftOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import { weekdayService } from '@/services/weekday';
 import { Rule, TranslationFunc, Weekday } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
@@ -188,15 +193,14 @@ const RuleIndex: React.FC = () => {
       fixed: 'right',
       render: (value, record) => {
         return (
-          <Space>
-            <a
+          <Space split={<Divider type="vertical" />}>
+            <EditOutlined
+              className="icon-button"
               onClick={() => {
                 setCurrentRow(record);
                 setUpdateModalOpen(true);
               }}
-            >
-              {t('edit')}
-            </a>
+            />
 
             <Popconfirm
               title={t('deleteConfirmTips')}
@@ -205,7 +209,7 @@ const RuleIndex: React.FC = () => {
                 await refresh();
               }}
             >
-              <a>{t('delete')}</a>
+              <DeleteOutlined className="icon-button" />
             </Popconfirm>
           </Space>
         );
@@ -227,6 +231,7 @@ const RuleIndex: React.FC = () => {
           </Button>
 
           <Button type="primary" onClick={() => setCreateModalOpen(true)}>
+            <PlusOutlined />
             {t('create')}
           </Button>
 

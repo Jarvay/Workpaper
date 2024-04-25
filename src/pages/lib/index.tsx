@@ -5,12 +5,20 @@ import { TranslationFunc, WallpaperWebsite } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '@/components/PageContainer';
 import CenterTable from '@/components/CenterTable';
-import { Button, Popconfirm, Space } from 'antd';
+import { Button, Divider, Popconfirm, Space } from 'antd';
 import { Events, FormMode, WallpaperWebsiteType } from '../../../cross/enums';
 import WallpaperWebsiteModal from '@/pages/lib/components/WallpaperWebsiteModal';
 import { websiteService } from '@/services/website';
 import { useNavigate } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  GlobalOutlined,
+  PlusOutlined,
+  SyncOutlined,
+  ZoomInOutlined,
+} from '@ant-design/icons';
 
 const LibIndex: React.FC = () => {
   const [dataSource, setDataSource] = useState<WallpaperWebsite[]>([]);
@@ -44,8 +52,9 @@ const LibIndex: React.FC = () => {
       fixed: 'right',
       render: (_, record) => {
         return (
-          <Space>
-            <a
+          <Space split={<Divider type="vertical" />}>
+            <GlobalOutlined
+              className="icon-button"
               onClick={async () => {
                 switch (record.type) {
                   case WallpaperWebsiteType.Api:
@@ -56,18 +65,15 @@ const LibIndex: React.FC = () => {
                     break;
                 }
               }}
-            >
-              {t('lib.browse')}
-            </a>
+            />
 
-            <a
+            <EditOutlined
+              className="icon-button"
               onClick={() => {
                 setCurrentRow(record);
                 setUpdateModalOpen(true);
               }}
-            >
-              {t('edit')}
-            </a>
+            />
 
             <Popconfirm
               title={t('deleteConfirmTips')}
@@ -76,7 +82,7 @@ const LibIndex: React.FC = () => {
                 await refresh();
               }}
             >
-              <a>{t('delete')}</a>
+              <DeleteOutlined className="icon-button" />
             </Popconfirm>
           </Space>
         );
@@ -90,6 +96,7 @@ const LibIndex: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Space>
             <Button type="primary" onClick={() => setCreateModalOpen(true)}>
+              <PlusOutlined />
               {t('create')}
             </Button>
 
@@ -102,6 +109,7 @@ const LibIndex: React.FC = () => {
                 setSyncing(false);
               }}
             >
+              <SyncOutlined />
               {t('sync')}
             </Button>
           </Space>
