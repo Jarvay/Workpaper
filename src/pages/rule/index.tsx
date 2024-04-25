@@ -94,7 +94,14 @@ const RuleIndex: React.FC = () => {
       title: t('rule.direction'),
       dataIndex: 'type',
       width: 100,
-      render: (value) => {
+      render: (value, record) => {
+        const show =
+          record.type === ChangeType.AutoChange &&
+          record.wallpaperType === WallpaperType.Image;
+        if (!show) {
+          return '-';
+        }
+
         switch (value) {
           default:
           case WallpaperDirection.Vertical:
