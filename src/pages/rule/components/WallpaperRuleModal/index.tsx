@@ -398,6 +398,10 @@ const WallpaperRuleModal: React.FC<
                             value: WallpaperDirection.Vertical,
                           },
                         ]}
+                        onChange={() => {
+                          form.setFieldValue('isRandom', false);
+                          form.setFieldValue('screenRandom', false);
+                        }}
                       />
                     </Form.Item>
 
@@ -423,26 +427,33 @@ const WallpaperRuleModal: React.FC<
                                 label={t('rule.isRandom')}
                                 name="isRandom"
                               >
-                                <Switch />
+                                <Switch
+                                  onChange={() => {
+                                    form.setFieldValue('screenRandom', false);
+                                  }}
+                                />
                               </Form.Item>
                             )}
-                          </>
-                        );
-                      }}
-                    </Form.Item>
 
-                    <Form.Item noStyle dependencies={['isRandom']}>
-                      {({ getFieldsValue }) => {
-                        const { isRandom } = getFieldsValue() as Rule;
-                        return (
-                          isRandom && (
-                            <Form.Item
-                              label={t('rule.screenRandom')}
-                              name="screenRandom"
-                            >
-                              <Switch />
+                            <Form.Item noStyle dependencies={['isRandom']}>
+                              {({ getFieldsValue }) => {
+                                const { isRandom } = getFieldsValue() as Rule;
+                                const isVertical =
+                                  WallpaperDirection.Vertical === direction;
+                                return (
+                                  isRandom &&
+                                  !isVertical && (
+                                    <Form.Item
+                                      label={t('rule.screenRandom')}
+                                      name="screenRandom"
+                                    >
+                                      <Switch />
+                                    </Form.Item>
+                                  )
+                                );
+                              }}
                             </Form.Item>
-                          )
+                          </>
                         );
                       }}
                     </Form.Item>
