@@ -1,10 +1,17 @@
 import { timeToSeconds } from '../../cross/date';
 import { Rule } from '../../cross/interface';
 import { BaseService } from '@/services/base';
+import { ipcRenderer } from 'electron';
+import { Events } from '../../cross/enums';
 
 export class RuleService extends BaseService<'rules', Rule> {
   getKeyInDB(): 'rules' {
     return 'rules';
+  }
+
+  async save(list: Rule[]): Promise<void> {
+    await super.save(list);
+    await ipcRenderer.invoke(Events.ResetSchedule);
   }
 
   async isConflicts(
