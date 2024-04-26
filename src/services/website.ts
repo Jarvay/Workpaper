@@ -8,8 +8,11 @@ const t = _t as TranslationFunc;
 
 export class WebsiteService extends BaseService<'websites', WallpaperWebsite> {
   static readonly SUB_URLS = [
+    'https://fastly.jsdelivr.net/gh/Jarvay/workpaper-sub@main/websites.json',
     'https://github.com/Jarvay/workpaper-sub/raw/main/websites.json',
     'https://cdn.jsdelivr.net/gh/Jarvay/workpaper-sub@main/websites.json',
+    'https://ghproxy.net/https://raw.githubusercontent.com/Jarvay/workpaper-sub/main/websites.json',
+    'https://gh-proxy.net/https://raw.githubusercontent.com/Jarvay/workpaper-sub/main/websites.json',
   ];
 
   getKeyInDB(): 'websites' {
