@@ -82,6 +82,7 @@ export const zhCN: ITranslation = {
 
   'settings.mute': '静音',
   'settings.volume': '音量',
+  'settings.downloadsDir': '下载目录',
 
   'menu.rules': '规则',
   'menu.libs': '壁纸库',

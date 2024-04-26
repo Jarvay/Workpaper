@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Form, Modal, Select, Slider } from 'antd';
+import { Button, Form, Input, Modal, Select, Slider } from 'antd';
 import {
   ModalFormProps,
   Settings,
@@ -8,7 +8,14 @@ import {
 import { cloneDeep, debounce, omit } from 'lodash';
 import { useMount, useUpdateEffect } from 'ahooks';
 import { settingsService } from '@/services/settings';
-import { Events, Locale, ScaleType, WallpaperMode } from '../../../cross/enums';
+import {
+  ChangeType,
+  Events,
+  Locale,
+  ScaleType,
+  WallpaperMode,
+  WallpaperType,
+} from '../../../cross/enums';
 import { useTranslation } from 'react-i18next';
 import ScaleModeComponent from '@/components/ScaleModeComponent';
 import styles from './index.module.less';
@@ -178,6 +185,20 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
               </>
             );
           }}
+        </Form.Item>
+
+        <Form.Item label={t('settings.downloadsDir')} name="downloadsDir">
+          <Input.Search
+            style={{ width: '70%' }}
+            enterButton={<Button type="primary">{t('choose')}</Button>}
+            onSearch={async () => {
+              const file = await ipcRenderer.invoke(Events.SelectDir);
+              form.setFieldValue('downloadsDir', file?.[0]);
+              await settingsService.save(form.getFieldsValue());
+              await props.onChange?.(form.getFieldsValue());
+              checkIsChanged();
+            }}
+          />
         </Form.Item>
 
         <Form.Item label={t('settings.volume')} name="volume">

@@ -80,6 +80,7 @@ export interface ITranslation {
 
   'settings.mute': string;
   'settings.volume': string;
+  'settings.downloadsDir': string;
 
   'menu.rules': string;
   'menu.libs': string;

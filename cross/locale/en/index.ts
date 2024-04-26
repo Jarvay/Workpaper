@@ -82,6 +82,7 @@ export const en: ITranslation = {
 
   'settings.mute': 'Mute',
   'settings.volume': 'Volume',
+  'settings.downloadsDir': 'Download directory',
 
   'menu.rules': 'Rules',
   'menu.libs': 'Wallpaper libs',
