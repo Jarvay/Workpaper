@@ -33,6 +33,7 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
     <Modal
       title={t('about')}
       {...(props.modalProps || {})}
+      open={props.open}
       footer={
         <Button onClick={props.modalProps?.onCancel}>{t('close')}</Button>
       }
@@ -40,6 +41,7 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
     >
       <Space direction="vertical">
         <Descriptions
+          className={styles.descContainer}
           column={1}
           items={[
             {

@@ -47,6 +47,7 @@ const defaultData: DBData = {
   },
   currentIndex: 0,
   websites: [],
+  migrations: [],
 };
 
 if (platform() === 'darwin') {

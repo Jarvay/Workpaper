@@ -6,13 +6,19 @@ import {
   ChangeType,
   Events,
   FormMode,
+  WallpaperDirection,
   WallpaperType,
 } from '../../../cross/enums';
 import { ColumnsType } from 'antd/es/table/InternalTable';
-import { Button, Image, Popconfirm, Space } from 'antd';
+import { Button, Divider, Image, Popconfirm, Space, Tag } from 'antd';
 import WallpaperRule from './components/WallpaperRuleModal';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import {
+  ArrowLeftOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import { weekdayService } from '@/services/weekday';
 import { Rule, TranslationFunc, Weekday } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
@@ -86,6 +92,27 @@ const RuleIndex: React.FC = () => {
             return t('rule.type.fixed');
           case ChangeType.AutoChange:
             return t('rule.type.autoChange');
+        }
+      },
+    },
+    {
+      title: t('rule.direction'),
+      dataIndex: 'type',
+      width: 100,
+      render: (value, record) => {
+        const show =
+          record.type === ChangeType.AutoChange &&
+          record.wallpaperType === WallpaperType.Image;
+        if (!show) {
+          return '-';
+        }
+
+        switch (value) {
+          default:
+          case WallpaperDirection.Vertical:
+            return t('rule.direction.vertical');
+          case WallpaperDirection.Horizontal:
+            return t('rule.direction.horizontal');
         }
       },
     },
@@ -166,15 +193,14 @@ const RuleIndex: React.FC = () => {
       fixed: 'right',
       render: (value, record) => {
         return (
-          <Space>
-            <a
+          <Space split={<Divider type="vertical" />}>
+            <EditOutlined
+              className="icon-button"
               onClick={() => {
                 setCurrentRow(record);
                 setUpdateModalOpen(true);
               }}
-            >
-              {t('edit')}
-            </a>
+            />
 
             <Popconfirm
               title={t('deleteConfirmTips')}
@@ -183,7 +209,7 @@ const RuleIndex: React.FC = () => {
                 await refresh();
               }}
             >
-              <a>{t('delete')}</a>
+              <DeleteOutlined className="icon-button" />
             </Popconfirm>
           </Space>
         );
@@ -193,7 +219,7 @@ const RuleIndex: React.FC = () => {
 
   return (
     <PageContainer>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space size={16} direction="vertical" style={{ width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Button
             shape="circle"
@@ -205,6 +231,7 @@ const RuleIndex: React.FC = () => {
           </Button>
 
           <Button type="primary" onClick={() => setCreateModalOpen(true)}>
+            <PlusOutlined />
             {t('create')}
           </Button>
 
@@ -223,14 +250,22 @@ const RuleIndex: React.FC = () => {
         </div>
 
         <CenterTable
-          bordered
           title={() => (
             <WeekComponent>
               {(weekMap) => {
-                return weekday?.days?.map((day) => weekMap.get(day)).join(', ');
+                return (
+                  <div>
+                    {weekday?.days.map((day, index) => (
+                      <Tag color="blue" key={index}>
+                        {weekMap.get(day)}
+                      </Tag>
+                    ))}
+                  </div>
+                );
               }}
             </WeekComponent>
           )}
+          bordered
           pagination={false}
           scroll={{ y: 600 }}
           rowKey="id"

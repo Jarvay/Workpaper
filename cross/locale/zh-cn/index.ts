@@ -65,6 +65,10 @@ export const zhCN: ITranslation = {
   'rule.screenRandom': '屏幕各自随机',
   'rule.addScreen': '添加屏幕',
   'rule.paths.requiredMessage': '请选择壁纸',
+  'rule.direction': '壁纸方向',
+  'rule.direction.vertical': '竖屏',
+  'rule.direction.horizontal': '横屏',
+  'rule.column': '列数',
 
   scaleMode: '缩放模式',
   'scaleMode.default': '默认',

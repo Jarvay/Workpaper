@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ModalFormProps, Weekday } from '../../../../../cross/interface';
-import { Checkbox, Form, message, Modal } from 'antd';
+import { Checkbox, Col, Form, message, Modal, Row } from 'antd';
 import { useUpdateEffect } from 'ahooks';
 import { FormMode } from '../../../../../cross/enums';
 import { weekdayService } from '@/services/weekday';
@@ -76,7 +76,7 @@ const WeekdayModal: React.FC<ModalFormProps> = (props) => {
       {...(props.modalProps || {})}
       open={props.open}
       title={t('selectPeriodTips')}
-      width="60%"
+      width="200px"
     >
       <WeekComponent>
         {(weekMap, weekOptions) => {
@@ -86,15 +86,24 @@ const WeekdayModal: React.FC<ModalFormProps> = (props) => {
                 name="days"
                 rules={[{ required: true, message: t('selectPeriodTips') }]}
               >
-                <Checkbox.Group
-                  options={weekOptions.map((item) => {
-                    return {
-                      label: item.label,
-                      value: item.value as number,
-                      disabled: existDays.includes(item.value as number),
-                    };
-                  })}
-                />
+                <Checkbox.Group>
+                  <Row>
+                    {weekOptions.map((item) => (
+                      <Col
+                        style={{ marginTop: '16px' }}
+                        span={24}
+                        key={item.value}
+                      >
+                        <Checkbox
+                          value={item.value}
+                          disabled={existDays.includes(item.value as number)}
+                        >
+                          {item.label}
+                        </Checkbox>
+                      </Col>
+                    ))}
+                  </Row>
+                </Checkbox.Group>
               </Form.Item>
             </Form>
           );

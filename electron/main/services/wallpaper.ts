@@ -14,9 +14,9 @@ import { timeToSeconds } from '../../../cross/date';
 import dayjs from 'dayjs';
 import { configServiceMain } from './db-service';
 import { SetOptions } from 'wallpaper';
-import { randomByRange } from './utils';
 import { screen } from 'electron';
 import { platform } from 'os';
+import { randomByRange } from '../../../cross/utils';
 
 const timerMap: Map<string, NodeJS.Timeout> = new Map<string, NodeJS.Timeout>();
 
@@ -48,7 +48,16 @@ export async function setWallpaper(
         });
         detachWallpaperWin();
       } else {
-        await setStaticWallpaper(filePath, displayId);
+        const extList = typeExtMap.get(rule.wallpaperType) as string[];
+        let paths = readRuleFilePaths(rule, extList);
+        await setStaticWallpaper(
+          {
+            path: filePath,
+            rule,
+            paths,
+          },
+          displayId,
+        );
       }
       configServiceMain.setItem('currentIndex', currentIndex);
       break;

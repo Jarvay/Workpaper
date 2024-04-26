@@ -22,6 +22,7 @@ import { t as _t } from 'i18next';
 import { TranslationFunc } from '../../cross/interface';
 import { update } from './update';
 import { handleDownload } from './services/download';
+import { runMigrations } from './services/migration';
 
 const t: TranslationFunc = _t;
 
@@ -170,6 +171,8 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  await runMigrations();
+
   registerHandlers(createWindow);
 
   setTray(process.env.VITE_PUBLIC, createWindow);

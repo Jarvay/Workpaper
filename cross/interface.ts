@@ -4,6 +4,7 @@ import {
   FormMode,
   Locale,
   MacOSScaleMode,
+  WallpaperDirection,
   WallpaperMode,
   WallpaperType,
   WallpaperWebsiteRequestParamType,
@@ -38,6 +39,8 @@ export interface Rule extends BeanWithId {
   remark?: string;
   isRandom?: boolean;
   screenRandom?: boolean;
+  direction: WallpaperDirection;
+  column: number;
 }
 
 export interface Weekday extends BeanWithId {
@@ -65,6 +68,7 @@ export interface DBData {
   settings: Settings;
   currentIndex: number;
   websites: WallpaperWebsite[];
+  migrations: string[];
 }
 
 export type DBTableKey = 'rules' | 'weekdays' | 'websites';
@@ -125,4 +129,10 @@ export interface DownloadEvent extends DownloadArg {
   filename: string;
   path: string;
   progress: number;
+}
+
+export interface StaticWallpaperEventArg {
+  path: string;
+  rule: Rule;
+  paths: string[];
 }

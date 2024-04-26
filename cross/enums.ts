@@ -89,6 +89,11 @@ export enum ScaleType {
   Native = 'native',
 }
 
+export enum WallpaperDirection {
+  Vertical = 'vertical',
+  Horizontal = 'horizontal',
+}
+
 export enum WallpaperWebsiteRequestParamType {
   Number = 'number',
   String = 'string',

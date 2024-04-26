@@ -1,7 +1,8 @@
 import { createHashRouter, RouteObject } from 'react-router-dom';
 import Home from '@/pages/home';
 import Rule from '@/pages/rule';
-import Wallpaper from '@/pages/wallpaper';
+import StaticWallpaper from '@/pages/wallpaper/static';
+import LiveWallpaper from '@/pages/wallpaper/live';
 import Lib from '@/pages/lib';
 import Website from '@/pages/lib/website';
 
@@ -23,8 +24,12 @@ export const routes: RouteObject[] = [
     element: <Rule />,
   },
   {
-    path: '/wallpaper/:displayId',
-    element: <Wallpaper />,
+    path: '/wallpaper/static/:displayId',
+    element: <StaticWallpaper />,
+  },
+  {
+    path: '/wallpaper/live/:displayId',
+    element: <LiveWallpaper />,
   },
 ];
 

@@ -21,6 +21,7 @@ import {
   ChangeType,
   Events,
   FormMode,
+  WallpaperDirection,
   WallpaperType,
 } from '../../../../../cross/enums';
 import { ipcRenderer } from 'electron';
@@ -261,7 +262,10 @@ const WallpaperRuleModal: React.FC<
   return (
     <Modal
       title={t('rule.timeSlot')}
-      width="50%"
+      width="40%"
+      style={{
+        minWidth: '720px',
+      }}
       {...(props.modalProps || {})}
       open={props.open}
       onOk={async () => {
@@ -274,7 +278,7 @@ const WallpaperRuleModal: React.FC<
     >
       <Form<Rule>
         form={form}
-        labelCol={{ span: 4 }}
+        labelCol={{ span: 5 }}
         labelWrap
         initialValues={
           {
@@ -285,6 +289,8 @@ const WallpaperRuleModal: React.FC<
             isRandom: false,
             screenRandom: false,
             paths: [''],
+            direction: WallpaperDirection.Horizontal,
+            column: 3,
           } as Partial<Rule>
         }
       >
@@ -366,32 +372,88 @@ const WallpaperRuleModal: React.FC<
           />
         </Form.Item>
 
-        <Form.Item noStyle dependencies={['type', 'wallpaperType', 'isRandom']}>
+        <Form.Item
+          noStyle
+          dependencies={['type', 'wallpaperType', 'isRandom', 'direction']}
+        >
           {({ getFieldsValue }) => {
             const { type, wallpaperType } = getFieldsValue() as Rule;
             const showIntervalAndRandom =
               type === ChangeType.AutoChange &&
               wallpaperType === WallpaperType.Image;
+
             return (
               <>
                 {showIntervalAndRandom && (
                   <>
-                    <Form.Item label={t('rule.isRandom')} name="isRandom">
-                      <Switch />
+                    <Form.Item label={t('rule.direction')} name="direction">
+                      <Radio.Group
+                        options={[
+                          {
+                            label: t('rule.direction.horizontal'),
+                            value: WallpaperDirection.Horizontal,
+                          },
+                          {
+                            label: t('rule.direction.vertical'),
+                            value: WallpaperDirection.Vertical,
+                          },
+                        ]}
+                        onChange={() => {
+                          form.setFieldValue('isRandom', false);
+                          form.setFieldValue('screenRandom', false);
+                        }}
+                      />
                     </Form.Item>
 
-                    <Form.Item noStyle dependencies={['isRandom']}>
-                      {({ getFieldsValue }) => {
-                        const { isRandom } = getFieldsValue() as Rule;
+                    <Form.Item dependencies={['direction']} noStyle>
+                      {({ getFieldValue }) => {
+                        const direction = getFieldValue('direction');
+                        const isVertical =
+                          WallpaperDirection.Vertical === direction;
                         return (
-                          isRandom && (
-                            <Form.Item
-                              label={t('rule.screenRandom')}
-                              name="screenRandom"
-                            >
-                              <Switch />
+                          <>
+                            {isVertical && (
+                              <Form.Item
+                                label={t('rule.column')}
+                                name="column"
+                                rules={[{ required: true }]}
+                              >
+                                <InputNumber />
+                              </Form.Item>
+                            )}
+
+                            {!isVertical && (
+                              <Form.Item
+                                label={t('rule.isRandom')}
+                                name="isRandom"
+                              >
+                                <Switch
+                                  onChange={() => {
+                                    form.setFieldValue('screenRandom', false);
+                                  }}
+                                />
+                              </Form.Item>
+                            )}
+
+                            <Form.Item noStyle dependencies={['isRandom']}>
+                              {({ getFieldsValue }) => {
+                                const { isRandom } = getFieldsValue() as Rule;
+                                const isVertical =
+                                  WallpaperDirection.Vertical === direction;
+                                return (
+                                  isRandom &&
+                                  !isVertical && (
+                                    <Form.Item
+                                      label={t('rule.screenRandom')}
+                                      name="screenRandom"
+                                    >
+                                      <Switch />
+                                    </Form.Item>
+                                  )
+                                );
+                              }}
                             </Form.Item>
-                          )
+                          </>
                         );
                       }}
                     </Form.Item>
