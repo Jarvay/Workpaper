@@ -20,6 +20,10 @@ const StaticWallpaper: React.FC = () => {
   const [staticWallpaperArg, setStaticWallpaperArg] =
     useState<StaticWallpaperEventArg>();
   const [path, setPath] = useState<string>();
+  const [loadedColumnIndexSet, setLoadedColumnIndexSet] = useState(
+    new Set<number>(),
+  );
+  const [readyToShow, setReadyToShow] = useState(false);
 
   const shuffledCarouselPaths = useMemo(() => {
     if (!staticWallpaperArg) return [];
@@ -51,11 +55,11 @@ const StaticWallpaper: React.FC = () => {
   }
 
   useMount(async () => {
-    registerStaticWallpaperEvents();
-
     setSettings(await settingsService.get());
 
     ipcRenderer.send(Events.WallpaperWinReady, Number(displayId));
+
+    registerStaticWallpaperEvents();
   });
 
   useUnmount(() => {
@@ -63,20 +67,22 @@ const StaticWallpaper: React.FC = () => {
   });
 
   useUpdateEffect(() => {
-    if (!staticWallpaperArg) return;
-
-    const { rule, paths } = staticWallpaperArg;
-    if (rule.direction === WallpaperDirection.Vertical) {
-      ipcRenderer.send(Events.StaticWallpaperLoaded, Number(displayId));
-    }
-  }, [staticWallpaperArg]);
-
-  useUpdateEffect(() => {
     const index = staticWallpaperArg?.paths.some((p) => p === path)
       ? staticWallpaperArg?.paths.findIndex((p) => p === path)
       : 0;
     horizontalCarouselRef.current?.goTo(index, false);
   }, [path, staticWallpaperArg]);
+
+  useUpdateEffect(() => {
+    const loaded = loadedColumnIndexSet.size;
+    const column = staticWallpaperArg?.rule.column;
+    if (loaded === column) {
+      setTimeout(() => {
+        ipcRenderer.send(Events.StaticWallpaperLoaded, Number(displayId));
+        setReadyToShow(true);
+      }, 500);
+    }
+  }, [loadedColumnIndexSet, staticWallpaperArg?.rule.column]);
 
   let children = null;
 
@@ -108,10 +114,13 @@ const StaticWallpaper: React.FC = () => {
                     objectFit: settings?.webScaleMode,
                   }}
                   onLoad={() => {
-                    ipcRenderer.send(
-                      Events.StaticWallpaperLoaded,
-                      Number(displayId),
-                    );
+                    if (index === 0) {
+                      ipcRenderer.send(
+                        Events.StaticWallpaperLoaded,
+                        Number(displayId),
+                      );
+                      setReadyToShow(true);
+                    }
                   }}
                 />
               </div>
@@ -142,11 +151,16 @@ const StaticWallpaper: React.FC = () => {
                       return;
                     }
                     setTimeout(() => {
-                      verticalCarouselRefs.current[index + 1].next();
+                      if (!readyToShow) return;
+                      try {
+                        verticalCarouselRefs.current[index + 1].next();
+                      } catch (e) {
+                        console.warn(e);
+                      }
                     }, 100);
                   }}
                 >
-                  {shuffledCarouselPaths[index].map((item) => {
+                  {shuffledCarouselPaths[index].map((item, i) => {
                     return (
                       <div key={item}>
                         <img
@@ -156,6 +170,14 @@ const StaticWallpaper: React.FC = () => {
                           }}
                           src={`file://${item}`}
                           alt=""
+                          onLoad={() => {
+                            if (i === 0) {
+                              loadedColumnIndexSet.add(index);
+                              setLoadedColumnIndexSet(
+                                new Set(loadedColumnIndexSet),
+                              );
+                            }
+                          }}
                         />
                       </div>
                     );
