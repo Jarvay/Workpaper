@@ -17,7 +17,9 @@ export abstract class BaseService<
 
   async create(item: T) {
     const list = await this.get();
-    item.id = String(Date.now());
+    item.id = String(
+      Date.now() + '' + Number(Math.random().toFixed(8)) * 100000000,
+    );
     list.push(item);
     return this.save(list);
   }
