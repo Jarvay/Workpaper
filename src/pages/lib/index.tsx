@@ -5,7 +5,7 @@ import { TranslationFunc, WallpaperWebsite } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '@/components/PageContainer';
 import CenterTable from '@/components/CenterTable';
-import { Button, Divider, message, Popconfirm, Space } from 'antd';
+import { Button, Divider, message, Popconfirm, Space, Tag } from 'antd';
 import { Events, FormMode, WallpaperWebsiteType } from '../../../cross/enums';
 import WallpaperWebsiteModal from '@/pages/lib/components/WallpaperWebsiteModal';
 import { websiteService } from '@/services/website';
@@ -42,6 +42,17 @@ const LibIndex: React.FC = () => {
     {
       title: t('lib.name'),
       dataIndex: 'name',
+      render: (value, record) => {
+        return (
+          <Space>
+            <span>{value}</span>
+
+            {record.tags?.needToLogin && (
+              <Tag color="warning">{t('lib.tags.needToLogin')}</Tag>
+            )}
+          </Space>
+        );
+      },
     },
     {
       title: t('operation'),

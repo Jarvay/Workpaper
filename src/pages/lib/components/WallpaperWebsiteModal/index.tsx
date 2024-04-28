@@ -15,6 +15,7 @@ import {
   Radio,
   Row,
   Select,
+  Switch,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 import {
@@ -313,6 +314,13 @@ const WallpaperWebsiteModal: React.FC<WallpaperWebsiteModalProps> = (props) => {
               { label: t('lib.type.api'), value: WallpaperWebsiteType.Api },
             ]}
           />
+        </Form.Item>
+
+        <Form.Item
+          label={t('lib.tags.needToLogin')}
+          name={['tags', 'needToLogin']}
+        >
+          <Switch />
         </Form.Item>
 
         <Form.Item dependencies={['type']} noStyle>

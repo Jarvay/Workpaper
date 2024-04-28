@@ -91,8 +91,6 @@ export interface WallpaperWebsiteRequestParam {
 }
 
 export interface WallpaperWebsiteApi extends BeanWithId {
-  type: WallpaperWebsiteType;
-  name: string;
   request: {
     url: string;
     method: Method;
@@ -106,12 +104,18 @@ export interface WallpaperWebsiteApi extends BeanWithId {
 }
 
 export interface WallpaperWebsiteWebsite extends BeanWithId {
-  type: WallpaperWebsiteType;
-  name: string;
   url: string;
 }
 
-export type WallpaperWebsite = WallpaperWebsiteApi & WallpaperWebsiteWebsite;
+export type WallpaperWebsite = WallpaperWebsiteApi &
+  WallpaperWebsiteWebsite & {
+    type: WallpaperWebsiteType;
+    name: string;
+    tags: {
+      free: boolean;
+      needToLogin: boolean;
+    };
+  };
 
 export interface WallpaperItem {
   thumb: string;
