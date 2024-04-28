@@ -26,10 +26,8 @@ const LibIndex: React.FC = () => {
     setDataSource(await websiteService.get());
   }
 
-  useMount(async () => {});
-
-  useUnmount(() => {
-    refresh();
+  useMount(async () => {
+    await refresh();
   });
 
   const columns: ColumnsType<WallpaperWebsite> = [
