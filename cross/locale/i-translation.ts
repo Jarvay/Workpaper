@@ -107,6 +107,8 @@ export interface ITranslation {
   'lib.responseKey.originInItem': string;
   'lib.browse': string;
   'lib.syncFailed': string;
+  'lib.tags.free': string;
+  'lib.tags.needToLogin': string;
 
   downloadStarted: string;
   downloadExists: string;

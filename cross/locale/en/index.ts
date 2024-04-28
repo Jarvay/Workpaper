@@ -109,6 +109,8 @@ export const en: ITranslation = {
   'lib.responseKey.originInItem': 'Origin key in response',
   'lib.browse': 'Browse',
   'lib.syncFailed': 'Sync failed',
+  'lib.tags.free': 'Free',
+  'lib.tags.needToLogin': 'Need to login',
 
   downloadStarted: 'Download started',
   downloadExists: 'Download exists',

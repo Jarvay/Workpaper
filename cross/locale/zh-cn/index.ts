@@ -109,6 +109,8 @@ export const zhCN: ITranslation = {
   'lib.responseKey.originInItem': '原图Key',
   'lib.browse': '浏览',
   'lib.syncFailed': '同步失败',
+  'lib.tags.free': '免费',
+  'lib.tags.needToLogin': '需登录',
 
   downloadStarted: '已开始下载',
   downloadExists: '已在下载列表中',
