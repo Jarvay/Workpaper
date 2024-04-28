@@ -7,7 +7,7 @@ const MIGRATIONS: IMigration[] = [new Migration_202404223_1539()];
 export async function runMigrations() {
   const executedMigrations = configServiceMain.getItem('migrations');
   for (const migration of MIGRATIONS) {
-    const id = migration.constructor.name;
+    const id = migration.id();
     if (!executedMigrations.includes(id)) {
       await migration.run();
       executedMigrations.push(id);

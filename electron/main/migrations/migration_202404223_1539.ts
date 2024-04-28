@@ -3,6 +3,9 @@ import { configServiceMain } from '../services/db-service';
 import { WallpaperDirection } from '../../../cross/enums';
 
 export class Migration_202404223_1539 implements IMigration {
+  id(): string {
+    return 'Migration_202404223_1539';
+  }
   run() {
     const rules = configServiceMain.getItem('rules');
     rules.forEach((rule) => {
