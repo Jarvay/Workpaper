@@ -1,5 +1,6 @@
-import { BeanWithId, DBData, DBTableKey } from '../../cross/interface';
+import { BeanWithId, DBTableKey } from '../../cross/interface';
 import { TableServiceRenderer } from '@/services/config-service';
+import { Md5 } from '@smithy/md5-js';
 
 export abstract class BaseService<
   K extends DBTableKey,
@@ -17,9 +18,17 @@ export abstract class BaseService<
 
   async create(item: T) {
     const list = await this.get();
-    item.id = String(
-      Date.now() + '' + Number(Math.random().toFixed(8)) * 100000000,
-    );
+
+    const md5 = new Md5();
+    const random = (Math.random() * 100000000).toFixed(0);
+    md5.update(Date.now() + random);
+
+    const uint8Array = await md5.digest();
+    const strArr: string[] = [];
+    uint8Array.forEach((x) => {
+      strArr.push(('00' + x.toString(16)).slice(-2));
+    });
+    item.id = strArr.join('');
     list.push(item);
     return this.save(list);
   }
