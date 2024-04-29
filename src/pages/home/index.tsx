@@ -12,7 +12,7 @@ import PageContainer from '@/components/PageContainer';
 import {
   DeleteOutlined,
   EditOutlined,
-  FolderViewOutlined,
+  FolderOpenOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 
@@ -61,7 +61,7 @@ const Home: React.FC = () => {
             return (
               <List.Item
                 actions={[
-                  <FolderViewOutlined
+                  <FolderOpenOutlined
                     className="icon-button"
                     onClick={() => {
                       navigate(`/weekday/${item.id}`);
@@ -84,7 +84,7 @@ const Home: React.FC = () => {
                       }}
                       onChange={async () => {
                         setUpdateWeekDayOpen(false);
-                        refresh();
+                        await refresh();
                       }}
                       values={currentRow}
                     />
