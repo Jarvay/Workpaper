@@ -1,21 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import { Button, Form, Input, Modal, Select, Slider } from 'antd';
-import {
-  ModalFormProps,
-  Settings,
-  TranslationFunc,
-} from '../../../cross/interface';
-import { cloneDeep, debounce, omit } from 'lodash';
+import { ModalFormProps, Settings } from '../../../cross/interface';
+import { cloneDeep, debounce } from 'lodash';
 import { useMount, useUpdateEffect } from 'ahooks';
 import { settingsService } from '@/services/settings';
-import {
-  ChangeType,
-  Events,
-  Locale,
-  ScaleType,
-  WallpaperMode,
-  WallpaperType,
-} from '../../../cross/enums';
+import { Events, Locale, ScaleType, WallpaperMode } from '../../../cross/enums';
 import { useTranslation } from 'react-i18next';
 import ScaleModeComponent from '@/components/ScaleModeComponent';
 import styles from './index.module.less';
@@ -33,7 +22,7 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [platform, setPlatform] = useState<NodeJS.Platform>();
   const [isChanged, setIsChanged] = useState(false);
 
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
 
   const checkIsChanged = useCallback(() => {
     if (!settings) return false;

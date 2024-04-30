@@ -7,11 +7,9 @@ import {
   Events,
   MacOSScaleMode,
   ScaleType,
-  WallpaperMode,
   WebScaleMode,
   WindowsScaleMode,
 } from '../../../cross/enums';
-import { TranslationFunc } from '../../../cross/interface';
 
 export interface ScaleModeComponentProps {
   children?: (
@@ -21,7 +19,7 @@ export interface ScaleModeComponentProps {
 }
 
 const ScaleModeComponent: React.FC<ScaleModeComponentProps> = (props) => {
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
 
   const [platform, setPlatform] = useState<NodeJS.Platform>();
 

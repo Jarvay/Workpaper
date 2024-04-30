@@ -3,7 +3,6 @@ import PageContainer from '@/components/PageContainer';
 import { Image, List, message, Skeleton, Space } from 'antd';
 import {
   DownloadArg,
-  TranslationFunc,
   WallpaperItem,
   WallpaperWebsite,
 } from '../../../cross/interface';
@@ -37,7 +36,7 @@ const Website: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [dateSource, setDataSource] = useState<WallpaperItem[]>([]);
 
-  const t = useTranslation().t as TranslationFunc;
+  const { t } = useTranslation();
 
   const { downloadDrawerRef } = useGlobalContext();
 

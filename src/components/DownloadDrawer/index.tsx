@@ -1,15 +1,10 @@
-import React, {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useState,
-} from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Card, Drawer, DrawerProps, Image, List, Progress, Space } from 'antd';
 import { useMount, useUnmount, useUpdateEffect } from 'ahooks';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { Events } from '../../../cross/enums';
 import { DownloadEvent } from '../../../cross/interface';
-import { cloneDeep, omit } from 'lodash';
+import { omit } from 'lodash';
 
 export interface DownloadDrawerActions {
   getList: () => DownloadItem[];

@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { ModalFormProps, TranslationFunc } from '../../../cross/interface';
+import { ModalFormProps } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
 import styles from './index.module.less';
 import { useUpdateEffect } from 'ahooks';
 import { ipcRenderer } from 'electron';
 import { Events } from '../../../cross/enums';
 import Update from '@/components/Update';
-import { Descriptions, Modal, ModalProps, Space, Button, Badge } from 'antd';
+import { Badge, Button, Descriptions, Modal, ModalProps, Space } from 'antd';
 
 export interface AboutModalProps extends ModalFormProps {
   versionInfo?: VersionInfo;
   open: ModalProps['open'];
 }
+
 const AboutModal: React.FC<AboutModalProps> = (props) => {
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
   const [version, setVersion] = useState('');
   const [versionInfo, setVersionInfo] = useState<VersionInfo>();
 

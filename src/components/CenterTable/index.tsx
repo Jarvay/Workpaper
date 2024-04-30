@@ -1,6 +1,6 @@
 import React from 'react';
-import { Table } from 'antd';
 import type { TableProps } from 'antd';
+import { Table } from 'antd';
 import { AnyObject } from 'antd/es/_util/type';
 
 const CenterTable = <T extends AnyObject>(props: TableProps<T>) => {

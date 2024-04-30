@@ -7,7 +7,7 @@ import { weekdayService } from '@/services/weekday';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import WeekComponent from '@/components/WeekComponent';
-import { TranslationFunc, Weekday } from '../../../cross/interface';
+import { Weekday } from '../../../cross/interface';
 import PageContainer from '@/components/PageContainer';
 import {
   DeleteOutlined,
@@ -22,7 +22,7 @@ const Home: React.FC = () => {
   const [updateWeekDayOpen, setUpdateWeekDayOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<Weekday>();
 
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   async function refresh() {

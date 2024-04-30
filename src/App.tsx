@@ -16,7 +16,7 @@ import { Events, Locale } from '../cross/enums';
 import { ConfigProviderProps } from 'antd/es/config-provider';
 import { settingsService } from '@/services/settings';
 import { useMount, useUnmount } from 'ahooks';
-import { Settings, TranslationFunc } from '../cross/interface';
+import { Settings } from '../cross/interface';
 import { ipcRenderer } from 'electron';
 import AboutModal from '@/components/AboutModal';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +52,7 @@ function App() {
 
   const downloadDrawerRef = useRef<DownloadDrawerActions>();
 
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
 
   const menuItems: MenuProps['items'] = [
     {

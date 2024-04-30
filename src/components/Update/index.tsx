@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button, message, Modal, Progress, Space } from 'antd';
-import { TranslationFunc } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
 import { ipcRenderer } from 'electron';
 import type { ProgressInfo, UpdateCheckResult } from 'electron-updater';
 import { useMount, useUnmount, useUpdateEffect } from 'ahooks';
 import { hasIn } from 'lodash';
-import { Events } from '../../../cross/enums';
 
 interface UpdateError {
   message: string;
@@ -21,7 +19,7 @@ export interface UpdateProps {
 }
 
 const Update: React.FC<UpdateProps> = (props) => {
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
 
   const [loading, setLoading] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);

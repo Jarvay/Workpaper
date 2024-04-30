@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useMount, useUnmount } from 'ahooks';
+import { useMount } from 'ahooks';
 import { ColumnsType } from 'antd/es/table/InternalTable';
-import { TranslationFunc, WallpaperWebsite } from '../../../cross/interface';
+import { WallpaperWebsite } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '@/components/PageContainer';
 import CenterTable from '@/components/CenterTable';
@@ -17,7 +17,6 @@ import {
   GlobalOutlined,
   PlusOutlined,
   SyncOutlined,
-  ZoomInOutlined,
 } from '@ant-design/icons';
 
 const LibIndex: React.FC = () => {
@@ -27,7 +26,7 @@ const LibIndex: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<WallpaperWebsite>();
   const [syncing, setSyncing] = useState(false);
 
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   async function refresh() {

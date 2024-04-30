@@ -7,24 +7,17 @@ import {
   shell,
 } from 'electron';
 import { Events } from '../../cross/enums';
-import {
-  Rule,
-  Settings,
-  TranslationFunc,
-  Weekday,
-} from '../../cross/interface';
+import { Rule, Settings, Weekday } from '../../cross/interface';
 import { resetSchedule } from './services/wallpaper';
 import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../cross/consts';
 import { platform } from 'os';
-import { t as _t, changeLanguage } from 'i18next';
+import { changeLanguage, t } from 'i18next';
 import { configServiceMain } from './services/db-service';
 import {
   registerWallpaperWinHandler,
   setLiveWallpaperVolume,
 } from './services/wallpaper-window';
 import { setTray } from './tray';
-
-const t = _t as TranslationFunc;
 
 export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
   ipcMain.handle(Events.SelectImage, () => {

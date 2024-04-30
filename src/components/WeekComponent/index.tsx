@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectProps } from 'antd';
 import { DefaultOptionType } from 'rc-select/lib/Select';
 
 export interface WeekComponentProps {

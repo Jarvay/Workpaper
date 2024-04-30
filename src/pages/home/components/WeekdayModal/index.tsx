@@ -6,14 +6,13 @@ import { FormMode } from '../../../../../cross/enums';
 import { weekdayService } from '@/services/weekday';
 import WeekComponent from '@/components/WeekComponent';
 import { useTranslation } from 'react-i18next';
-import { TranslationFunc } from '../../../../../cross/interface';
 
 const WeekdayModal: React.FC<ModalFormProps> = (props) => {
   const [form] = Form.useForm();
 
   const [existDays, setExistDays] = useState<number[]>([]);
 
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
 
   async function doCreate() {
     try {

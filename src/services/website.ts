@@ -1,10 +1,8 @@
-import { TranslationFunc, WallpaperWebsite } from '../../cross/interface';
+import { WallpaperWebsite } from '../../cross/interface';
 import { BaseService } from '@/services/base';
 import axios from 'axios';
 import { message } from 'antd';
-import { t as _t } from 'i18next';
-
-const t = _t as TranslationFunc;
+import { t } from 'i18next';
 
 export class WebsiteService extends BaseService<'websites', WallpaperWebsite> {
   static readonly SUB_URLS = [

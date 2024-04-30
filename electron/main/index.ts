@@ -4,7 +4,6 @@ import {
   ipcMain,
   Menu,
   shell,
-  MenuItem,
   MenuItemConstructorOptions,
 } from 'electron';
 import { release } from 'node:os';
@@ -18,13 +17,10 @@ import {
   closeWallpaperWin,
   detachWallpaperWin,
 } from './services/wallpaper-window';
-import { t as _t } from 'i18next';
-import { TranslationFunc } from '../../cross/interface';
+import { t } from 'i18next';
 import { update } from './update';
 import { handleDownload } from './services/download';
 import { runMigrations } from './services/migration';
-
-const t: TranslationFunc = _t;
 
 // The built directory structure
 //

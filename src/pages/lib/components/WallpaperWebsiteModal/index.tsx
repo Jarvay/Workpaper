@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ModalFormProps,
-  TranslationFunc,
   WallpaperWebsite,
 } from '../../../../../cross/interface';
 import {
@@ -35,7 +34,7 @@ export interface WallpaperWebsiteModalProps
 const WallpaperWebsiteModal: React.FC<WallpaperWebsiteModalProps> = (props) => {
   const [form] = Form.useForm();
 
-  const t = useTranslation().t as TranslationFunc;
+  const { t } = useTranslation();
 
   async function doCreate() {
     try {

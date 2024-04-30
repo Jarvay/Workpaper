@@ -20,7 +20,7 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import { weekdayService } from '@/services/weekday';
-import { Rule, TranslationFunc, Weekday } from '../../../cross/interface';
+import { Rule, Weekday } from '../../../cross/interface';
 import { useTranslation } from 'react-i18next';
 import WeekComponent from '@/components/WeekComponent';
 import PageContainer from '@/components/PageContainer';
@@ -36,7 +36,7 @@ const RuleIndex: React.FC = () => {
   const navigate = useNavigate();
   const { id: weekdayId } = useParams();
 
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
 
   async function refresh() {
     const rules = await ruleService.get();

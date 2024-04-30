@@ -12,11 +12,7 @@ import {
   Switch,
   TimePicker,
 } from 'antd';
-import {
-  ModalFormProps,
-  Rule,
-  TranslationFunc,
-} from '../../../../../cross/interface';
+import { ModalFormProps, Rule } from '../../../../../cross/interface';
 import {
   ChangeType,
   Events,
@@ -37,7 +33,7 @@ const WallpaperRuleModal: React.FC<
 > = (props) => {
   const [form] = Form.useForm();
 
-  const { t }: { t: TranslationFunc } = useTranslation();
+  const { t } = useTranslation();
 
   async function doCreate() {
     try {
