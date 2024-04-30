@@ -1,5 +1,12 @@
 import { platform } from 'os';
-import { app, BrowserWindow, Menu, Tray } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  Tray,
+  nativeImage,
+  NativeImage,
+} from 'electron';
 import { join } from 'node:path';
 import { t as _t } from 'i18next';
 import { TranslationFunc } from '../../cross/interface';
@@ -20,10 +27,21 @@ export function setTray(
   publicDir: string,
   createWindow: () => Promise<BrowserWindow>,
 ) {
-  const trayIcon =
+  let trayIcon: string | NativeImage =
     platform() === 'win32' ? 'favicon.ico' : 'faviconTemplate.png';
+  trayIcon = join(publicDir, trayIcon);
+
+  if (platform() === 'darwin') {
+    trayIcon = nativeImage.createFromPath(trayIcon);
+    trayIcon.setTemplateImage(true);
+    trayIcon = trayIcon.resize({
+      width: 22,
+      height: 22,
+    });
+  }
+
   if (!tray) {
-    tray = new Tray(join(publicDir, trayIcon));
+    tray = new Tray(trayIcon);
   }
 
   tray.on('double-click', () => {
