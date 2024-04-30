@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Form, Input, Modal, Select, Slider } from 'antd';
+import { Button, Form, Input, Modal, Select, Slider, Switch } from 'antd';
 import { ModalFormProps, Settings } from '../../../cross/interface';
 import { cloneDeep, debounce } from 'lodash';
 import { useMount, useUpdateEffect } from 'ahooks';
@@ -87,7 +87,10 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
         labelWrap
         onValuesChange={async (changedValues, values) => {
           await settingsService.save(values);
-          await props.onChange?.(values as Settings);
+          await props.onChange?.({
+            ...settings,
+            ...values,
+          } as Settings);
           checkIsChanged();
         }}
       >
