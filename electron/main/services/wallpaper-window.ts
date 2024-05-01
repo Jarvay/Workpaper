@@ -15,7 +15,7 @@ import { Subject } from 'rxjs';
 import { omit } from 'lodash';
 import { StaticWallpaperEventArg } from '../../../cross/interface';
 
-const DEBUG = false;
+const DEBUG = !app.isPackaged && false;
 
 const windowsMap: Map<number, BrowserWindow> = new Map();
 
@@ -25,6 +25,7 @@ const defaultWinOptions: Electron.BrowserWindowConstructorOptions = {
   focusable: DEBUG,
   resizable: DEBUG,
   show: false,
+  opacity: DEBUG ? 1 : 0,
   webPreferences: {
     nodeIntegration: true,
     webSecurity: false,
@@ -99,7 +100,6 @@ async function createDarwinWin(
       width: width + 8,
       height: height + 4,
       enableLargerThanScreen: !DEBUG,
-      opacity: DEBUG ? 1 : 0,
       transparent: !DEBUG,
       show: true,
     };
@@ -112,7 +112,6 @@ async function createWin32Win(displayId: number, wallpaperType: WallpaperType) {
       ...defaultWinOptions,
       skipTaskbar: true,
       show: true,
-      opacity: 0,
       transparent: true,
       x: x - 4,
       y: y - 2,
@@ -129,7 +128,6 @@ async function createLinuxWin(displayId: number, wallpaperType: WallpaperType) {
       type: 'desktop',
       width: width,
       height: height,
-      opacity: 0,
       transparent: true,
       show: true,
     };

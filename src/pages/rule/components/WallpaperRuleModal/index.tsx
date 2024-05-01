@@ -459,7 +459,7 @@ const WallpaperRuleModal: React.FC<
                       name="interval"
                       rules={[{ required: true }]}
                     >
-                      <InputNumber min={10} max={24 * 60} />
+                      <InputNumber min={5} max={24 * 60} />
                     </Form.Item>
                   </>
                 )}

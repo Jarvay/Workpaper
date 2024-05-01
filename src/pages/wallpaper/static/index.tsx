@@ -9,14 +9,18 @@ import styles from './index.module.less';
 import { Carousel, Col, Row } from 'antd';
 import { cloneDeep, isEqual, omit, range, shuffle } from 'lodash';
 import { CarouselRef } from 'antd/es/carousel';
+import ImageCarousel from '@/pages/wallpaper/static/ImageCarousel';
 
 const SPEED = 1500;
 
+interface HorizontalIndex {
+  current: number;
+  next: number;
+}
+
 const StaticWallpaper: React.FC = () => {
   const [settings, setSettings] = useState<Settings>();
-  const imgRef = useRef<HTMLImageElement>();
   const verticalCarouselRefs = useRef<CarouselRef[]>([]);
-  const horizontalCarouselRef = useRef<CarouselRef>();
   const [staticWallpaperArg, setStaticWallpaperArg] =
     useState<StaticWallpaperEventArg>();
   const [path, setPath] = useState<string>();
@@ -24,6 +28,10 @@ const StaticWallpaper: React.FC = () => {
     new Set<number>(),
   );
   const [readyToShow, setReadyToShow] = useState(false);
+  const [horizontalIndex, setHorizontalIndex] = useState<HorizontalIndex>({
+    current: 0,
+    next: 0,
+  });
 
   const shuffledCarouselPaths = useMemo(() => {
     if (!staticWallpaperArg) return [];
@@ -70,7 +78,10 @@ const StaticWallpaper: React.FC = () => {
     const index = staticWallpaperArg?.paths.some((p) => p === path)
       ? staticWallpaperArg?.paths.findIndex((p) => p === path)
       : 0;
-    horizontalCarouselRef.current?.goTo(index, false);
+    setHorizontalIndex({
+      ...horizontalIndex,
+      next: index,
+    });
   }, [path, staticWallpaperArg]);
 
   useUpdateEffect(() => {
@@ -92,41 +103,27 @@ const StaticWallpaper: React.FC = () => {
   switch (staticWallpaperArg?.rule.direction) {
     case WallpaperDirection.Horizontal:
       children = (
-        <Carousel
-          dots={false}
-          fade
-          speed={SPEED}
-          ref={(ref) => {
-            if (ref) {
-              horizontalCarouselRef.current = ref;
+        <ImageCarousel
+          paths={staticWallpaperArg?.paths}
+          imgStyle={{
+            objectFit: settings?.webScaleMode,
+          }}
+          carouselIndex={horizontalIndex}
+          onImgLoad={(index) => {
+            if (index === 0) {
+              ipcRenderer.send(Events.StaticWallpaperLoaded, Number(displayId));
+              setReadyToShow(true);
             }
           }}
-        >
-          {staticWallpaperArg?.paths.map((item, index) => {
-            return (
-              <div key={item}>
-                <img
-                  ref={(ref) => !!ref && (imgRef.current = ref)}
-                  alt=""
-                  src={`file://${item}`}
-                  className={[styles.wallpaper].join(' ')}
-                  style={{
-                    objectFit: settings?.webScaleMode,
-                  }}
-                  onLoad={() => {
-                    if (index === 0) {
-                      ipcRenderer.send(
-                        Events.StaticWallpaperLoaded,
-                        Number(displayId),
-                      );
-                      setReadyToShow(true);
-                    }
-                  }}
-                />
-              </div>
-            );
-          })}
-        </Carousel>
+          carouselProps={{
+            afterChange: (currentSlide: number) => {
+              setHorizontalIndex({
+                ...horizontalIndex,
+                current: horizontalIndex.next,
+              });
+            },
+          }}
+        />
       );
       break;
     case WallpaperDirection.Vertical:
