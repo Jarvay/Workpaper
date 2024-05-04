@@ -9,9 +9,9 @@ import styles from './index.module.less';
 import { Carousel, Col, Row } from 'antd';
 import { cloneDeep, isEqual, omit, range, shuffle } from 'lodash';
 import { CarouselRef } from 'antd/es/carousel';
-import ImageCarousel from '@/pages/wallpaper/static/ImageCarousel';
+import HorizontalImageCarousel from '@/pages/wallpaper/static/components/HorizontalImageCarousel';
 
-const SPEED = 1500;
+const SPEED = 1200;
 
 interface HorizontalIndex {
   current: number;
@@ -48,6 +48,7 @@ const StaticWallpaper: React.FC = () => {
   ) => void = (_, arg: StaticWallpaperEventArg) => {
     const a = cloneDeep(omit(arg, 'path'));
     const b = cloneDeep(omit(staticWallpaperArg, 'path'));
+
     if (!isEqual(a, b)) {
       setStaticWallpaperArg(arg);
     }
@@ -91,7 +92,7 @@ const StaticWallpaper: React.FC = () => {
       setTimeout(() => {
         ipcRenderer.send(Events.StaticWallpaperLoaded, Number(displayId));
         setReadyToShow(true);
-      }, 500);
+      }, 200);
     }
   }, [loadedColumnIndexSet, staticWallpaperArg?.rule.column]);
 
@@ -103,7 +104,7 @@ const StaticWallpaper: React.FC = () => {
   switch (staticWallpaperArg?.rule.direction) {
     case WallpaperDirection.Horizontal:
       children = (
-        <ImageCarousel
+        <HorizontalImageCarousel
           paths={staticWallpaperArg?.paths}
           imgStyle={{
             objectFit: settings?.webScaleMode,
@@ -154,7 +155,7 @@ const StaticWallpaper: React.FC = () => {
                       } catch (e) {
                         console.warn(e);
                       }
-                    }, 100);
+                    }, 150);
                   }}
                 >
                   {shuffledCarouselPaths[index].map((item, i) => {

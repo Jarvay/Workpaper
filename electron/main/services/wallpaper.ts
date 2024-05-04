@@ -49,7 +49,16 @@ export async function setWallpaper(
         detachWallpaperWin();
       } else {
         const extList = typeExtMap.get(rule.wallpaperType) as string[];
-        let paths = readRuleFilePaths(rule, extList);
+        let paths: string[] = [];
+        switch (rule.type) {
+          case ChangeType.AutoChange:
+            paths = readRuleFilePaths(rule, extList);
+            break;
+          case ChangeType.Fixed:
+            paths = [filePath];
+            break;
+        }
+
         await setStaticWallpaper(
           {
             path: filePath,

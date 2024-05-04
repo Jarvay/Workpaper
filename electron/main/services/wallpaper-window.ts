@@ -15,7 +15,7 @@ import { Subject } from 'rxjs';
 import { omit } from 'lodash';
 import { StaticWallpaperEventArg } from '../../../cross/interface';
 
-const DEBUG = !app.isPackaged && false;
+const DEBUG = !app.isPackaged && true;
 
 const windowsMap: Map<number, BrowserWindow> = new Map();
 

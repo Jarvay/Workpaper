@@ -31,7 +31,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 const WallpaperRuleModal: React.FC<
   ModalFormProps<Rule> & { weekdayId?: string | number }
 > = (props) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<Rule & Record<string, any>>();
 
   const { t } = useTranslation();
 
@@ -81,14 +81,10 @@ const WallpaperRuleModal: React.FC<
         });
       }
     }
-  }, [props.open, props.values]);
+  }, [props.open]);
 
-  function renderPathItem(
-    paths: string[],
-    index: number,
-    wallpaperType: WallpaperType,
-  ) {
-    if (!paths?.[index]) return null;
+  function renderPathItem(path: string, wallpaperType: WallpaperType) {
+    if (!path) return null;
     const size = 72;
     let children = null;
     switch (wallpaperType) {
@@ -100,14 +96,14 @@ const WallpaperRuleModal: React.FC<
             }}
             width={size}
             height={size}
-            src={`file://${paths[index]}`}
+            src={`file://${path}`}
           />
         );
         break;
       case WallpaperType.Video:
         children = (
           <video
-            src={`file://${paths[index]}`}
+            src={`file://${path}`}
             style={{
               width: `${size}px`,
               maxHeight: `${size}px`,
@@ -135,9 +131,9 @@ const WallpaperRuleModal: React.FC<
     switch (type) {
       case ChangeType.Fixed:
         return (
-          <Form.Item noStyle dependencies={['paths']}>
-            {({ getFieldsValue }) => {
-              const { paths } = getFieldsValue() as Rule;
+          <Form.Item noStyle dependencies={['paths', 'type']}>
+            {({ getFieldValue }) => {
+              const paths = getFieldValue('paths');
               return (
                 <Form.List
                   name="paths"
@@ -167,7 +163,7 @@ const WallpaperRuleModal: React.FC<
                             noStyle
                           >
                             <Space>
-                              {renderPathItem(paths, index, wallpaperType)}
+                              {renderPathItem(paths?.[index], wallpaperType)}
 
                               <Button
                                 type="primary"
@@ -330,7 +326,7 @@ const WallpaperRuleModal: React.FC<
             onChange={(e) => {
               form.setFieldsValue({
                 path: undefined,
-                paths: [undefined],
+                paths: [''],
               });
             }}
             options={[
@@ -355,7 +351,10 @@ const WallpaperRuleModal: React.FC<
             onChange={(e) => {
               form.setFieldsValue({
                 path: undefined,
-                paths: [undefined],
+                paths: [''],
+                direction: WallpaperDirection.Horizontal,
+                isRandom: false,
+                screenRandom: false,
               });
             }}
             options={[
@@ -432,8 +431,8 @@ const WallpaperRuleModal: React.FC<
                             )}
 
                             <Form.Item noStyle dependencies={['isRandom']}>
-                              {({ getFieldsValue }) => {
-                                const { isRandom } = getFieldsValue() as Rule;
+                              {({ getFieldValue }) => {
+                                const isRandom = getFieldValue('isRandom');
                                 const isVertical =
                                   WallpaperDirection.Vertical === direction;
                                 return (

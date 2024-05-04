@@ -16,7 +16,12 @@ export abstract class BaseService<
     return (await this.getRows(this.getKeyInDB())) || [];
   }
 
+  async beforeCreate(item: T): Promise<T> {
+    return item;
+  }
+
   async create(item: T) {
+    item = await this.beforeCreate(item);
     const list = await this.get();
 
     const md5 = new Md5();
@@ -33,7 +38,13 @@ export abstract class BaseService<
     return this.save(list);
   }
 
+  async beforeUpdate(item: T): Promise<T> {
+    return item;
+  }
+
   async update(item: T) {
+    item = await this.beforeUpdate(item);
+
     const list = await this.get();
     list.forEach((i, index) => {
       if (i.id === item.id) {

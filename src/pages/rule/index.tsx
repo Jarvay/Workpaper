@@ -32,6 +32,7 @@ const RuleIndex: React.FC = () => {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<Rule>();
   const [weekday, setWeekday] = useState<Weekday>();
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { id: weekdayId } = useParams();
@@ -39,8 +40,10 @@ const RuleIndex: React.FC = () => {
   const { t } = useTranslation();
 
   async function refresh() {
+    setLoading(true);
     const rules = await ruleService.get();
     setDataSource(rules.filter((rule) => rule.weekdayId === weekdayId));
+    setLoading(false);
   }
 
   useMount(async () => {
@@ -172,7 +175,10 @@ const RuleIndex: React.FC = () => {
       dataIndex: 'interval',
       width: 120,
       render: (value, record) => {
-        if (record.wallpaperType === WallpaperType.Video) {
+        const hideInterval =
+          record.wallpaperType === WallpaperType.Video ||
+          record.type === ChangeType.Fixed;
+        if (hideInterval) {
           return '-';
         }
         return value || '-';
@@ -271,6 +277,7 @@ const RuleIndex: React.FC = () => {
           rowKey="id"
           columns={columns}
           dataSource={dataSource}
+          loading={loading}
         />
 
         <WallpaperRule
@@ -280,9 +287,9 @@ const RuleIndex: React.FC = () => {
           }}
           values={currentRow}
           mode={FormMode.Update}
-          onChange={() => {
+          onChange={async () => {
             setUpdateModalOpen(false);
-            refresh();
+            await refresh();
           }}
         />
       </Space>

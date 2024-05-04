@@ -1,6 +1,6 @@
 {
   "name": "workpaper",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A wallpaper schedule",
   "author": {
     "name": "Jarvay",
@@ -36,7 +36,6 @@
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.4",
     "ahooks": "^3.7.8",
-    "animate.css": "^4.1.1",
     "antd": "^5.10.2",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.8",
@@ -44,7 +43,6 @@
     "electron": "^30.0.0",
     "electron-builder": "^24.6.3",
     "electron-devtools-installer": "^3.2.0",
-    "i": "^0.3.7",
     "i18next": "^23.6.0",
     "less": "^4.2.0",
     "less-loader": "^11.1.3",
@@ -53,7 +51,6 @@
     "mime": "^4.0.1",
     "mitt": "^3.0.1",
     "node-schedule": "^2.1.1",
-    "npm": "^10.6.0",
     "postcss": "^8.4.31",
     "postcss-import": "^16.1.0",
     "prettier": "^3.0.3",

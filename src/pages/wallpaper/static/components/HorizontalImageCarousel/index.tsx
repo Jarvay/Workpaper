@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styles from '@/pages/wallpaper/static/index.module.less';
 import { ipcRenderer } from 'electron';
-import { Events } from '../../../../../cross/enums';
+import { Events } from '../../../../../../cross/enums';
 import { Carousel, CarouselProps } from 'antd';
 import { CarouselRef } from 'antd/es/carousel';
 
@@ -18,7 +18,7 @@ export interface ImageCarouselProps {
 }
 
 const SPEED = 1500;
-const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
+const HorizontalImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   const { carouselIndex } = props;
 
   const carouselRef = useRef<CarouselRef>();
@@ -59,4 +59,4 @@ const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   );
 };
 
-export default ImageCarousel;
+export default HorizontalImageCarousel;
