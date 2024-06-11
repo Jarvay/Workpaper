@@ -3,8 +3,8 @@ import {
   BrowserWindow,
   ipcMain,
   Menu,
-  shell,
   MenuItemConstructorOptions,
+  shell,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';

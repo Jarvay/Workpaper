@@ -1,8 +1,8 @@
 import { app, ipcMain } from 'electron';
 import {
+  autoUpdater,
   type ProgressInfo,
   type UpdateDownloadedEvent,
-  autoUpdater,
 } from 'electron-updater';
 
 export function update(win: Electron.BrowserWindow) {

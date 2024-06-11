@@ -2,7 +2,7 @@ import { timeToSeconds } from '../../cross/date';
 import { Rule } from '../../cross/interface';
 import { BaseService } from '@/services/base';
 import { ipcRenderer } from 'electron';
-import { ChangeType, Events, WallpaperDirection } from '../../cross/enums';
+import { ChangeType, Events } from '../../cross/enums';
 
 export class RuleService extends BaseService<'rules', Rule> {
   getKeyInDB(): 'rules' {
@@ -16,12 +16,13 @@ export class RuleService extends BaseService<'rules', Rule> {
 
   async beforeUpsert(item: Rule): Promise<Rule> {
     if (item.type === ChangeType.Fixed) {
-      item.direction = WallpaperDirection.Horizontal;
       item.isRandom = false;
       item.screenRandom = false;
-      item.path = '';
     }
 
+    if (item.type === ChangeType.Marquee) {
+      item.interval = undefined;
+    }
     return item;
   }
 

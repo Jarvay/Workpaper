@@ -1,5 +1,6 @@
-import { ModalProps } from 'antd';
+import { ColorPickerProps, ModalProps } from 'antd';
 import {
+  AlbumType,
   ChangeType,
   FormMode,
   Locale,
@@ -14,6 +15,7 @@ import {
 } from './enums';
 import { ITranslation } from './locale/i-translation';
 import type { Method } from 'axios';
+import { Color } from 'antd/es/color-picker/color';
 
 export interface ModalFormProps<ValueType = any> {
   values?: ValueType;
@@ -30,17 +32,15 @@ export interface BeanWithId {
 export interface Rule extends BeanWithId {
   start: string;
   end: string;
-  wallpaperType: WallpaperType;
   type: ChangeType;
-  path: string;
   paths: string[];
   interval?: number;
   weekdayId: Weekday['id'];
   remark?: string;
   isRandom?: boolean;
   screenRandom?: boolean;
-  direction: WallpaperDirection;
   column: number;
+  albumId: Album['id'];
 }
 
 export interface Weekday extends BeanWithId {
@@ -69,9 +69,10 @@ export interface DBData {
   currentIndex: number;
   websites: WallpaperWebsite[];
   migrations: string[];
+  albums: Album[];
 }
 
-export type DBTableKey = 'rules' | 'weekdays' | 'websites';
+export type DBTableKey = 'rules' | 'weekdays' | 'websites' | 'albums';
 
 export interface IDBService {
   setItem<Key extends keyof DBData>(
@@ -139,4 +140,40 @@ export interface StaticWallpaperEventArg {
   path: string;
   rule: Rule;
   paths: string[];
+  album?: Album;
+}
+
+export interface Marquee {
+  text: string;
+  backgroundColor: ColorPickerProps['value'];
+  textColor: ColorPickerProps['value'];
+  fontSize: number;
+  speed: number;
+  letterSpacing: number;
+}
+
+export interface Album extends BeanWithId, Marquee {
+  name: string;
+  dir: string;
+  paths: string[];
+  direction: WallpaperDirection;
+  wallpaperType: WallpaperType;
+  type: AlbumType;
+  column?: number;
+}
+
+export interface MarqueeEventArg {
+  rule: Rule;
+  album: Album;
+}
+
+export interface AlbumFileListItem {
+  path: string;
+  thumb: string;
+}
+
+export interface ToAlbumFileListItemParams {
+  files: string[];
+  width: number;
+  quality: number;
 }

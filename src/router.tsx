@@ -3,8 +3,10 @@ import Home from '@/pages/home';
 import Rule from '@/pages/rule';
 import StaticWallpaper from '@/pages/wallpaper/static';
 import LiveWallpaper from '@/pages/wallpaper/live';
+import MarqueeWallpaper from '@/pages/wallpaper/marquee';
 import Lib from '@/pages/lib';
 import Website from '@/pages/lib/website';
+import AlbumIndex from '@/pages/album';
 
 export const routes: RouteObject[] = [
   {
@@ -14,6 +16,10 @@ export const routes: RouteObject[] = [
   {
     path: '/libs',
     element: <Lib />,
+  },
+  {
+    path: '/albums',
+    element: <AlbumIndex />,
   },
   {
     path: '/website/:id',
@@ -30,6 +36,10 @@ export const routes: RouteObject[] = [
   {
     path: '/wallpaper/live/:displayId',
     element: <LiveWallpaper />,
+  },
+  {
+    path: '/wallpaper/marquee/:displayId',
+    element: <MarqueeWallpaper />,
   },
 ];
 

@@ -3,9 +3,9 @@ import {
   app,
   BrowserWindow,
   Menu,
-  Tray,
   nativeImage,
   NativeImage,
+  Tray,
 } from 'electron';
 import { join } from 'node:path';
 import { t } from 'i18next';

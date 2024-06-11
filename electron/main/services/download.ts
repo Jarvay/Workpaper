@@ -1,9 +1,9 @@
 import {
   BrowserWindow,
-  ipcMain,
-  WebContents,
   DownloadItem,
   Event,
+  ipcMain,
+  WebContents,
 } from 'electron';
 import axios from 'axios';
 import mime from 'mime';

@@ -9,7 +9,9 @@ export class Migration_202404223_1539 implements IMigration {
   run() {
     const rules = configServiceMain.getItem('rules');
     rules.forEach((rule) => {
+      // @ts-ignore
       if (!rule.direction) {
+        // @ts-ignore
         rule.direction = WallpaperDirection.Horizontal;
       }
     });

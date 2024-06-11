@@ -13,7 +13,10 @@ import { Events, WallpaperType } from '../../../cross/enums';
 import { indexHtml, url } from './utils';
 import { Subject } from 'rxjs';
 import { omit } from 'lodash';
-import { StaticWallpaperEventArg } from '../../../cross/interface';
+import {
+  MarqueeEventArg,
+  StaticWallpaperEventArg,
+} from '../../../cross/interface';
 
 const DEBUG = !app.isPackaged && true;
 
@@ -49,6 +52,9 @@ function loadUrl(
       break;
     case WallpaperType.Image:
       path = '#/wallpaper/static';
+      break;
+    case WallpaperType.Marquee:
+      path = '#/wallpaper/marquee';
       break;
   }
 
@@ -195,6 +201,25 @@ export function setStaticWallpaper(
   return createWallpaperWin(displayId, WallpaperType.Image);
 }
 
+export function setMarqueeWallpaper(arg: MarqueeEventArg, displayId: number) {
+  subject.subscribe({
+    next: (value) => {
+      const win = windowsMap.get(displayId);
+      if (win === value) {
+        value?.webContents.send(Events.SetMarqueeWallpaper, arg);
+      }
+    },
+  });
+
+  windowsMap.forEach((win, dId) => {
+    if (displayId === dId) {
+      win.webContents.send(Events.SetMarqueeWallpaper, arg);
+    }
+  });
+
+  return createWallpaperWin(displayId, WallpaperType.Marquee);
+}
+
 export function detachWallpaperWin() {
   windowsMap.forEach((win) => {
     if (platform() === 'win32') {
@@ -257,6 +282,7 @@ export function registerWallpaperWinHandler() {
 
   ipcMain.on(Events.StaticWallpaperLoaded, loadedListener);
   ipcMain.on(Events.LiveWallpaperLoaded, loadedListener);
+  ipcMain.on(Events.MarqueeWallpaperLoaded, loadedListener);
 
   ipcMain.on(Events.WallpaperWinReady, (_, displayId) => {
     subject.next(windowsMap.get(displayId) as BrowserWindow);

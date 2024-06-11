@@ -1,6 +1,7 @@
 export enum ChangeType {
   Fixed,
   AutoChange,
+  Marquee,
 }
 
 export enum FormMode {
@@ -12,6 +13,7 @@ export enum Events {
   SelectImage = 'SelectImage',
   SelectVideo = 'SelectVideo',
   SelectDir = 'SelectDir',
+  OpenPath = 'OpenPath',
 
   ResetSchedule = 'ResetSchedule',
 
@@ -26,6 +28,7 @@ export enum Events {
 
   SetStaticWallpaper = 'SetStaticWallpaper',
   SetLiveWallpaper = 'SetLiveWallpaper',
+  SetMarqueeWallpaper = 'SetMarqueeWallpaper',
   SetLiveWallpaperMuted = 'SetLiveWallpaperMuted',
   SetLiveWallpaperVolume = 'SetLiveWallpaperVolume',
 
@@ -35,6 +38,7 @@ export enum Events {
   WallpaperWinReady = 'WallpaperWinReady',
   LiveWallpaperLoaded = 'LiveWallpaperLoaded',
   StaticWallpaperLoaded = 'StaticWallpaperLoaded',
+  MarqueeWallpaperLoaded = 'MarqueeWallpaperLoaded',
 
   GetVersion = 'GetVersion',
   OpenExternal = 'OpenExternal',
@@ -42,6 +46,8 @@ export enum Events {
 
   Download = 'Download',
   OnDownloadUpdated = 'OnDownloadUpdated',
+
+  ToAlbumListItem = 'ToAlbumListItem',
 }
 
 export enum Locale {
@@ -77,6 +83,7 @@ export enum WebScaleMode {
 export enum WallpaperType {
   Image = 'Image',
   Video = 'Video',
+  Marquee = 'Marquee',
 }
 
 export enum WallpaperMode {
@@ -109,4 +116,9 @@ export enum WebsitePlaceholder {
 export enum WallpaperWebsiteType {
   Api = 'api',
   Website = 'website',
+}
+
+export enum AlbumType {
+  Directory,
+  Files,
 }

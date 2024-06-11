@@ -48,6 +48,7 @@ const defaultData: DBData = {
   currentIndex: 0,
   websites: [],
   migrations: [],
+  albums: [],
 };
 
 if (platform() === 'darwin') {

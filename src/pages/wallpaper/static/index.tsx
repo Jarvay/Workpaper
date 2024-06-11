@@ -101,11 +101,12 @@ const StaticWallpaper: React.FC = () => {
   const column = staticWallpaperArg?.rule.column || 3;
   const interval = staticWallpaperArg?.rule.interval || 30;
 
-  switch (staticWallpaperArg?.rule.direction) {
+  switch (staticWallpaperArg?.album?.direction) {
+    default:
     case WallpaperDirection.Horizontal:
       children = (
         <HorizontalImageCarousel
-          paths={staticWallpaperArg?.paths}
+          paths={staticWallpaperArg?.paths || []}
           imgStyle={{
             objectFit: settings?.webScaleMode,
           }}

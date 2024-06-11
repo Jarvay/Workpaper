@@ -2,11 +2,17 @@ import { readdirSync } from 'fs';
 import { join } from 'node:path';
 import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../../cross/consts';
 import { Rule } from '../../../cross/interface';
-import { ChangeType, WallpaperMode, WallpaperType } from '../../../cross/enums';
+import {
+  AlbumType,
+  ChangeType,
+  WallpaperMode,
+  WallpaperType,
+} from '../../../cross/enums';
 import {
   closeWallpaperWin,
   detachWallpaperWin,
   setLiveWallpaper,
+  setMarqueeWallpaper,
   setStaticWallpaper,
 } from './wallpaper-window';
 import { gracefulShutdown, RecurrenceRule, scheduleJob } from 'node-schedule';
@@ -30,13 +36,21 @@ const typeExtMap = new Map([
   [WallpaperType.Video, VIDEO_EXT_LIST],
 ]);
 
+function getAlbumById(albumId: string) {
+  const albums = configServiceMain.getItem('albums');
+  return albums.find((album) => album.id === albumId);
+}
+
 export async function setWallpaper(
   rule: Rule,
   filePath: string,
   displayId: number,
   currentIndex: number,
 ) {
-  switch (rule.wallpaperType) {
+  const album = getAlbumById(rule.albumId || '');
+
+  switch (album?.wallpaperType) {
+    default:
     case WallpaperType.Image:
       const { wallpaperMode, scaleMode } =
         configServiceMain.getItem('settings');
@@ -48,7 +62,7 @@ export async function setWallpaper(
         });
         detachWallpaperWin();
       } else {
-        const extList = typeExtMap.get(rule.wallpaperType) as string[];
+        const extList = typeExtMap.get(WallpaperType.Image) as string[];
         let paths: string[] = [];
         switch (rule.type) {
           case ChangeType.AutoChange:
@@ -64,6 +78,7 @@ export async function setWallpaper(
             path: filePath,
             rule,
             paths,
+            album,
           },
           displayId,
         );
@@ -73,11 +88,22 @@ export async function setWallpaper(
     case WallpaperType.Video:
       await setLiveWallpaper([filePath], displayId);
       break;
+    case WallpaperType.Marquee:
+      await setMarqueeWallpaper(
+        {
+          album,
+          rule,
+        },
+        displayId,
+      );
+      break;
   }
 }
 
 export async function updateWallpaper(rule: Rule, currentIndex: number) {
-  const extList = typeExtMap.get(rule.wallpaperType) as string[];
+  const album = getAlbumById(rule.albumId || '');
+  const wallpaperType = album?.wallpaperType || WallpaperType.Image;
+  const extList = typeExtMap.get(wallpaperType) as string[];
   const paths = readRuleFilePaths(rule, extList);
 
   if (rule.type !== ChangeType.Fixed && rule.isRandom) {
@@ -108,13 +134,23 @@ function increaseImgIndex(currentIndex: number, rule: Rule) {
 }
 
 function readRuleFilePaths(rule: Rule, extList: string[]) {
-  const filePaths = readdirSync(rule.path) || [];
-  return filePaths
-    .filter((item) => !/(^|\/)\.[^\/.]/g.test(item))
-    .filter((item) => extList.some((ext) => item.endsWith(ext)))
-    .map((item) => {
-      return join(rule.path, item);
-    });
+  const album = getAlbumById(rule.albumId || '');
+
+  switch (album?.type) {
+    default:
+      return [];
+
+    case AlbumType.Files:
+      return album?.paths;
+    case AlbumType.Directory:
+      const filePaths = readdirSync(album?.dir) || [];
+      return filePaths
+        .filter((item) => !/(^|\/)\.[^\/.]/g.test(item))
+        .filter((item) => extList.some((ext) => item.endsWith(ext)))
+        .map((item) => {
+          return join(album?.dir, item);
+        });
+  }
 }
 
 export async function createWallpaperTimer(rule: Rule) {
@@ -164,6 +200,9 @@ export async function resetSchedule() {
   const rules = configServiceMain.getItem('rules');
 
   rules.forEach((rule) => {
+    const album = getAlbumById(rule.albumId || '');
+    const wallpaperType = album?.wallpaperType || WallpaperType.Image;
+
     const [startHour, startMinute] = rule.start.split(':');
     const [endHour, endMinute] = rule.end.split(':');
 
@@ -209,6 +248,14 @@ export async function resetSchedule() {
         }
       }
 
+      function setDisplaysMarqueeWallpaper() {
+        const displays = screen.getAllDisplays();
+        for (let i = 0; i < displays.length; i++) {
+          const display = displays[i];
+          setWallpaper(rule, '', display.id, 0);
+        }
+      }
+
       switch (rule.type) {
         default:
         case ChangeType.Fixed:
@@ -221,7 +268,7 @@ export async function resetSchedule() {
           }
           break;
         case ChangeType.AutoChange:
-          if (rule.wallpaperType === WallpaperType.Image) {
+          if (wallpaperType === WallpaperType.Image) {
             if (isCurrent) {
               createIntervalPlan(day);
             } else {
@@ -229,7 +276,7 @@ export async function resetSchedule() {
                 createIntervalPlan(day);
               });
             }
-          } else if (rule.wallpaperType === WallpaperType.Video) {
+          } else if (wallpaperType === WallpaperType.Video) {
             if (isCurrent) {
               setAutoChangeLiveWallpapers();
             } else {
@@ -237,6 +284,15 @@ export async function resetSchedule() {
                 setAutoChangeLiveWallpapers();
               });
             }
+          }
+          break;
+        case ChangeType.Marquee:
+          if (isCurrent) {
+            setDisplaysMarqueeWallpaper();
+          } else {
+            scheduleJob(jobRule, () => {
+              setDisplaysMarqueeWallpaper();
+            });
           }
           break;
       }

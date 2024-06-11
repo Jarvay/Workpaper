@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { ipcRenderer, type IpcRendererEvent } from 'electron';
 import { Events } from '../../../../cross/enums';
 import { useParams } from 'react-router-dom';
@@ -12,10 +12,19 @@ import { CarouselRef } from 'antd/es/carousel';
 const LiveWallpaper: React.FC = () => {
   const [paths, setPaths] = useState<string[]>([]);
   const [settings, setSettings] = useState<Settings>();
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const { displayId } = useParams();
 
   const videoRefs = useRef<HTMLVideoElement[]>([]);
   const carouselRef = useRef<CarouselRef>();
+
+  const visibilityListener = useCallback(() => {
+    if (document.visibilityState === 'visible') {
+      videoRefs.current[currentIndex].play();
+    } else {
+      videoRefs.current[currentIndex].pause();
+    }
+  }, [videoRefs.current]);
 
   const liveWallpaperHandler: (
     event: IpcRendererEvent,
@@ -64,14 +73,17 @@ const LiveWallpaper: React.FC = () => {
     setSettings(await settingsService.get());
 
     ipcRenderer.send(Events.WallpaperWinReady, Number(displayId));
+
+    document.addEventListener('visibilitychange', visibilityListener);
   });
 
   useUnmount(() => {
     unregisterLiveWallpaperEvents();
+
+    document.removeEventListener('visibilitychange', visibilityListener);
   });
 
   useUpdateEffect(() => {
-    console.log('videoRefs.current[0]', videoRefs.current[0]);
     videoRefs.current[0].play();
   }, [paths, videoRefs.current[0]]);
 
@@ -87,6 +99,7 @@ const LiveWallpaper: React.FC = () => {
       }}
       afterChange={async (currentSlide) => {
         await videoRefs.current[currentSlide].play();
+        setCurrentIndex(currentSlide);
       }}
     >
       {paths.map((path, index) => {
@@ -106,6 +119,7 @@ const LiveWallpaper: React.FC = () => {
               onLoadedMetadata={() => {
                 ipcRenderer.send(Events.LiveWallpaperLoaded, Number(displayId));
               }}
+              controls
               loop={paths.length === 1}
               onEnded={() => {
                 carouselRef.current?.next();

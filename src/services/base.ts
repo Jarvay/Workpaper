@@ -1,6 +1,11 @@
 import { BeanWithId, DBTableKey } from '../../cross/interface';
 import { TableServiceRenderer } from '@/services/config-service';
-import { Md5 } from '@smithy/md5-js';
+import { generateId } from '../../cross/utils';
+
+export enum UpsertType {
+  Create,
+  Update,
+}
 
 export abstract class BaseService<
   K extends DBTableKey,
@@ -9,7 +14,7 @@ export abstract class BaseService<
   abstract getKeyInDB(): K;
 
   async save(list: T[]) {
-    await this.setRows(this.getKeyInDB(), list);
+    return await this.setRows(this.getKeyInDB(), list);
   }
 
   async get() {
@@ -20,22 +25,22 @@ export abstract class BaseService<
     return item;
   }
 
+  async beforeUpsert(item: T, type: UpsertType) {
+    return item;
+  }
+
+  async afterUpsert(item: T, type: UpsertType) {}
+
   async create(item: T) {
     item = await this.beforeCreate(item);
+    item = await this.beforeUpsert(item, UpsertType.Create);
     const list = await this.get();
 
-    const md5 = new Md5();
-    const random = (Math.random() * 100000000).toFixed(0);
-    md5.update(Date.now() + random);
-
-    const uint8Array = await md5.digest();
-    const strArr: string[] = [];
-    uint8Array.forEach((x) => {
-      strArr.push(('00' + x.toString(16)).slice(-2));
-    });
-    item.id = strArr.join('');
+    item.id = await generateId();
     list.push(item);
-    return this.save(list);
+    const result = this.save(list);
+    await this.afterUpsert(item, UpsertType.Create);
+    return result;
   }
 
   async beforeUpdate(item: T): Promise<T> {
@@ -44,6 +49,7 @@ export abstract class BaseService<
 
   async update(item: T) {
     item = await this.beforeUpdate(item);
+    item = await this.beforeUpsert(item, UpsertType.Update);
 
     const list = await this.get();
     list.forEach((i, index) => {
@@ -51,7 +57,9 @@ export abstract class BaseService<
         list[index] = item;
       }
     });
-    return await this.save(list);
+    const result = this.save(list);
+    await this.afterUpsert(item, UpsertType.Update);
+    return result;
   }
 
   async delete(id: string) {

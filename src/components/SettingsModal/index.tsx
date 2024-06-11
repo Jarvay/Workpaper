@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Form, Input, Modal, Select, Slider, Switch } from 'antd';
+import { Button, Form, Input, Modal, Select, Slider } from 'antd';
 import { ModalFormProps, Settings } from '../../../cross/interface';
 import { cloneDeep, debounce } from 'lodash';
 import { useMount, useUpdateEffect } from 'ahooks';
