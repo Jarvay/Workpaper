@@ -1,20 +1,22 @@
 import {
   BeanWithId,
-  DBData,
+  ConfigData,
   DBTableKey,
   IDBService,
 } from '../../cross/interface';
 import { ipcRenderer } from 'electron';
 import { Events } from '../../cross/enums';
 
-export class ConfigServiceRenderer<Key extends keyof DBData>
-  implements IDBService
+export class ConfigServiceRenderer<Key extends keyof ConfigData>
+  implements IDBService<ConfigData>
 {
-  setItem<Key extends keyof DBData>(key: Key, data: DBData[Key]) {
+  setItem<Key extends keyof ConfigData>(key: Key, data: ConfigData[Key]) {
     return ipcRenderer.invoke(Events.SetDBItem, key, data);
   }
 
-  async getItem<Key extends keyof DBData>(key: Key): Promise<DBData[Key]> {
+  async getItem<Key extends keyof ConfigData>(
+    key: Key,
+  ): Promise<ConfigData[Key]> {
     return await ipcRenderer.invoke(Events.GetDBItem, key);
   }
 }

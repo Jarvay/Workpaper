@@ -1,7 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import styles from '@/pages/wallpaper/static/index.module.less';
-import { ipcRenderer } from 'electron';
-import { Events } from '../../../../../../cross/enums';
 import { Carousel, CarouselProps } from 'antd';
 import { CarouselRef } from 'antd/es/carousel';
 

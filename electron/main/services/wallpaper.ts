@@ -1,24 +1,27 @@
 import { readdirSync } from 'fs';
 import { join } from 'node:path';
 import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../../cross/consts';
-import { Rule } from '../../../cross/interface';
-import { ChangeType, WallpaperMode, WallpaperType } from '../../../cross/enums';
+import { Album, Marquee, Rule, Weekday } from '../../../cross/interface';
 import {
-  closeWallpaperWin,
-  detachWallpaperWin,
-  setLiveWallpaper,
-  setStaticWallpaper,
-} from './wallpaper-window';
+  AlbumType,
+  RuleType,
+  WallpaperMode,
+  WallpaperType,
+} from '../../../cross/enums';
+import { WallpaperWindowService } from './wallpaper-window';
 import { gracefulShutdown, RecurrenceRule, scheduleJob } from 'node-schedule';
 import { timeToSeconds } from '../../../cross/date';
 import dayjs from 'dayjs';
-import { configServiceMain } from './db-service';
-import { SetOptions } from 'wallpaper';
+import { tmpDataServiceMain } from './db.service';
 import { screen } from 'electron';
 import { platform } from 'os';
 import { randomByRange } from '../../../cross/utils';
+import { configServiceMain } from './config.service';
 
-const timerMap: Map<string, NodeJS.Timeout> = new Map<string, NodeJS.Timeout>();
+const timerMap: Map<string, NodeJS.Timeout | undefined> = new Map<
+  string,
+  NodeJS.Timeout | undefined
+>();
 
 const typeExtMap = new Map([
   [
@@ -30,57 +33,73 @@ const typeExtMap = new Map([
   [WallpaperType.Video, VIDEO_EXT_LIST],
 ]);
 
-export async function setWallpaper(
+WallpaperWindowService.init({
+  resetSchedule,
+  removeSchedule,
+});
+
+const wallpaperWinService = WallpaperWindowService.instance;
+
+function updateCurrentIndex(index: number, isRandom?: boolean) {
+  if (isRandom === false) {
+    tmpDataServiceMain.setItem('currentIndex', index);
+  }
+}
+
+async function setFixedWallpaper(
   rule: Rule,
   filePath: string,
   displayId: number,
-  currentIndex: number,
 ) {
   switch (rule.wallpaperType) {
+    default:
     case WallpaperType.Image:
       const { wallpaperMode, scaleMode } =
         configServiceMain.getItem('settings');
       const wallpaper = await import('wallpaper');
       if (wallpaperMode === WallpaperMode.Replace) {
         await wallpaper.setWallpaper(filePath, {
-          scale: scaleMode as SetOptions['scale'],
+          scale: scaleMode as any,
           screen: 'all',
         });
-        detachWallpaperWin();
+        wallpaperWinService.detachWallpaperWin();
       } else {
-        const extList = typeExtMap.get(rule.wallpaperType) as string[];
-        let paths: string[] = [];
-        switch (rule.type) {
-          case ChangeType.AutoChange:
-            paths = readRuleFilePaths(rule, extList);
-            break;
-          case ChangeType.Fixed:
-            paths = [filePath];
-            break;
-        }
+        let paths: string[] = [filePath];
 
-        await setStaticWallpaper(
+        await wallpaperWinService.setStaticWallpaper(
           {
             path: filePath,
             rule,
             paths,
+            album: {} as Album,
           },
           displayId,
         );
       }
-      configServiceMain.setItem('currentIndex', currentIndex);
       break;
     case WallpaperType.Video:
-      await setLiveWallpaper([filePath], displayId);
+      await wallpaperWinService.setLiveWallpaper(
+        {
+          paths: [filePath],
+          rule,
+        },
+        displayId,
+      );
       break;
   }
 }
 
-export async function updateWallpaper(rule: Rule, currentIndex: number) {
-  const extList = typeExtMap.get(rule.wallpaperType) as string[];
-  const paths = readRuleFilePaths(rule, extList);
+export async function updateStaticWallpaper(rule: Rule, album: Album) {
+  const wallpaperType = album.wallpaperType;
+  const extList = typeExtMap.get(wallpaperType) as string[];
+  const paths = readAlbumFilePaths(album, extList);
 
-  if (rule.type !== ChangeType.Fixed && rule.isRandom) {
+  let currentIndex = increaseImgIndex(
+    tmpDataServiceMain.getItem('currentIndex'),
+    album,
+  );
+
+  if (rule.isRandom) {
     const max = paths.length - 1;
     currentIndex = randomByRange(0, max);
   }
@@ -89,17 +108,39 @@ export async function updateWallpaper(rule: Rule, currentIndex: number) {
 
   const displays = screen.getAllDisplays();
   for (const display of displays) {
-    if (rule.type !== ChangeType.Fixed && rule.screenRandom) {
+    if (rule.screenRandom) {
       const max = paths.length - 1;
       currentIndex = randomByRange(0, max);
       filePath = paths[currentIndex];
     }
-    await setWallpaper(rule, filePath, display.id, currentIndex);
+    const { wallpaperMode, scaleMode } = configServiceMain.getItem('settings');
+    const wallpaper = await import('wallpaper');
+    if (wallpaperMode === WallpaperMode.Replace) {
+      await wallpaper.setWallpaper(filePath, {
+        scale: scaleMode as any,
+        screen: 'all',
+      });
+      wallpaperWinService.detachWallpaperWin();
+    } else {
+      const extList = typeExtMap.get(WallpaperType.Image) as string[];
+      let paths: string[] = readAlbumFilePaths(album, extList);
+
+      await wallpaperWinService.setStaticWallpaper(
+        {
+          path: filePath,
+          rule,
+          paths,
+          album,
+        },
+        display.id,
+      );
+    }
+    updateCurrentIndex(currentIndex, rule.isRandom);
   }
 }
 
-function increaseImgIndex(currentIndex: number, rule: Rule) {
-  const total = readRuleFilePaths(rule, IMAGE_EXT_LIST).length;
+function increaseImgIndex(currentIndex: number, album: Album) {
+  const total = readAlbumFilePaths(album, IMAGE_EXT_LIST).length;
 
   if (currentIndex + 1 >= total) {
     return 0;
@@ -107,26 +148,32 @@ function increaseImgIndex(currentIndex: number, rule: Rule) {
   return currentIndex + 1;
 }
 
-function readRuleFilePaths(rule: Rule, extList: string[]) {
-  const filePaths = readdirSync(rule.path) || [];
-  return filePaths
-    .filter((item) => !/(^|\/)\.[^\/.]/g.test(item))
-    .filter((item) => extList.some((ext) => item.endsWith(ext)))
-    .map((item) => {
-      return join(rule.path, item);
-    });
+function readAlbumFilePaths(album: Album, extList: string[]) {
+  switch (album.type) {
+    default:
+      return [];
+
+    case AlbumType.Files:
+      return album.paths.map((item) => item.path) || [];
+    case AlbumType.Directory:
+      const filePaths = readdirSync(album.dir) || [];
+      return filePaths
+        .filter((item) => !/(^|\/)\.[^\/.]/g.test(item))
+        .filter((item) => extList.some((ext) => item.endsWith(ext)))
+        .map((item) => {
+          return join(album.dir, item);
+        });
+  }
 }
 
-export async function createWallpaperTimer(rule: Rule) {
-  let currentIndex = increaseImgIndex(
-    configServiceMain.getItem('currentIndex'),
-    rule,
-  );
-  await updateWallpaper(rule, currentIndex);
+export async function createStaticWallpaperTimer(rule: Rule) {
+  const album = configServiceMain.table<Album>('albums').findById(rule.albumId);
+  if (!album) return undefined;
+
+  await updateStaticWallpaper(rule, album);
   return setInterval(
     async () => {
-      currentIndex = increaseImgIndex(currentIndex, rule);
-      await updateWallpaper(rule, currentIndex);
+      await updateStaticWallpaper(rule, album);
     },
     (rule.interval || 60) * 1000,
   );
@@ -145,21 +192,21 @@ function isCurrentRule(rule: Rule, day: number) {
   return start <= now && end >= now;
 }
 
-function getWeekdayById(id: string) {
-  return configServiceMain.getItem('weekdays').find((item) => {
-    return item.id === id;
-  });
-}
-
-export async function resetSchedule() {
+export async function removeSchedule() {
   await gracefulShutdown();
-  closeWallpaperWin();
+  wallpaperWinService.closeWallpaperWin();
 
   for (const timerMapElement of timerMap) {
     const [, timer] = timerMapElement;
     clearInterval(timer);
   }
   timerMap.clear();
+
+  wallpaperWinService.windowsMap.clear();
+}
+
+export async function resetSchedule() {
+  await removeSchedule();
 
   const rules = configServiceMain.getItem('rules');
 
@@ -168,8 +215,8 @@ export async function resetSchedule() {
     const [endHour, endMinute] = rule.end.split(':');
 
     async function createIntervalPlan(dayOfWeek: number) {
-      clearInterval(timerMap.get(rule.id as string));
-      timerMap.set(rule.id as string, await createWallpaperTimer(rule));
+      clearInterval(timerMap.get(rule.id));
+      timerMap.set(rule.id, await createStaticWallpaperTimer(rule));
 
       const stopRule = new RecurrenceRule();
       stopRule.second = 59;
@@ -177,11 +224,13 @@ export async function resetSchedule() {
       stopRule.hour = endHour;
       stopRule.dayOfWeek = dayOfWeek;
       scheduleJob(stopRule, () => {
-        clearInterval(timerMap.get(rule.id as string));
+        clearInterval(timerMap.get(rule.id));
       });
     }
 
-    const weekday = getWeekdayById(rule.weekdayId as string);
+    const weekday = configServiceMain
+      .table<Weekday>('weekdays')
+      .findById(rule.weekdayId);
     const days = weekday?.days || [];
     days.forEach((day) => {
       const isCurrent = isCurrentRule(rule, day);
@@ -192,36 +241,64 @@ export async function resetSchedule() {
       jobRule.hour = startHour;
       jobRule.dayOfWeek = day === 7 ? 0 : day;
 
-      function setFixedWallpaper() {
+      function setDisplaysFixedWallpaper() {
         let index = 0;
         for (const display of screen.getAllDisplays()) {
-          const path = rule.paths?.[index] || rule.paths?.[0];
-          setWallpaper(rule, path, display.id, 0);
+          const path = rule.paths[index] || rule.paths[0];
+          setFixedWallpaper(rule, path, display.id);
           index++;
         }
       }
 
-      function setAutoChangeLiveWallpapers() {
+      function setDisplaysLiveWallpaper(album: Album) {
         let index = 0;
         for (const display of screen.getAllDisplays()) {
-          setLiveWallpaper(readRuleFilePaths(rule, VIDEO_EXT_LIST), display.id);
+          wallpaperWinService.setLiveWallpaper(
+            {
+              paths: readAlbumFilePaths(album, VIDEO_EXT_LIST),
+              rule,
+            },
+            display.id,
+          );
           index++;
+        }
+      }
+
+      async function setDisplaysMarqueeWallpaper() {
+        const marquee = configServiceMain
+          .table<Marquee>('marquees')
+          .findById(rule.marqueeId);
+
+        const displays = screen.getAllDisplays();
+        for (let i = 0; i < displays.length; i++) {
+          const display = displays[i];
+
+          await wallpaperWinService.setMarqueeWallpaper(
+            { marquee: marquee as Marquee, rule },
+            display.id,
+          );
         }
       }
 
       switch (rule.type) {
         default:
-        case ChangeType.Fixed:
+        case RuleType.Fixed:
           if (isCurrent) {
-            setFixedWallpaper();
+            setDisplaysFixedWallpaper();
           } else {
             scheduleJob(jobRule, () => {
-              setFixedWallpaper();
+              setDisplaysFixedWallpaper();
             });
           }
           break;
-        case ChangeType.AutoChange:
-          if (rule.wallpaperType === WallpaperType.Image) {
+        case RuleType.Album:
+          const album = configServiceMain
+            .table<Album>('albums')
+            .findById(rule.albumId);
+          if (!album) return;
+
+          const wallpaperType = album.wallpaperType;
+          if (wallpaperType === WallpaperType.Image) {
             if (isCurrent) {
               createIntervalPlan(day);
             } else {
@@ -229,14 +306,23 @@ export async function resetSchedule() {
                 createIntervalPlan(day);
               });
             }
-          } else if (rule.wallpaperType === WallpaperType.Video) {
+          } else if (wallpaperType === WallpaperType.Video) {
             if (isCurrent) {
-              setAutoChangeLiveWallpapers();
+              setDisplaysLiveWallpaper(album);
             } else {
               scheduleJob(jobRule, () => {
-                setAutoChangeLiveWallpapers();
+                setDisplaysLiveWallpaper(album);
               });
             }
+          }
+          break;
+        case RuleType.Marquee:
+          if (isCurrent) {
+            setDisplaysMarqueeWallpaper();
+          } else {
+            scheduleJob(jobRule, () => {
+              setDisplaysMarqueeWallpaper();
+            });
           }
           break;
       }

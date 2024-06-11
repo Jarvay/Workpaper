@@ -32,12 +32,16 @@ const LOCALE_MAP = new Map([
 
 const MENU_KEYS = {
   rules: 'rules',
+  albums: 'albums',
+  marquees: 'marquees',
   libs: 'libs',
 };
 
 const MENU_ROUTES = {
   [MENU_KEYS.rules]: '/',
-  [MENU_KEYS.libs]: '/libs',
+  [MENU_KEYS.albums]: '/albums',
+  [MENU_KEYS.marquees]: '/marquees',
+  [MENU_KEYS.libs]: '/library',
 };
 
 function App() {
@@ -58,6 +62,14 @@ function App() {
     {
       key: MENU_KEYS.rules,
       label: t('menu.rules'),
+    },
+    {
+      key: MENU_KEYS.albums,
+      label: t('menu.albums'),
+    },
+    {
+      key: MENU_KEYS.marquees,
+      label: t('menu.marquees'),
     },
     {
       key: MENU_KEYS.libs,

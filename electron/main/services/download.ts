@@ -1,15 +1,15 @@
 import {
   BrowserWindow,
-  ipcMain,
-  WebContents,
   DownloadItem,
   Event,
+  ipcMain,
+  WebContents,
 } from 'electron';
 import axios from 'axios';
 import mime from 'mime';
 import { createHash } from 'crypto';
 import { join } from 'node:path';
-import { configServiceMain } from './db-service';
+import { configServiceMain } from './config.service';
 import { Events } from '../../../cross/enums';
 import { DownloadArg, DownloadEvent } from '../../../cross/interface';
 import { omit } from 'lodash';

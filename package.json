@@ -1,6 +1,6 @@
 {
   "name": "workpaper",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A wallpaper schedule",
   "author": {
     "name": "Jarvay",
@@ -9,6 +9,10 @@
   "main": "dist-electron/main/index.js",
   "license": "MIT",
   "private": true,
+  "workspaces": [
+    "*",
+    "library/*"
+  ],
   "debug": {
     "env": {
       "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
@@ -19,11 +23,13 @@
     "build": "tsc && vite build && electron-builder",
     "preview": "vite preview",
     "pree2e": "vite build --mode=test",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "create-migration": "ts-node scripts/create-migration.js"
   },
   "dependencies": {
     "electron-as-wallpaper": "1.0.3",
     "electron-updater": "^6.1.1",
+    "react-fast-marquee": "^1.6.4",
     "wallpaper": "^7.2.1"
   },
   "devDependencies": {
@@ -36,7 +42,7 @@
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.4",
     "ahooks": "^3.7.8",
-    "antd": "^5.10.2",
+    "antd": "^5.18.0",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.8",
     "dayjs": "^1.11.10",
@@ -60,6 +66,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-router-dom": "^6.18.0",
     "rxjs": "^7.8.1",
+    "sharp": "^0.33.4",
     "typescript": "^5.1.6",
     "vite": "^5.2.7",
     "vite-plugin-electron": "^0.13.0-beta.3",

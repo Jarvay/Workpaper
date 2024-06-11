@@ -13,6 +13,7 @@ import {
   DEFAULT_NATIVE_SCALE_MODE,
   DEFAULT_WEB_SCALE_MODE,
 } from '../../../cross/consts';
+import ShortcutInput from '@/components/ShortcutInput';
 
 export interface SettingsModalProps extends ModalFormProps<Settings> {}
 
@@ -28,10 +29,17 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
     if (!settings) return false;
     const currentSettings = form.getFieldsValue() as Settings;
 
-    const changed =
-      currentSettings.wallpaperMode !== settings.wallpaperMode ||
-      currentSettings.scaleMode !== settings.scaleMode ||
-      currentSettings.webScaleMode !== settings.webScaleMode;
+    const COMPARE_KEYS: (keyof Settings)[] = [
+      'wallpaperMode',
+      'scaleMode',
+      'webScaleMode',
+      'pauseWhenBlur',
+    ];
+
+    const changed = COMPARE_KEYS.some((key) => {
+      return currentSettings[key] !== settings[key];
+    });
+
     setIsChanged(changed);
   }, [settings]);
 
@@ -116,10 +124,11 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             ]}
             onChange={async (value) => {
               if (value === WallpaperMode.Replace) {
-                form.setFieldsValue({
-                  // @ts-ignore
-                  scaleMode: DEFAULT_NATIVE_SCALE_MODE[platform],
-                });
+                if (platform) {
+                  form.setFieldsValue({
+                    scaleMode: DEFAULT_NATIVE_SCALE_MODE[platform as string],
+                  });
+                }
               } else {
                 form.setFieldsValue({
                   webScaleMode: DEFAULT_WEB_SCALE_MODE,
@@ -191,6 +200,13 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
               checkIsChanged();
             }}
           />
+        </Form.Item>
+
+        <Form.Item
+          label={t('settings.pausePlayShortcut')}
+          name="pausePlayShortcut"
+        >
+          <ShortcutInput />
         </Form.Item>
 
         <Form.Item label={t('settings.volume')} name="volume">

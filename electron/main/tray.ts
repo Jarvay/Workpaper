@@ -3,14 +3,14 @@ import {
   app,
   BrowserWindow,
   Menu,
-  Tray,
   nativeImage,
   NativeImage,
+  Tray,
 } from 'electron';
 import { join } from 'node:path';
 import { t } from 'i18next';
-import { configServiceMain } from './services/db-service';
-import { setLiveWallpaperMuted } from './services/wallpaper-window';
+import { configServiceMain } from './services/config.service';
+import { WallpaperWindowService } from './services/wallpaper-window';
 
 let tray: Tray;
 
@@ -88,7 +88,7 @@ export function setTray(
         const muted = !configServiceMain.getItem('settings').muted;
         contextMenu.items[TrayMenuItem.Muted].checked = muted;
         tray?.setContextMenu(contextMenu);
-        setLiveWallpaperMuted(muted);
+        WallpaperWindowService.instance.setLiveWallpaperMuted(muted);
         configServiceMain.setItem('settings', {
           ...configServiceMain.getItem('settings'),
           muted,
@@ -105,7 +105,7 @@ export function setTray(
         contextMenu.items[TrayMenuItem.AutoCheckUpdate].checked =
           autoCheckUpdate;
         tray?.setContextMenu(contextMenu);
-        setLiveWallpaperMuted(autoCheckUpdate);
+        WallpaperWindowService.instance.setLiveWallpaperMuted(autoCheckUpdate);
         configServiceMain.setItem('settings', {
           ...configServiceMain.getItem('settings'),
           autoCheckUpdate,

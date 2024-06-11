@@ -3,24 +3,22 @@ import {
   BrowserWindow,
   ipcMain,
   Menu,
-  shell,
   MenuItemConstructorOptions,
+  shell,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
 import { registerHandlers } from './handlers';
 import './locale';
 import { setTray } from './tray';
-import { resetSchedule } from './services/wallpaper';
+import { removeSchedule, resetSchedule } from './services/wallpaper';
 import { indexHtml, url } from './services/utils';
-import {
-  closeWallpaperWin,
-  detachWallpaperWin,
-} from './services/wallpaper-window';
+import { WallpaperWindowService } from './services/wallpaper-window';
 import { t } from 'i18next';
 import { update } from './update';
 import { handleDownload } from './services/download';
 import { runMigrations } from './services/migration';
+import { registerShortcut } from './services/global-shortcut';
 
 // The built directory structure
 //
@@ -173,6 +171,8 @@ app.whenReady().then(async () => {
 
   setTray(process.env.VITE_PUBLIC, createWindow);
 
+  registerShortcut();
+
   await resetSchedule();
 });
 
@@ -198,8 +198,8 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', () => {
-  detachWallpaperWin();
-  closeWallpaperWin();
+  WallpaperWindowService.instance.detachWallpaperWin();
+  WallpaperWindowService.instance.closeWallpaperWin();
 });
 
 // New window example arg: new windows url

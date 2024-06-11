@@ -1,6 +1,7 @@
-export enum ChangeType {
+export enum RuleType {
   Fixed,
-  AutoChange,
+  Album,
+  Marquee,
 }
 
 export enum FormMode {
@@ -12,12 +13,9 @@ export enum Events {
   SelectImage = 'SelectImage',
   SelectVideo = 'SelectVideo',
   SelectDir = 'SelectDir',
+  OpenPath = 'OpenPath',
 
   ResetSchedule = 'ResetSchedule',
-
-  SaveRules = 'SaveRules',
-  SaveWeekdays = 'SaveWeekdays',
-
   GetLocale = 'GetLocale',
   SettingsChange = 'SettingsChange',
   InitSettings = 'InitSettings',
@@ -26,8 +24,11 @@ export enum Events {
 
   SetStaticWallpaper = 'SetStaticWallpaper',
   SetLiveWallpaper = 'SetLiveWallpaper',
+  SetMarqueeWallpaper = 'SetMarqueeWallpaper',
   SetLiveWallpaperMuted = 'SetLiveWallpaperMuted',
   SetLiveWallpaperVolume = 'SetLiveWallpaperVolume',
+  PauseLiveWallpaper = 'PauseLiveWallpaper',
+  PlayLiveWallpaper = 'PlayLiveWallpaper',
 
   SetDBItem = 'SetDBItem',
   GetDBItem = 'GetDBItem',
@@ -35,6 +36,7 @@ export enum Events {
   WallpaperWinReady = 'WallpaperWinReady',
   LiveWallpaperLoaded = 'LiveWallpaperLoaded',
   StaticWallpaperLoaded = 'StaticWallpaperLoaded',
+  MarqueeWallpaperLoaded = 'MarqueeWallpaperLoaded',
 
   GetVersion = 'GetVersion',
   OpenExternal = 'OpenExternal',
@@ -42,6 +44,10 @@ export enum Events {
 
   Download = 'Download',
   OnDownloadUpdated = 'OnDownloadUpdated',
+
+  ToAlbumListItem = 'ToAlbumListItem',
+
+  UnregisterGlobalShortcut = 'UnregisterGlobalShortcut',
 }
 
 export enum Locale {
@@ -109,4 +115,9 @@ export enum WebsitePlaceholder {
 export enum WallpaperWebsiteType {
   Api = 'api',
   Website = 'website',
+}
+
+export enum AlbumType {
+  Directory,
+  Files,
 }

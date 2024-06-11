@@ -32,6 +32,7 @@ const StaticWallpaper: React.FC = () => {
     current: 0,
     next: 0,
   });
+  const [isInitialed, setIsInitialed] = useState<boolean>(false);
 
   const shuffledCarouselPaths = useMemo(() => {
     if (!staticWallpaperArg) return [];
@@ -80,9 +81,13 @@ const StaticWallpaper: React.FC = () => {
       ? staticWallpaperArg?.paths.findIndex((p) => p === path)
       : 0;
     setHorizontalIndex({
-      ...horizontalIndex,
+      current: isInitialed ? horizontalIndex.current : index,
       next: index,
     });
+
+    if (!isInitialed) {
+      setIsInitialed(true);
+    }
   }, [path, staticWallpaperArg]);
 
   useUpdateEffect(() => {
@@ -101,17 +106,18 @@ const StaticWallpaper: React.FC = () => {
   const column = staticWallpaperArg?.rule.column || 3;
   const interval = staticWallpaperArg?.rule.interval || 30;
 
-  switch (staticWallpaperArg?.rule.direction) {
+  switch (staticWallpaperArg?.album?.direction) {
+    default:
     case WallpaperDirection.Horizontal:
       children = (
         <HorizontalImageCarousel
-          paths={staticWallpaperArg?.paths}
+          paths={staticWallpaperArg?.paths || []}
           imgStyle={{
             objectFit: settings?.webScaleMode,
           }}
           carouselIndex={horizontalIndex}
           onImgLoad={(index) => {
-            if (index === 0) {
+            if (index === horizontalIndex.current) {
               ipcRenderer.send(Events.StaticWallpaperLoaded, Number(displayId));
               setReadyToShow(true);
             }

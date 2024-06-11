@@ -1,6 +1,7 @@
-import { ModalProps } from 'antd';
+import { ColorPickerProps, ModalProps } from 'antd';
 import {
-  ChangeType,
+  AlbumType,
+  RuleType,
   FormMode,
   Locale,
   MacOSScaleMode,
@@ -14,6 +15,7 @@ import {
 } from './enums';
 import { ITranslation } from './locale/i-translation';
 import type { Method } from 'axios';
+import MarqueeModal from '@/pages/marquee/components/MarqueeModal';
 
 export interface ModalFormProps<ValueType = any> {
   values?: ValueType;
@@ -24,28 +26,27 @@ export interface ModalFormProps<ValueType = any> {
 }
 
 export interface BeanWithId {
-  id?: string;
+  id: string;
 }
 
 export interface Rule extends BeanWithId {
   start: string;
   end: string;
-  wallpaperType: WallpaperType;
-  type: ChangeType;
-  path: string;
+  type: RuleType;
   paths: string[];
   interval?: number;
   weekdayId: Weekday['id'];
   remark?: string;
   isRandom?: boolean;
   screenRandom?: boolean;
-  direction: WallpaperDirection;
   column: number;
+  albumId: Album['id'];
+  marqueeId: Marquee['id'];
+  wallpaperType: WallpaperType;
 }
 
 export interface Weekday extends BeanWithId {
   days: number[];
-  id?: string;
 }
 
 export interface Settings {
@@ -58,30 +59,38 @@ export interface Settings {
   autoCheckUpdate: boolean;
   openAtLogin: boolean;
   downloadsDir: string;
+  pauseWhenBlur: boolean;
+  pausePlayShortcut: string;
 }
 
 export type TranslationFunc = (key: keyof ITranslation) => string;
 
-export interface DBData {
+export interface ConfigData {
   rules: Rule[];
   weekdays: Weekday[];
   settings: Settings;
-  currentIndex: number;
   websites: WallpaperWebsite[];
   migrations: string[];
+  albums: Album[];
+  marquees: Marquee[];
 }
 
-export type DBTableKey = 'rules' | 'weekdays' | 'websites';
+export type DBTableKey =
+  | 'rules'
+  | 'weekdays'
+  | 'websites'
+  | 'albums'
+  | 'marquees';
 
-export interface IDBService {
-  setItem<Key extends keyof DBData>(
+export interface IDBService<DataType> {
+  setItem<Key extends keyof DataType>(
     key: Key,
-    data: DBData[Key],
+    data: DataType[Key],
   ): void | Promise<void>;
 
-  getItem<Key extends keyof DBData>(
+  getItem<Key extends keyof DataType>(
     key: Key,
-  ): DBData[Key] | Promise<DBData[Key]>;
+  ): DataType[Key] | Promise<DataType[Key]>;
 }
 
 export interface WallpaperWebsiteRequestParam {
@@ -139,4 +148,47 @@ export interface StaticWallpaperEventArg {
   path: string;
   rule: Rule;
   paths: string[];
+  album?: Album;
+}
+
+export interface LiveWallpaperEventArg {
+  paths: string[];
+  rule: Rule;
+  album?: Album;
+}
+
+export interface Marquee extends BeanWithId {
+  name: string;
+  text: string;
+  backgroundColor: ColorPickerProps['value'];
+  textColor: ColorPickerProps['value'];
+  fontSize: number;
+  speed: number;
+  letterSpacing: number;
+}
+
+export interface Album extends BeanWithId {
+  name: string;
+  dir: string;
+  paths: AlbumFileListItem[];
+  direction: WallpaperDirection;
+  wallpaperType: WallpaperType;
+  type: AlbumType;
+  column?: number;
+}
+
+export interface MarqueeEventArg {
+  rule: Rule;
+  marquee: Marquee;
+}
+
+export interface AlbumFileListItem {
+  path: string;
+  thumb: string;
+}
+
+export interface ToAlbumFileListItemParams {
+  files: string[];
+  width: number;
+  quality: number;
 }

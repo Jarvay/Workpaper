@@ -7,34 +7,42 @@ import {
   shell,
 } from 'electron';
 import { Events } from '../../cross/enums';
-import { Rule, Settings, Weekday } from '../../cross/interface';
+import {
+  AlbumFileListItem,
+  Rule,
+  Settings,
+  ToAlbumFileListItemParams,
+  Weekday,
+} from '../../cross/interface';
 import { resetSchedule } from './services/wallpaper';
 import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../cross/consts';
 import { platform } from 'os';
 import { changeLanguage, t } from 'i18next';
-import { configServiceMain } from './services/db-service';
-import {
-  registerWallpaperWinHandler,
-  setLiveWallpaperVolume,
-} from './services/wallpaper-window';
+import { configServiceMain } from './services/config.service';
+import { createThumb } from './services/utils';
+import { WallpaperWindowService } from './services/wallpaper-window';
 import { setTray } from './tray';
+import {
+  registerShortcut,
+  unregisterShortcut,
+} from './services/global-shortcut';
 
 export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
-  ipcMain.handle(Events.SelectImage, () => {
+  ipcMain.handle(Events.SelectImage, (_, args) => {
     return dialog.showOpenDialogSync({
       filters: [
         { name: t('rule.wallpaperType.image'), extensions: IMAGE_EXT_LIST },
       ],
-      properties: ['openFile'],
+      properties: ['openFile', ...(args || [])],
     });
   });
 
-  ipcMain.handle(Events.SelectVideo, () => {
+  ipcMain.handle(Events.SelectVideo, (_, args) => {
     return dialog.showOpenDialogSync({
       filters: [
         { name: t('rule.wallpaperType.video'), extensions: VIDEO_EXT_LIST },
       ],
-      properties: ['openFile'],
+      properties: ['openFile', ...(args || [])],
     });
   });
 
@@ -46,14 +54,6 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
 
   ipcMain.handle(Events.ResetSchedule, async (event) => {
     await resetSchedule();
-  });
-
-  ipcMain.handle(Events.SaveRules, (event, rules: Rule[]) => {
-    configServiceMain.setItem('rules', rules);
-  });
-
-  ipcMain.handle(Events.SaveWeekdays, (event, weekdays: Weekday[]) => {
-    configServiceMain.setItem('weekdays', weekdays);
   });
 
   ipcMain.handle(Events.GetLocale, () => {
@@ -74,6 +74,11 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
     if (settings.scaleMode !== oldSettings.scaleMode) {
       await resetSchedule();
     }
+
+    if (settings.pausePlayShortcut !== oldSettings.pausePlayShortcut) {
+      unregisterShortcut([oldSettings.pausePlayShortcut]);
+      registerShortcut();
+    }
   });
 
   ipcMain.handle(Events.InitSettings, (_, settings: Settings) => {
@@ -90,7 +95,7 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
   });
 
   ipcMain.handle(Events.SetLiveWallpaperVolume, (_, volume) => {
-    setLiveWallpaperVolume(volume);
+    WallpaperWindowService.instance.setLiveWallpaperVolume(volume);
   });
 
   ipcMain.handle(Events.GetVersion, () => {
@@ -101,13 +106,39 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
     shell.openExternal(url);
   });
 
+  ipcMain.handle(Events.OpenPath, async (_, path) => {
+    await shell.openPath(path);
+  });
+
   ipcMain.handle(Events.IsPackaged, () => {
     return app.isPackaged;
+  });
+
+  ipcMain.handle(
+    Events.ToAlbumListItem,
+    async (_, params: ToAlbumFileListItemParams) => {
+      const result: AlbumFileListItem[] = [];
+
+      for (const path of params.files) {
+        const thumb = await createThumb(path, params.width, params.quality);
+        result.push({
+          path,
+          thumb,
+        });
+      }
+
+      return result;
+    },
+  );
+
+  ipcMain.handle(Events.UnregisterGlobalShortcut, () => {
+    const settings = configServiceMain.getItem('settings');
+    unregisterShortcut([settings.pausePlayShortcut]);
   });
 
   powerMonitor.on('resume', async () => {
     await resetSchedule();
   });
 
-  registerWallpaperWinHandler();
+  WallpaperWindowService.instance.registerWallpaperWinHandler();
 }
