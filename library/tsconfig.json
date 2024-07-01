@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "rootDir": "source",
+    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false,
+    "noImplicitOverride": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": true,
+    "allowUmdGlobalAccess": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "declaration": true,
+    "newLine": "lf",
+    "allowJs": true,
+    "checkJs": false,
+    "disableSizeLimit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "preserveSymlinks": true,
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
+    "target": "esnext",
+    "jsx": "react-jsx",
+    "listFiles": false,
+    "composite": false,
+    "incremental": false,
+    "pretty": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "source"
+  ],
+  "exclude": [
+    "dist"
+  ]
+}

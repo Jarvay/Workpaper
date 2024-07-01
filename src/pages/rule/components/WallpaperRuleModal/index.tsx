@@ -13,9 +13,14 @@ import {
   Switch,
   TimePicker,
 } from 'antd';
-import { Album, ModalFormProps, Rule } from '../../../../../cross/interface';
 import {
-  ChangeType,
+  Album,
+  Marquee,
+  ModalFormProps,
+  Rule,
+} from '../../../../../cross/interface';
+import {
+  RuleType,
   Events,
   FormMode,
   WallpaperDirection,
@@ -29,6 +34,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { albumService } from '@/services/album';
+import { marqueeService } from '@/services/marquee';
 
 export interface FormRule extends Rule {
   time: [Dayjs, Dayjs];
@@ -38,6 +44,7 @@ const WallpaperRuleModal: React.FC<
   ModalFormProps<Rule> & { weekdayId?: string | number }
 > = (props) => {
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [marquees, setMarquees] = useState<Marquee[]>([]);
 
   const [form] = Form.useForm<FormRule>();
   const albumId: Album['id'] = Form.useWatch('albumId', form);
@@ -48,9 +55,13 @@ const WallpaperRuleModal: React.FC<
 
   const { t } = useTranslation();
 
-  function fetchAlbums() {
+  function fetchOptions() {
     albumService.get().then((value) => {
       setAlbums(value);
+    });
+
+    marqueeService.get().then((value) => {
+      setMarquees(value);
     });
   }
 
@@ -87,7 +98,7 @@ const WallpaperRuleModal: React.FC<
   }
 
   useMount(() => {
-    fetchAlbums();
+    fetchOptions();
   });
 
   useUpdateEffect(() => {
@@ -106,11 +117,11 @@ const WallpaperRuleModal: React.FC<
     }
   }, [props.open]);
 
-  function renderPathItem(path: string) {
+  function renderPathItem(path: string, wallpaperType: WallpaperType) {
     if (!path) return null;
     const size = 72;
     let children = null;
-    switch (album?.wallpaperType) {
+    switch (wallpaperType) {
       case WallpaperType.Image:
         children = (
           <Image
@@ -150,94 +161,136 @@ const WallpaperRuleModal: React.FC<
     );
   }
 
-  function renderPathsOrPath(type: ChangeType) {
+  function renderPathsOrPath(type: RuleType) {
     switch (type) {
-      case ChangeType.Fixed:
+      case RuleType.Fixed:
         return (
-          <Form.Item noStyle dependencies={['paths', 'type']}>
-            {({ getFieldValue }) => {
-              const paths = getFieldValue('paths');
-              return (
-                <Form.List
-                  name="paths"
-                  rules={[
-                    {
-                      validator: async (_, names) => {},
-                    },
-                  ]}
-                >
-                  {(fields, { add, remove }, { errors }) => (
-                    <>
-                      {fields.map((field, index) => (
-                        <Form.Item
-                          label={t('rule.screen') + (index + 1)}
-                          required={index === 0}
-                          key={field.key}
-                        >
+          <>
+            <Form.Item label={t('rule.wallpaperType')} name="wallpaperType">
+              <Radio.Group
+                options={[
+                  {
+                    label: t('rule.wallpaperType.image'),
+                    value: WallpaperType.Image,
+                  },
+                  {
+                    label: t('rule.wallpaperType.video'),
+                    value: WallpaperType.Video,
+                  },
+                ]}
+                onChange={() => {
+                  form.setFieldValue('paths', [undefined]);
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              noStyle
+              dependencies={['paths', 'type', 'wallpaperType']}
+            >
+              {({ getFieldValue }) => {
+                const paths = getFieldValue('paths');
+                const wallpaperType: WallpaperType =
+                  getFieldValue('wallpaperType');
+                return (
+                  <Form.List
+                    name="paths"
+                    rules={[
+                      {
+                        validator: async (_, names) => {},
+                      },
+                    ]}
+                  >
+                    {(fields, { add, remove }, { errors }) => (
+                      <>
+                        {fields.map((field, index) => (
                           <Form.Item
-                            {...field}
-                            validateTrigger={['onChange', 'onBlur']}
-                            rules={[
-                              {
-                                required: true,
-                                message: t('rule.paths.requiredMessage'),
-                              },
-                            ]}
-                            noStyle
+                            label={t('rule.screen') + (index + 1)}
+                            required={index === 0}
+                            key={field.key}
                           >
-                            <Space>
-                              {renderPathItem(paths?.[index])}
+                            <Form.Item
+                              {...omit(field, ['key'])}
+                              validateTrigger={['onChange', 'onBlur']}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: t('rule.paths.requiredMessage'),
+                                },
+                              ]}
+                              noStyle
+                            >
+                              <Space>
+                                {renderPathItem(paths?.[index], wallpaperType)}
 
-                              <Button
-                                type="primary"
-                                size="small"
-                                onClick={async () => {
-                                  const { paths } =
-                                    form.getFieldsValue() as Rule;
-                                  const event =
-                                    album?.wallpaperType === WallpaperType.Image
-                                      ? Events.SelectImage
-                                      : Events.SelectVideo;
-                                  const file = await ipcRenderer.invoke(event);
-                                  paths[index] = file?.[0];
-                                  form.setFieldsValue({
-                                    paths,
-                                  });
-                                  await form.validateFields();
-                                }}
-                              >
-                                {t('choose')}
-                              </Button>
-
-                              {index === 0 && (
                                 <Button
-                                  type="dashed"
+                                  type="primary"
                                   size="small"
-                                  onClick={() => add()}
-                                  icon={<PlusOutlined />}
+                                  onClick={async () => {
+                                    const { paths } =
+                                      form.getFieldsValue() as Rule;
+                                    const event =
+                                      wallpaperType === WallpaperType.Image
+                                        ? Events.SelectImage
+                                        : Events.SelectVideo;
+                                    const files =
+                                      await ipcRenderer.invoke(event);
+                                    if (!files) return;
+                                    paths[index] = files?.[0];
+                                    form.setFieldsValue({
+                                      paths,
+                                    });
+                                    await form.validateFields();
+                                  }}
                                 >
-                                  {t('rule.addScreen')}
+                                  {t('choose')}
                                 </Button>
-                              )}
 
-                              {fields.length > 1 ? (
-                                <MinusCircleOutlined
-                                  onClick={() => remove(field.name)}
-                                />
-                              ) : null}
-                            </Space>
+                                {index === 0 && (
+                                  <Button
+                                    type="dashed"
+                                    size="small"
+                                    onClick={() => add()}
+                                    icon={<PlusOutlined />}
+                                  >
+                                    {t('rule.addScreen')}
+                                  </Button>
+                                )}
+
+                                {fields.length > 1 ? (
+                                  <MinusCircleOutlined
+                                    onClick={() => remove(field.name)}
+                                  />
+                                ) : null}
+                              </Space>
+                            </Form.Item>
                           </Form.Item>
-                        </Form.Item>
-                      ))}
-                    </>
-                  )}
-                </Form.List>
-              );
-            }}
+                        ))}
+                      </>
+                    )}
+                  </Form.List>
+                );
+              }}
+            </Form.Item>
+          </>
+        );
+      case RuleType.Marquee:
+        return (
+          <Form.Item
+            label={t('rule.marquee')}
+            name="marqueeId"
+            rules={[{ required: true }]}
+          >
+            <Select
+              className="form-item-input"
+              options={marquees.map((item) => ({
+                label: item.name,
+                value: item.id,
+              }))}
+            />
           </Form.Item>
         );
-      case ChangeType.Marquee:
-      case ChangeType.AutoChange:
+      case RuleType.Album:
         return (
           <Form.Item
             label={t('rule.album')}
@@ -246,18 +299,10 @@ const WallpaperRuleModal: React.FC<
           >
             <Select
               className="form-item-input"
-              options={albums
-                .filter((item) => {
-                  if (type === ChangeType.Marquee) {
-                    return item.wallpaperType === WallpaperType.Marquee;
-                  } else {
-                    return item.wallpaperType !== WallpaperType.Marquee;
-                  }
-                })
-                .map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                }))}
+              options={albums.map((item) => ({
+                label: item.name,
+                value: item.id,
+              }))}
             />
           </Form.Item>
         );
@@ -288,7 +333,7 @@ const WallpaperRuleModal: React.FC<
         initialValues={
           {
             wallpaperType: WallpaperType.Image,
-            type: ChangeType.Fixed,
+            type: RuleType.Fixed,
             interval: 60,
             days: [1, 2, 3, 4, 5, 6, 7],
             isRandom: false,
@@ -306,6 +351,9 @@ const WallpaperRuleModal: React.FC<
             {
               validator: (rule, value) => {
                 return new Promise<void>(async (resolve, reject) => {
+                  if (!value) {
+                    return resolve();
+                  }
                   const [startDayjs, endDayjs]: [dayjs.Dayjs, dayjs.Dayjs] =
                     value;
                   const start = startDayjs.format('HH:mm');
@@ -347,14 +395,14 @@ const WallpaperRuleModal: React.FC<
               });
             }}
             options={[
-              { label: t('rule.type.fixed'), value: ChangeType.Fixed },
+              { label: t('rule.type.fixed'), value: RuleType.Fixed },
               {
                 label: t('rule.type.autoChange'),
-                value: ChangeType.AutoChange,
+                value: RuleType.Album,
               },
               {
                 label: t('rule.type.marquee'),
-                value: ChangeType.Marquee,
+                value: RuleType.Marquee,
               },
             ]}
           />
@@ -363,10 +411,12 @@ const WallpaperRuleModal: React.FC<
         <Form.Item noStyle dependencies={['type', 'isRandom']}>
           {({ getFieldsValue }) => {
             const { type } = getFieldsValue() as Rule;
-            const showIntervalAndRandom =
-              type === ChangeType.AutoChange &&
-              album?.wallpaperType === WallpaperType.Image;
+            const showIntervalAndRandom = type === RuleType.Album;
             const isVertical = WallpaperDirection.Vertical === album?.direction;
+
+            console.log({
+              album,
+            });
 
             return (
               <>
@@ -374,17 +424,19 @@ const WallpaperRuleModal: React.FC<
 
                 {showIntervalAndRandom && (
                   <>
-                    {isVertical && (
-                      <Form.Item
-                        label={t('rule.column')}
-                        name="column"
-                        rules={[{ required: true }]}
-                      >
-                        <InputNumber />
-                      </Form.Item>
-                    )}
+                    {isVertical &&
+                      album?.wallpaperType === WallpaperType.Image && (
+                        <Form.Item
+                          label={t('rule.column')}
+                          name="column"
+                          rules={[{ required: true }]}
+                        >
+                          <InputNumber />
+                        </Form.Item>
+                      )}
 
-                    {!isVertical && (
+                    {(!isVertical ||
+                      album?.wallpaperType === WallpaperType.Video) && (
                       <Form.Item label={t('rule.isRandom')} name="isRandom">
                         <Switch
                           onChange={() => {
@@ -401,7 +453,8 @@ const WallpaperRuleModal: React.FC<
                           WallpaperDirection.Vertical === album?.direction;
                         return (
                           isRandom &&
-                          !isVertical && (
+                          !isVertical &&
+                          album?.wallpaperType === WallpaperType.Image && (
                             <Form.Item
                               label={t('rule.screenRandom')}
                               name="screenRandom"
@@ -413,13 +466,15 @@ const WallpaperRuleModal: React.FC<
                       }}
                     </Form.Item>
 
-                    <Form.Item
-                      label={t('rule.interval')}
-                      name="interval"
-                      rules={[{ required: true }]}
-                    >
-                      <InputNumber min={5} max={24 * 60} />
-                    </Form.Item>
+                    {album?.wallpaperType === WallpaperType.Image && (
+                      <Form.Item
+                        label={t('rule.interval')}
+                        name="interval"
+                        rules={[{ required: true }]}
+                      >
+                        <InputNumber min={5} max={24 * 60} />
+                      </Form.Item>
+                    )}
                   </>
                 )}
               </>

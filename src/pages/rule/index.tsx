@@ -3,7 +3,7 @@ import { ruleService } from '@/services/rule';
 import { useMount, useUnmount } from 'ahooks';
 import { ipcRenderer } from 'electron';
 import {
-  ChangeType,
+  RuleType,
   Events,
   FormMode,
   WallpaperType,
@@ -83,11 +83,11 @@ const RuleIndex: React.FC = () => {
       render: (value) => {
         switch (value) {
           default:
-          case ChangeType.Fixed:
+          case RuleType.Fixed:
             return t('rule.type.fixed');
-          case ChangeType.AutoChange:
+          case RuleType.Album:
             return t('rule.type.autoChange');
-          case ChangeType.Marquee:
+          case RuleType.Marquee:
             return t('rule.type.marquee');
         }
       },
@@ -110,7 +110,7 @@ const RuleIndex: React.FC = () => {
         const album = albums.find((album) => album.id === record.albumId);
         const showInterval =
           album?.wallpaperType === WallpaperType.Image &&
-          record.type === ChangeType.AutoChange;
+          record.type === RuleType.Album;
         if (showInterval) {
           return value || '-';
         }
@@ -122,7 +122,7 @@ const RuleIndex: React.FC = () => {
       dataIndex: 'isRandom',
       width: 120,
       render: (value, record) => {
-        if (record.type !== ChangeType.AutoChange) {
+        if (record.type !== RuleType.Album) {
           return '-';
         }
         return value ? t('yes') : t('no');

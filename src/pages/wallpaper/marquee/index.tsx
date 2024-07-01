@@ -16,9 +16,6 @@ const Marquee: React.FC = () => {
     event: IpcRendererEvent,
     ...args: any[]
   ) => void = (_, arg: any) => {
-    console.log({
-      arg,
-    });
     setArg(arg);
   };
 
@@ -40,7 +37,7 @@ const Marquee: React.FC = () => {
     unregisterStaticWallpaperEvents();
   });
 
-  const album = arg?.album;
+  const album = arg?.marquee;
 
   return (
     <ReactFastMarquee
@@ -58,7 +55,7 @@ const Marquee: React.FC = () => {
           : undefined,
       }}
     >
-      {arg?.album.text}
+      {arg?.marquee.text}
     </ReactFastMarquee>
   );
 };

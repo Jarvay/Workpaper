@@ -1,6 +1,6 @@
-export enum ChangeType {
+export enum RuleType {
   Fixed,
-  AutoChange,
+  Album,
   Marquee,
 }
 
@@ -16,10 +16,6 @@ export enum Events {
   OpenPath = 'OpenPath',
 
   ResetSchedule = 'ResetSchedule',
-
-  SaveRules = 'SaveRules',
-  SaveWeekdays = 'SaveWeekdays',
-
   GetLocale = 'GetLocale',
   SettingsChange = 'SettingsChange',
   InitSettings = 'InitSettings',
@@ -31,6 +27,8 @@ export enum Events {
   SetMarqueeWallpaper = 'SetMarqueeWallpaper',
   SetLiveWallpaperMuted = 'SetLiveWallpaperMuted',
   SetLiveWallpaperVolume = 'SetLiveWallpaperVolume',
+  PauseLiveWallpaper = 'PauseLiveWallpaper',
+  PlayLiveWallpaper = 'PlayLiveWallpaper',
 
   SetDBItem = 'SetDBItem',
   GetDBItem = 'GetDBItem',
@@ -48,6 +46,8 @@ export enum Events {
   OnDownloadUpdated = 'OnDownloadUpdated',
 
   ToAlbumListItem = 'ToAlbumListItem',
+
+  UnregisterGlobalShortcut = 'UnregisterGlobalShortcut',
 }
 
 export enum Locale {
@@ -83,7 +83,6 @@ export enum WebScaleMode {
 export enum WallpaperType {
   Image = 'Image',
   Video = 'Video',
-  Marquee = 'Marquee',
 }
 
 export enum WallpaperMode {

@@ -65,8 +65,6 @@ const AlbumIndex: React.FC = () => {
             return t('album.wallpaperType.image');
           case WallpaperType.Video:
             return t('album.wallpaperType.video');
-          case WallpaperType.Marquee:
-            return t('album.wallpaperType.marquee');
         }
       },
     },
@@ -75,9 +73,6 @@ const AlbumIndex: React.FC = () => {
       dataIndex: 'type',
       width: 120,
       render: (value, record) => {
-        if (record.wallpaperType === WallpaperType.Marquee) {
-          return '-';
-        }
         switch (value) {
           default:
             return '-';
@@ -93,9 +88,6 @@ const AlbumIndex: React.FC = () => {
       dataIndex: 'dir',
       width: 250,
       render: (value, record) => {
-        if (record.wallpaperType === WallpaperType.Marquee) {
-          return '-';
-        }
         switch (record.type) {
           default:
             return '-';
@@ -120,7 +112,7 @@ const AlbumIndex: React.FC = () => {
       dataIndex: 'direction',
       width: 100,
       render: (value, record) => {
-        if (record.wallpaperType === WallpaperType.Marquee) {
+        if (record.wallpaperType !== WallpaperType.Image) {
           return '-';
         }
         switch (value) {

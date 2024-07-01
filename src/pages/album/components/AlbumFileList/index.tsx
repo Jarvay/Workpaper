@@ -5,7 +5,6 @@ import { Events, WallpaperType } from '../../../../../cross/enums';
 import { ipcRenderer } from 'electron';
 import { useTranslation } from 'react-i18next';
 import { useUpdateEffect } from 'ahooks';
-import LazyImage from '@/components/LazyImage';
 import ClosableBox from '@/components/ClosableBox';
 import {
   AlbumFileListItem,
@@ -49,7 +48,7 @@ const AlbumFileList: React.FC<AlbumFileListProps> = (props) => {
           />
         );
       case WallpaperType.Video:
-        return <video src={`file://${item.thumb}`} style={style} />;
+        return <video src={`file://${item.path}`} style={style} />;
     }
   }
 
@@ -96,16 +95,32 @@ const AlbumFileList: React.FC<AlbumFileListProps> = (props) => {
               wallpaperType === WallpaperType.Image
                 ? Events.SelectImage
                 : Events.SelectVideo;
-            const files = await ipcRenderer.invoke(event, [
-              'multiSelections',
-            ] as Electron.OpenDialogSyncOptions['properties']);
+            const files: string[] | undefined = await ipcRenderer.invoke(
+              event,
+              [
+                'multiSelections',
+              ] as Electron.OpenDialogSyncOptions['properties'],
+            );
+
+            if (!files) return;
 
             setLoading(true);
-            const result = await ipcRenderer.invoke(Events.ToAlbumListItem, {
-              files,
-              width: 96,
-              quality: 60,
-            } as ToAlbumFileListItemParams);
+
+            let result: AlbumFileListItem[] = [];
+            if (wallpaperType === WallpaperType.Image) {
+              result = await ipcRenderer.invoke(Events.ToAlbumListItem, {
+                files,
+                width: 96,
+                quality: 60,
+              } as ToAlbumFileListItemParams);
+            } else if (wallpaperType === WallpaperType.Video) {
+              result = files.map((item) => {
+                return {
+                  path: item,
+                  thumb: '',
+                };
+              });
+            }
 
             const newPaths = [...paths, ...(result || [])];
             setPaths(newPaths);

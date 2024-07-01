@@ -18,14 +18,14 @@ import { resetSchedule } from './services/wallpaper';
 import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../cross/consts';
 import { platform } from 'os';
 import { changeLanguage, t } from 'i18next';
-import { configServiceMain } from './services/db-service';
-import {
-  registerWallpaperWinHandler,
-  setLiveWallpaperVolume,
-} from './services/wallpaper-window';
-import { setTray } from './tray';
-import sharp from 'sharp';
+import { configServiceMain } from './services/config.service';
 import { createThumb } from './services/utils';
+import { WallpaperWindowService } from './services/wallpaper-window';
+import { setTray } from './tray';
+import {
+  registerShortcut,
+  unregisterShortcut,
+} from './services/global-shortcut';
 
 export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
   ipcMain.handle(Events.SelectImage, (_, args) => {
@@ -33,7 +33,7 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
       filters: [
         { name: t('rule.wallpaperType.image'), extensions: IMAGE_EXT_LIST },
       ],
-      properties: ['openFile', ...args],
+      properties: ['openFile', ...(args || [])],
     });
   });
 
@@ -42,7 +42,7 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
       filters: [
         { name: t('rule.wallpaperType.video'), extensions: VIDEO_EXT_LIST },
       ],
-      properties: ['openFile', ...args],
+      properties: ['openFile', ...(args || [])],
     });
   });
 
@@ -54,14 +54,6 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
 
   ipcMain.handle(Events.ResetSchedule, async (event) => {
     await resetSchedule();
-  });
-
-  ipcMain.handle(Events.SaveRules, (event, rules: Rule[]) => {
-    configServiceMain.setItem('rules', rules);
-  });
-
-  ipcMain.handle(Events.SaveWeekdays, (event, weekdays: Weekday[]) => {
-    configServiceMain.setItem('weekdays', weekdays);
   });
 
   ipcMain.handle(Events.GetLocale, () => {
@@ -82,6 +74,11 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
     if (settings.scaleMode !== oldSettings.scaleMode) {
       await resetSchedule();
     }
+
+    if (settings.pausePlayShortcut !== oldSettings.pausePlayShortcut) {
+      unregisterShortcut([oldSettings.pausePlayShortcut]);
+      registerShortcut();
+    }
   });
 
   ipcMain.handle(Events.InitSettings, (_, settings: Settings) => {
@@ -98,7 +95,7 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
   });
 
   ipcMain.handle(Events.SetLiveWallpaperVolume, (_, volume) => {
-    setLiveWallpaperVolume(volume);
+    WallpaperWindowService.instance.setLiveWallpaperVolume(volume);
   });
 
   ipcMain.handle(Events.GetVersion, () => {
@@ -134,9 +131,14 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
     },
   );
 
+  ipcMain.handle(Events.UnregisterGlobalShortcut, () => {
+    const settings = configServiceMain.getItem('settings');
+    unregisterShortcut([settings.pausePlayShortcut]);
+  });
+
   powerMonitor.on('resume', async () => {
     await resetSchedule();
   });
 
-  registerWallpaperWinHandler();
+  WallpaperWindowService.instance.registerWallpaperWinHandler();
 }

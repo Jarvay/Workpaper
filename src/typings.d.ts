@@ -9,3 +9,7 @@ declare module 'react-i18next' {
     t: TranslationFunc;
   };
 }
+
+declare module 'i18next' {
+  export type TFunction = TranslationFunc;
+}

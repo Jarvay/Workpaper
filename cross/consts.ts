@@ -7,16 +7,17 @@ export const VIDEO_EXT_LIST = ['mp4'];
 
 export const DEFAULT_WEB_SCALE_MODE = WebScaleMode.Cover;
 
-export const DEFAULT_NATIVE_SCALE_MODE = {
+export const DEFAULT_NATIVE_SCALE_MODE: Record<string, any> = {
   win32: WindowsScaleMode.Fill,
   darwin: MacOSScaleMode.Auto,
 };
 
-export const DEFAULT_MARQUEE: Marquee = {
+export const DEFAULT_MARQUEE: Partial<Marquee> = {
+  name: '',
   text: '',
   textColor: '#FF0000',
   backgroundColor: '#000000',
   speed: 100,
-  fontSize: 160,
+  fontSize: 200,
   letterSpacing: 8,
 };

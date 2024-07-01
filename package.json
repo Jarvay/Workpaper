@@ -1,6 +1,6 @@
 {
   "name": "workpaper",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A wallpaper schedule",
   "author": {
     "name": "Jarvay",
@@ -9,6 +9,10 @@
   "main": "dist-electron/main/index.js",
   "license": "MIT",
   "private": true,
+  "workspaces": [
+    "*",
+    "library/*"
+  ],
   "debug": {
     "env": {
       "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"

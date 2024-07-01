@@ -1,7 +1,7 @@
 import { IMigration } from './index';
-import { configServiceMain } from '../services/db-service';
+import { configServiceMain } from '../services/config.service';
 import { Album, Rule } from '../../../cross/interface';
-import { AlbumType, ChangeType } from '../../../cross/enums';
+import { AlbumType, RuleType } from '../../../cross/enums';
 import { isEqual, omit } from 'lodash';
 import { generateId } from '../../../cross/utils';
 import { DEFAULT_MARQUEE } from '../../../cross/consts';
@@ -17,7 +17,7 @@ export class Migration_20240509_1755 implements IMigration {
     const albums: Album[] = [];
 
     for (const rule of rules) {
-      if (rule.type === ChangeType.Fixed) {
+      if (rule.type === RuleType.Fixed) {
         rule.albumId = '';
         continue;
       }
