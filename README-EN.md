@@ -39,6 +39,7 @@ Display [I will not be working tomorrow] all day on Friday.
 3. Click [Create], select the cycle as needed and confirm.
    For example, if you want to use the same rules every day, select them all. If the weekdays and weekends are different, create one for Monday to Friday first, and then create one for Saturday and Sunday.
 4. After step 3, the created data will appear in the list, click [View], then click [Create]
+
 - Time period: the time period when the rule takes effect. For example, if you want to display the wallpaper between 9:00-10:30, select 9:00-10:30
 - Wallpaper type: Picture | Video
 - type:

@@ -34,11 +34,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "preserveSymlinks": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "target": "esnext",
     "jsx": "react-jsx",
     "listFiles": false,
@@ -47,10 +43,6 @@
     "pretty": true,
     "skipLibCheck": true
   },
-  "include": [
-    "source"
-  ],
-  "exclude": [
-    "dist"
-  ]
+  "include": ["source"],
+  "exclude": ["dist"]
 }

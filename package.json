@@ -24,7 +24,9 @@
     "preview": "vite preview",
     "pree2e": "vite build --mode=test",
     "e2e": "playwright test",
-    "create-migration": "ts-node scripts/create-migration.js"
+    "create-migration": "ts-node scripts/create-migration.js",
+    "prettier": "prettier -c --write \"**/**.{js,jsx,tsx,ts,less,md,json}\"",
+    "prepare": "husky"
   },
   "dependencies": {
     "electron-as-wallpaper": "1.0.3",
@@ -34,6 +36,8 @@
   },
   "devDependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@playwright/test": "^1.37.1",
     "@smithy/md5-js": "^2.2.0",
     "@types/lodash": "^4.17.0",
@@ -49,6 +53,7 @@
     "electron": "^30.0.0",
     "electron-builder": "^24.6.3",
     "electron-devtools-installer": "^3.2.0",
+    "husky": "^9.0.11",
     "i18next": "^23.6.0",
     "less": "^4.2.0",
     "less-loader": "^11.1.3",
