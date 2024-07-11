@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { DownloadDrawerActions } from '@/components/DownloadDrawer';
 
-export interface GlobalContextValue {
+export type GlobalContextValue = {
   downloadDrawerRef?: DownloadDrawerActions;
-}
+};
 
 const GlobalContext = React.createContext<GlobalContextValue>({});
 

@@ -2,12 +2,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { DefaultOptionType } from 'rc-select/lib/Select';
 
-export interface WeekComponentProps {
+export type WeekComponentProps = {
   children?: (
     weekMap: Map<number, string>,
     weekOptions: DefaultOptionType[],
   ) => React.ReactNode | JSX.Element;
-}
+};
 
 const WeekComponent: React.FC<WeekComponentProps> = (props) => {
   const { t } = useTranslation();

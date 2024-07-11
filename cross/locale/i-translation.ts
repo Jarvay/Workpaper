@@ -1,4 +1,4 @@
-export interface ITranslation {
+export type ITranslation = {
   showWindow: string;
   startAtLogin: string;
   exit: string;
@@ -154,4 +154,4 @@ export interface ITranslation {
   'appMenu.edit.paste': string;
   'appMenu.edit.selectAll': string;
   'appMenu.edit.undo': string;
-}
+};

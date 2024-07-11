@@ -15,21 +15,20 @@ import {
 } from './enums';
 import { ITranslation } from './locale/i-translation';
 import type { Method } from 'axios';
-import MarqueeModal from '@/pages/marquee/components/MarqueeModal';
 
-export interface ModalFormProps<ValueType = any> {
+export type ModalFormProps<ValueType = any> = {
   values?: ValueType;
   onChange?: (data?: ValueType) => Promise<void> | void;
   mode?: FormMode;
   open?: ModalProps['open'];
   modalProps?: Omit<ModalProps, 'open'>;
-}
+};
 
-export interface BeanWithId {
+export type BeanWithId = {
   id: string;
-}
+};
 
-export interface Rule extends BeanWithId {
+export type Rule = BeanWithId & {
   start: string;
   end: string;
   type: RuleType;
@@ -43,13 +42,13 @@ export interface Rule extends BeanWithId {
   albumId: Album['id'];
   marqueeId: Marquee['id'];
   wallpaperType: WallpaperType;
-}
+};
 
-export interface Weekday extends BeanWithId {
+export type Weekday = BeanWithId & {
   days: number[];
-}
+};
 
-export interface Settings {
+export type Settings = {
   locale: Locale;
   scaleMode?: WindowsScaleMode | MacOSScaleMode | null;
   webScaleMode: WebScaleMode;
@@ -61,11 +60,11 @@ export interface Settings {
   downloadsDir: string;
   pauseWhenBlur: boolean;
   pausePlayShortcut: string;
-}
+};
 
 export type TranslationFunc = (key: keyof ITranslation) => string;
 
-export interface ConfigData {
+export type ConfigData = {
   rules: Rule[];
   weekdays: Weekday[];
   settings: Settings;
@@ -73,7 +72,7 @@ export interface ConfigData {
   migrations: string[];
   albums: Album[];
   marquees: Marquee[];
-}
+};
 
 export type DBTableKey =
   | 'rules'
@@ -82,7 +81,7 @@ export type DBTableKey =
   | 'albums'
   | 'marquees';
 
-export interface IDBService<DataType> {
+export type IDBService<DataType> = {
   setItem<Key extends keyof DataType>(
     key: Key,
     data: DataType[Key],
@@ -91,15 +90,15 @@ export interface IDBService<DataType> {
   getItem<Key extends keyof DataType>(
     key: Key,
   ): DataType[Key] | Promise<DataType[Key]>;
-}
+};
 
-export interface WallpaperWebsiteRequestParam {
+export type WallpaperWebsiteRequestParam = {
   key: string;
   value: string;
   type: WallpaperWebsiteRequestParamType;
-}
+};
 
-export interface WallpaperWebsiteApi extends BeanWithId {
+export type WallpaperWebsiteApi = BeanWithId & {
   request: {
     url: string;
     method: Method;
@@ -110,11 +109,11 @@ export interface WallpaperWebsiteApi extends BeanWithId {
     thumbInItem: string;
     rawInItem: string;
   };
-}
+};
 
-export interface WallpaperWebsiteWebsite extends BeanWithId {
+export type WallpaperWebsiteWebsite = BeanWithId & {
   url: string;
-}
+};
 
 export type WallpaperWebsite = WallpaperWebsiteApi &
   WallpaperWebsiteWebsite & {
@@ -126,38 +125,38 @@ export type WallpaperWebsite = WallpaperWebsiteApi &
     };
   };
 
-export interface WallpaperItem {
+export type WallpaperItem = {
   thumb: string;
   raw: string;
-}
+};
 
-export interface DownloadArg {
+export type DownloadArg = {
   url: string;
   thumb: string;
-}
+};
 
-export interface DownloadEvent extends DownloadArg {
+export type DownloadEvent = DownloadArg & {
   event: 'start' | 'progress';
   md5: string;
   filename: string;
   path: string;
   progress: number;
-}
+};
 
-export interface StaticWallpaperEventArg {
+export type StaticWallpaperEventArg = {
   path: string;
   rule: Rule;
   paths: string[];
   album?: Album;
-}
+};
 
-export interface LiveWallpaperEventArg {
+export type LiveWallpaperEventArg = {
   paths: string[];
   rule: Rule;
   album?: Album;
-}
+};
 
-export interface Marquee extends BeanWithId {
+export type Marquee = BeanWithId & {
   name: string;
   text: string;
   backgroundColor: ColorPickerProps['value'];
@@ -165,9 +164,9 @@ export interface Marquee extends BeanWithId {
   fontSize: number;
   speed: number;
   letterSpacing: number;
-}
+};
 
-export interface Album extends BeanWithId {
+export type Album = BeanWithId & {
   name: string;
   dir: string;
   paths: AlbumFileListItem[];
@@ -175,20 +174,20 @@ export interface Album extends BeanWithId {
   wallpaperType: WallpaperType;
   type: AlbumType;
   column?: number;
-}
+};
 
-export interface MarqueeEventArg {
+export type MarqueeEventArg = {
   rule: Rule;
   marquee: Marquee;
-}
+};
 
-export interface AlbumFileListItem {
+export type AlbumFileListItem = {
   path: string;
   thumb: string;
-}
+};
 
-export interface ToAlbumFileListItemParams {
+export type ToAlbumFileListItemParams = {
   files: string[];
   width: number;
   quality: number;
-}
+};

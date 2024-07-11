@@ -14,7 +14,7 @@ import { ipcRenderer } from 'electron';
 import { useUpdateEffect } from 'ahooks';
 import AlbumFileList from '@/pages/album/components/AlbumFileList';
 
-export interface AlbumModalProps extends ModalFormProps<Album> {}
+export type AlbumModalProps = ModalFormProps<Album> & {};
 
 const AlbumModal: React.FC<AlbumModalProps> = (props) => {
   const [form] = Form.useForm<Album>();

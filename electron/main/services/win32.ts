@@ -4,10 +4,10 @@ import { Events } from '../../../cross/enums';
 import { configServiceMain } from './config.service';
 import { WallpaperWindowService } from './wallpaper-window';
 
-interface CheckTimerParams {
+type CheckTimerParams = {
   win: BrowserWindow;
   winHandle: number;
-}
+};
 
 let timer: NodeJS.Timeout;
 async function checkTimer(params: CheckTimerParams) {

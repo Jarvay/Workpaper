@@ -16,7 +16,7 @@ import { ColorFactory } from 'antd/es/color-picker/color';
 import { DEFAULT_MARQUEE } from '../../../../../cross/consts';
 import { marqueeService } from '@/services/marquee';
 
-export interface MarqueeModalProps extends ModalFormProps<Marquee> {}
+export type MarqueeModalProps = ModalFormProps<Marquee> & {};
 
 const MarqueeModal: React.FC<MarqueeModalProps> = (props) => {
   const [form] = Form.useForm<Marquee>();

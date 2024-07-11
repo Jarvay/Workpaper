@@ -6,17 +6,17 @@ import type { ProgressInfo, UpdateCheckResult } from 'electron-updater';
 import { useMount, useUnmount, useUpdateEffect } from 'ahooks';
 import { hasIn } from 'lodash';
 
-interface UpdateError {
+type UpdateError = {
   message: string;
   error: Error;
-}
+};
 
 type CheckUpdateResult = null | UpdateError | UpdateCheckResult;
 
-export interface UpdateProps {
+export type UpdateProps = {
   onUpdateAvailable?: (versionInfo: VersionInfo) => void;
   versionInfo?: VersionInfo;
-}
+};
 
 const Update: React.FC<UpdateProps> = (props) => {
   const { t } = useTranslation();

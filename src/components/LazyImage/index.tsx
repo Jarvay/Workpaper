@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Image, ImageProps } from 'antd';
 import { useMount } from 'ahooks';
 
-export interface LazyImageProps extends ImageProps {
+export type LazyImageProps = ImageProps & {
   delay?: number;
-}
+};
 
 const LazyImage: React.FC<LazyImageProps> = (props) => {
   const { src, ...others } = props;

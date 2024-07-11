@@ -11,12 +11,12 @@ import {
   WindowsScaleMode,
 } from '../../../cross/enums';
 
-export interface ScaleModeComponentProps {
+export type ScaleModeComponentProps = {
   children?: (
     scaleModeOptions: DefaultOptionType[],
   ) => React.ReactNode | JSX.Element;
   scaleType: ScaleType;
-}
+};
 
 const ScaleModeComponent: React.FC<ScaleModeComponentProps> = (props) => {
   const { t } = useTranslation();

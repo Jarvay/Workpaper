@@ -23,9 +23,9 @@ import { ipcRenderer } from 'electron';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContext } from '@/components/GlobalContext';
 
-export interface WebsiteRouteParams extends Record<string, string> {
+export type WebsiteRouteParams = Record<string, string> & {
   id: string;
-}
+};
 
 const PAGE_SIZE = 24;
 

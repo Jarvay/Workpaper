@@ -8,10 +8,10 @@ import { Events } from '../../../cross/enums';
 import Update from '@/components/Update';
 import { Badge, Button, Descriptions, Modal, ModalProps, Space } from 'antd';
 
-export interface AboutModalProps extends ModalFormProps {
+export type AboutModalProps = ModalFormProps & {
   versionInfo?: VersionInfo;
   open: ModalProps['open'];
-}
+};
 
 const AboutModal: React.FC<AboutModalProps> = (props) => {
   const { t } = useTranslation();

@@ -3,17 +3,17 @@ import styles from '@/pages/wallpaper/static/index.module.less';
 import { Carousel, CarouselProps } from 'antd';
 import { CarouselRef } from 'antd/es/carousel';
 
-export interface CarouselIndex {
+export type CarouselIndex = {
   current: number;
   next: number;
-}
-export interface ImageCarouselProps {
+};
+export type ImageCarouselProps = {
   paths: string[];
   imgStyle?: React.CSSProperties;
   onImgLoad?: (index: number) => Promise<void> | void;
   carouselIndex: CarouselIndex;
   carouselProps?: CarouselProps;
-}
+};
 
 const SPEED = 1500;
 const HorizontalImageCarousel: React.FC<ImageCarouselProps> = (props) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface DownloadItemProps {}
+export type DownloadItemProps = {};
 
 const DownloadItem: React.FC<DownloadItemProps> = (props) => {
   return null;

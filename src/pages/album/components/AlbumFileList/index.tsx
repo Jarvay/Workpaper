@@ -11,12 +11,12 @@ import {
   ToAlbumFileListItemParams,
 } from '../../../../../cross/interface';
 
-export interface AlbumFileListProps {
+export type AlbumFileListProps = {
   id?: string;
   value?: AlbumFileListItem[];
   onChange?: (value: AlbumFileListItem[]) => void;
   wallpaperType: WallpaperType;
-}
+};
 
 const AlbumFileList: React.FC<AlbumFileListProps> = (props) => {
   const [paths, setPaths] = useState<AlbumFileListItem[]>([]);

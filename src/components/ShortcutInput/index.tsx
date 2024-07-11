@@ -5,9 +5,9 @@ import { useUpdateEffect } from 'ahooks';
 import { ipcRenderer } from 'electron';
 import { Events } from '../../../cross/enums';
 
-export interface ShortcutInputProps extends Omit<InputProps, 'onChange'> {
+export type ShortcutInputProps = Omit<InputProps, 'onChange'> & {
   onChange?: (value: string) => void;
-}
+};
 
 const DISABLE_KEYS = ['+'];
 

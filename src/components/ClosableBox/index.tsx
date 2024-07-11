@@ -2,9 +2,9 @@ import React from 'react';
 import styles from './index.module.less';
 import { CloseCircleOutlined } from '@ant-design/icons';
 
-export interface ClosableBoxProps extends React.PropsWithChildren {
+export type ClosableBoxProps = React.PropsWithChildren & {
   onClose?: (event: React.MouseEvent<HTMLSpanElement>) => any;
-}
+};
 
 const ClosableBox: React.FC<ClosableBoxProps> = (props) => {
   return (

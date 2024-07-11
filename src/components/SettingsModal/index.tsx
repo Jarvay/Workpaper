@@ -15,7 +15,7 @@ import {
 } from '../../../cross/consts';
 import ShortcutInput from '@/components/ShortcutInput';
 
-export interface SettingsModalProps extends ModalFormProps<Settings> {}
+export type SettingsModalProps = ModalFormProps<Settings> & {};
 
 const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [form] = Form.useForm();

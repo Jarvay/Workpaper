@@ -13,10 +13,10 @@ import HorizontalImageCarousel from '@/pages/wallpaper/static/components/Horizon
 
 const SPEED = 1200;
 
-interface HorizontalIndex {
+type HorizontalIndex = {
   current: number;
   next: number;
-}
+};
 
 const StaticWallpaper: React.FC = () => {
   const [settings, setSettings] = useState<Settings>();

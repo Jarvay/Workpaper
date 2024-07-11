@@ -6,14 +6,14 @@ import { Events } from '../../../cross/enums';
 import { DownloadEvent } from '../../../cross/interface';
 import { omit } from 'lodash';
 
-export interface DownloadDrawerActions {
+export type DownloadDrawerActions = {
   getList: () => DownloadItem[];
-}
+};
 
-export interface DownloadDrawerProps {
+export type DownloadDrawerProps = {
   drawerProps?: Omit<DrawerProps, 'open'>;
   open?: DrawerProps['open'];
-}
+};
 
 type DownloadItem = Omit<DownloadEvent, 'event'>;
 

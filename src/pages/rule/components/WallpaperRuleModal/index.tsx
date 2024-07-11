@@ -36,9 +36,9 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { albumService } from '@/services/album';
 import { marqueeService } from '@/services/marquee';
 
-export interface FormRule extends Rule {
+export type FormRule = Rule & {
   time: [Dayjs, Dayjs];
-}
+};
 
 const WallpaperRuleModal: React.FC<
   ModalFormProps<Rule> & { weekdayId?: string | number }

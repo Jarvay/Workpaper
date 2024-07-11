@@ -39,10 +39,10 @@ const defaultWinOptions: Electron.BrowserWindowConstructorOptions = {
 
 const subject = new Subject<BrowserWindow>();
 
-export interface WallpaperWindowConstructorOptions {
+export type WallpaperWindowConstructorOptions = {
   resetSchedule: () => Promise<void>;
   removeSchedule: () => Promise<void>;
-}
+};
 
 export class WallpaperWindowService {
   resetSchedule: WallpaperWindowConstructorOptions['resetSchedule'];
