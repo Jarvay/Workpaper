@@ -63,6 +63,7 @@ const defaultData: ConfigData = {
   migrations: [],
   albums: [],
   marquees: [],
+  webpages: [],
 };
 
 if (platform() === 'darwin') {

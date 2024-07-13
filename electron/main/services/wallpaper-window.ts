@@ -10,16 +10,17 @@ import {
 } from 'electron';
 import { platform } from 'os';
 import { Events, WallpaperType } from '../../../cross/enums';
-import { indexHtml, url } from './utils';
+import { getDarwinStatusBarHeight, indexHtml, url } from './utils';
 import { Subject } from 'rxjs';
 import { omit } from 'lodash';
 import {
   LiveWallpaperEventArg,
   MarqueeEventArg,
   StaticWallpaperEventArg,
+  WebpageEventArg,
 } from '../../../cross/interface';
 
-type WallpaperWinType = WallpaperType | 'Marquee';
+type WallpaperWinType = WallpaperType | 'Marquee' | 'Webpage';
 
 const DEBUG = !app.isPackaged && false;
 
@@ -72,7 +73,7 @@ export class WallpaperWindowService {
     return true;
   }
 
-  private loadUrl(
+  private async loadUrl(
     win: BrowserWindow,
     displayId: number,
     wallpaperType: WallpaperWinType,
@@ -90,11 +91,15 @@ export class WallpaperWindowService {
       case 'Marquee':
         path = '#/wallpaper/marquee';
         break;
+      case 'Webpage':
+        break;
     }
 
     path = `${host}${path}/${displayId}`;
 
-    return win.loadURL(path);
+    if (path) {
+      await win.loadURL(path);
+    }
   }
 
   private async createWindows(
@@ -124,14 +129,14 @@ export class WallpaperWindowService {
       childWin.setFocusable(true);
     }
 
-    await this.loadUrl(childWin, display.id, wallpaperType);
+    return childWin;
   }
 
   private async createDarwinWin(
     displayId: number,
     wallpaperType: WallpaperWinType,
   ) {
-    await this.createWindows(
+    return await this.createWindows(
       displayId,
       wallpaperType,
       ({ width, height, x, y }) => {
@@ -154,7 +159,7 @@ export class WallpaperWindowService {
     displayId: number,
     wallpaperType: WallpaperWinType,
   ) {
-    await this.createWindows(
+    return await this.createWindows(
       displayId,
       wallpaperType,
       ({ width, height, x, y }) => {
@@ -175,15 +180,19 @@ export class WallpaperWindowService {
     displayId: number,
     wallpaperType: WallpaperWinType,
   ) {
-    await this.createWindows(displayId, wallpaperType, ({ width, height }) => {
-      return {
-        ...omit(defaultWinOptions, ['frame', 'focusable', 'resizable']),
-        type: 'desktop',
-        width: width,
-        height: height,
-        transparent: true,
-      };
-    });
+    return await this.createWindows(
+      displayId,
+      wallpaperType,
+      ({ width, height }) => {
+        return {
+          ...omit(defaultWinOptions, ['frame', 'focusable', 'resizable']),
+          type: 'desktop',
+          width: width,
+          height: height,
+          transparent: true,
+        };
+      },
+    );
   }
 
   private createWallpaperWin(
@@ -224,7 +233,10 @@ export class WallpaperWindowService {
       }
     });
 
-    return this.createWallpaperWin(displayId, WallpaperType.Video);
+    const win = await this.createWallpaperWin(displayId, WallpaperType.Video);
+    if (win) {
+      await this.loadUrl(win, displayId, WallpaperType.Video);
+    }
   }
 
   async setStaticWallpaper(arg: StaticWallpaperEventArg, displayId: number) {
@@ -245,7 +257,10 @@ export class WallpaperWindowService {
       }
     });
 
-    return this.createWallpaperWin(displayId, WallpaperType.Image);
+    const win = await this.createWallpaperWin(displayId, WallpaperType.Image);
+    if (win) {
+      await this.loadUrl(win, displayId, WallpaperType.Image);
+    }
   }
 
   async setMarqueeWallpaper(arg: MarqueeEventArg, displayId: number) {
@@ -266,7 +281,26 @@ export class WallpaperWindowService {
       }
     });
 
-    return this.createWallpaperWin(displayId, 'Marquee');
+    const win = await this.createWallpaperWin(displayId, 'Marquee');
+    if (win) {
+      await this.loadUrl(win, displayId, 'Marquee');
+    }
+  }
+
+  async setWebpageWallpaper(arg: WebpageEventArg, displayId: number) {
+    if (!(await this.checkDisplayWin(displayId))) return;
+
+    const win = await this.createWallpaperWin(displayId, 'Webpage');
+    if (!win) return;
+    const position = win.getPosition();
+    win.setPosition(position[0], getDarwinStatusBarHeight() - 3);
+    const size = win.getSize();
+    win.setSize(size[0], size[1] - getDarwinStatusBarHeight());
+    win.webContents.on('did-finish-load', () => {
+      win.setOpacity(1);
+      win.show();
+    });
+    await win.loadURL(arg.webpage.url);
   }
 
   detachWallpaperWin() {

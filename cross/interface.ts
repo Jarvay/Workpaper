@@ -41,6 +41,7 @@ export type Rule = BeanWithId & {
   column: number;
   albumId: Album['id'];
   marqueeId: Marquee['id'];
+  webpageId: Webpage['id'];
   wallpaperType: WallpaperType;
 };
 
@@ -72,6 +73,7 @@ export type ConfigData = {
   migrations: string[];
   albums: Album[];
   marquees: Marquee[];
+  webpages: Webpage[];
 };
 
 export type DBTableKey =
@@ -79,7 +81,8 @@ export type DBTableKey =
   | 'weekdays'
   | 'websites'
   | 'albums'
-  | 'marquees';
+  | 'marquees'
+  | 'webpages';
 
 export type IDBService<DataType> = {
   setItem<Key extends keyof DataType>(
@@ -166,6 +169,11 @@ export type Marquee = BeanWithId & {
   letterSpacing: number;
 };
 
+export type Webpage = BeanWithId & {
+  url: string;
+  name: string;
+};
+
 export type Album = BeanWithId & {
   name: string;
   dir: string;
@@ -179,6 +187,10 @@ export type Album = BeanWithId & {
 export type MarqueeEventArg = {
   rule: Rule;
   marquee: Marquee;
+};
+
+export type WebpageEventArg = {
+  webpage: Webpage;
 };
 
 export type AlbumFileListItem = {

@@ -84,5 +84,6 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:Jarvay/workpaper.git"
-  }
+  },
+  "packageManager": "yarn@4.3.0"
 }

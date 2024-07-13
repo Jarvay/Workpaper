@@ -2,6 +2,7 @@ export enum RuleType {
   Fixed,
   Album,
   Marquee,
+  Webpage,
 }
 
 export enum FormMode {
@@ -25,6 +26,7 @@ export enum Events {
   SetStaticWallpaper = 'SetStaticWallpaper',
   SetLiveWallpaper = 'SetLiveWallpaper',
   SetMarqueeWallpaper = 'SetMarqueeWallpaper',
+  SetWebpageWallpaper = 'SetWebpageWallpaper',
   SetLiveWallpaperMuted = 'SetLiveWallpaperMuted',
   SetLiveWallpaperVolume = 'SetLiveWallpaperVolume',
   PauseLiveWallpaper = 'PauseLiveWallpaper',
@@ -48,6 +50,7 @@ export enum Events {
   ToAlbumListItem = 'ToAlbumListItem',
 
   UnregisterGlobalShortcut = 'UnregisterGlobalShortcut',
+  OpenWindow = 'OpenWindow',
 }
 
 export enum Locale {

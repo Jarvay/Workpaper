@@ -35,6 +35,7 @@ const MENU_KEYS = {
   albums: 'albums',
   marquees: 'marquees',
   libs: 'libs',
+  webpages: 'webpages',
 };
 
 const MENU_ROUTES = {
@@ -42,6 +43,7 @@ const MENU_ROUTES = {
   [MENU_KEYS.albums]: '/albums',
   [MENU_KEYS.marquees]: '/marquees',
   [MENU_KEYS.libs]: '/library',
+  [MENU_KEYS.webpages]: '/webpages',
 };
 
 function App() {
@@ -70,6 +72,10 @@ function App() {
     {
       key: MENU_KEYS.marquees,
       label: t('menu.marquees'),
+    },
+    {
+      key: MENU_KEYS.webpages,
+      label: t('menu.webpages'),
     },
     {
       key: MENU_KEYS.libs,

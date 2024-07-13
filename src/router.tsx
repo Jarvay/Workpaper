@@ -8,6 +8,7 @@ import Lib from '@/pages/lib';
 import Website from '@/pages/lib/website';
 import AlbumIndex from '@/pages/album';
 import MarqueeIndex from '@/pages/marquee';
+import WebpageIndex from '@/pages/webpage';
 
 export const routes: RouteObject[] = [
   {
@@ -25,6 +26,10 @@ export const routes: RouteObject[] = [
   {
     path: '/marquees',
     element: <MarqueeIndex />,
+  },
+  {
+    path: '/webpages',
+    element: <WebpageIndex />,
   },
   {
     path: '/website/:id',

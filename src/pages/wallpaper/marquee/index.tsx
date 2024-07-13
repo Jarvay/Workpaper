@@ -19,22 +19,22 @@ const Marquee: React.FC = () => {
     setArg(arg);
   };
 
-  function registerStaticWallpaperEvents() {
+  function registerMarqueeWallpaperEvents() {
     ipcRenderer.on(Events.SetMarqueeWallpaper, marqueeWallpaperHandler);
   }
 
-  function unregisterStaticWallpaperEvents() {
+  function unregisterMarqueeWallpaperEvents() {
     ipcRenderer.off(Events.SetMarqueeWallpaper, marqueeWallpaperHandler);
   }
 
   useMount(async () => {
     ipcRenderer.send(Events.WallpaperWinReady, Number(displayId));
 
-    registerStaticWallpaperEvents();
+    registerMarqueeWallpaperEvents();
   });
 
   useUnmount(() => {
-    unregisterStaticWallpaperEvents();
+    unregisterMarqueeWallpaperEvents();
   });
 
   const album = arg?.marquee;
