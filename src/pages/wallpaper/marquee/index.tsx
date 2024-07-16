@@ -37,25 +37,26 @@ const Marquee: React.FC = () => {
     unregisterMarqueeWallpaperEvents();
   });
 
-  const album = arg?.marquee;
+  const marquee = arg?.marquee;
+  if (!marquee) return null;
 
   return (
     <ReactFastMarquee
-      speed={album?.speed}
+      speed={marquee.speed}
       className={styles.wallpaperContainer}
       onMount={() => {
         ipcRenderer.send(Events.MarqueeWallpaperLoaded, Number(displayId));
       }}
       style={{
-        color: album?.textColor?.toString(),
-        backgroundColor: album?.backgroundColor?.toString(),
-        fontSize: album?.fontSize ? `${album.fontSize}px` : undefined,
-        letterSpacing: album?.letterSpacing
-          ? `${album.letterSpacing}px`
+        color: marquee.textColor?.toString(),
+        backgroundColor: marquee?.backgroundColor?.toString(),
+        fontSize: marquee.fontSize ? `${marquee.fontSize}px` : undefined,
+        letterSpacing: marquee.letterSpacing
+          ? `${marquee.letterSpacing}px`
           : undefined,
       }}
     >
-      {arg?.marquee.text}
+      {marquee.text}
     </ReactFastMarquee>
   );
 };
