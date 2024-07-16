@@ -136,6 +136,22 @@ export function registerHandlers(createWindow: () => Promise<BrowserWindow>) {
     unregisterShortcut([settings.pausePlayShortcut]);
   });
 
+  ipcMain.handle(Events.OpenWindow, (event, url: string) => {
+    const win = new BrowserWindow({
+      focusable: true,
+      resizable: true,
+      show: true,
+      webPreferences: {
+        nodeIntegration: true,
+        webSecurity: false,
+        contextIsolation: false,
+      },
+    });
+
+    win.loadURL(url);
+    win.maximize();
+  });
+
   powerMonitor.on('resume', async () => {
     await resetSchedule();
   });

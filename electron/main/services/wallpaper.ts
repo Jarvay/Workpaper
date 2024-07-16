@@ -1,7 +1,13 @@
 import { readdirSync } from 'fs';
 import { join } from 'node:path';
 import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '../../../cross/consts';
-import { Album, Marquee, Rule, Weekday } from '../../../cross/interface';
+import {
+  Album,
+  Marquee,
+  Rule,
+  Webpage,
+  Weekday,
+} from '../../../cross/interface';
 import {
   AlbumType,
   RuleType,
@@ -280,6 +286,22 @@ export async function resetSchedule() {
         }
       }
 
+      async function setDisplaysWebpageWallpaper() {
+        const webpage = configServiceMain
+          .table<Webpage>('webpages')
+          .findById(rule.webpageId);
+
+        const displays = screen.getAllDisplays();
+        for (let i = 0; i < displays.length; i++) {
+          const display = displays[i];
+
+          await wallpaperWinService.setWebpageWallpaper(
+            { webpage: webpage as Webpage },
+            display.id,
+          );
+        }
+      }
+
       switch (rule.type) {
         default:
         case RuleType.Fixed:
@@ -322,6 +344,15 @@ export async function resetSchedule() {
           } else {
             scheduleJob(jobRule, () => {
               setDisplaysMarqueeWallpaper();
+            });
+          }
+          break;
+        case RuleType.Webpage:
+          if (isCurrent) {
+            setDisplaysWebpageWallpaper();
+          } else {
+            scheduleJob(jobRule, () => {
+              setDisplaysWebpageWallpaper();
             });
           }
           break;

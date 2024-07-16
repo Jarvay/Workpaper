@@ -58,6 +58,7 @@ export const zhCN: ITranslation = {
   'rule.type.fixed': '固定壁纸',
   'rule.type.autoChange': '相册',
   'rule.type.marquee': '跑马灯',
+  'rule.type.webpage': '网站',
   'rule.path': '壁纸目录/路径',
   'rule.screen': '屏幕',
   'rule.interval': '更换间隔(秒)',
@@ -98,6 +99,7 @@ export const zhCN: ITranslation = {
   'menu.libs': '壁纸库',
   'menu.albums': '相册',
   'menu.marquees': '跑马灯',
+  'menu.webpages': '网站',
 
   'lib.wallpaperLib': '壁纸库',
   'lib.name': '名称',
@@ -147,6 +149,10 @@ export const zhCN: ITranslation = {
   'marquee.fontSize': '文字大小',
   'marquee.letterSpacing': '字间距',
   'marquee.speed': '滚动速度',
+
+  webpage: '网站',
+  'webpage.name': '网站名称',
+  'webpage.url': '网站Url',
 
   downloadStarted: '已开始下载',
   downloadExists: '已在下载列表中',

@@ -18,6 +18,7 @@ import {
   Marquee,
   ModalFormProps,
   Rule,
+  Webpage,
 } from '../../../../../cross/interface';
 import {
   RuleType,
@@ -35,6 +36,7 @@ import { useTranslation } from 'react-i18next';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { albumService } from '@/services/album';
 import { marqueeService } from '@/services/marquee';
+import { webpageService } from '@/services/webpage';
 
 export type FormRule = Rule & {
   time: [Dayjs, Dayjs];
@@ -45,6 +47,7 @@ const WallpaperRuleModal: React.FC<
 > = (props) => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [marquees, setMarquees] = useState<Marquee[]>([]);
+  const [webpages, setWebpages] = useState<Webpage[]>([]);
 
   const [form] = Form.useForm<FormRule>();
   const albumId: Album['id'] = Form.useWatch('albumId', form);
@@ -62,6 +65,10 @@ const WallpaperRuleModal: React.FC<
 
     marqueeService.get().then((value) => {
       setMarquees(value);
+    });
+
+    webpageService.get().then((value) => {
+      setWebpages(value);
     });
   }
 
@@ -306,6 +313,23 @@ const WallpaperRuleModal: React.FC<
             />
           </Form.Item>
         );
+
+      case RuleType.Webpage:
+        return (
+          <Form.Item
+            label={t('rule.type.webpage')}
+            name="webpageId"
+            rules={[{ required: true }]}
+          >
+            <Select
+              className="form-item-input"
+              options={webpages.map((item) => ({
+                label: item.name,
+                value: item.id,
+              }))}
+            />
+          </Form.Item>
+        );
     }
   }
 
@@ -392,6 +416,8 @@ const WallpaperRuleModal: React.FC<
                 isRandom: false,
                 screenRandom: false,
                 albumId: '',
+                marqueeId: '',
+                webpageId: '',
               });
             }}
             options={[
@@ -404,6 +430,10 @@ const WallpaperRuleModal: React.FC<
                 label: t('rule.type.marquee'),
                 value: RuleType.Marquee,
               },
+              {
+                label: t('rule.type.webpage'),
+                value: RuleType.Webpage,
+              },
             ]}
           />
         </Form.Item>
@@ -413,10 +443,6 @@ const WallpaperRuleModal: React.FC<
             const { type } = getFieldsValue() as Rule;
             const showIntervalAndRandom = type === RuleType.Album;
             const isVertical = WallpaperDirection.Vertical === album?.direction;
-
-            console.log({
-              album,
-            });
 
             return (
               <>

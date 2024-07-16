@@ -1,7 +1,8 @@
 import { join } from 'node:path';
-import { app } from 'electron';
+import { app, screen } from 'electron';
 import { mkdirSync } from 'node:fs';
 import { createHash } from 'crypto';
+import { platform } from 'os';
 
 process.env.DIST_ELECTRON = join(__dirname, '../');
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist');
@@ -44,4 +45,10 @@ export async function createThumb(
     .toFile(thumb);
 
   return thumb;
+}
+
+export function getDarwinStatusBarHeight() {
+  if (platform() !== 'darwin') return 0;
+  const primary = screen.getPrimaryDisplay();
+  return primary.workArea.y;
 }

@@ -58,6 +58,7 @@ export const en: ITranslation = {
   'rule.type.fixed': 'Fixed',
   'rule.type.autoChange': 'Album',
   'rule.type.marquee': 'Marquee',
+  'rule.type.webpage': 'Website',
   'rule.path': 'Path/Directory',
   'rule.screen': 'Screen',
   'rule.interval': 'Change interval(seconds)',
@@ -98,6 +99,7 @@ export const en: ITranslation = {
   'menu.libs': 'Wallpaper library',
   'menu.albums': 'Albums',
   'menu.marquees': 'Marquees',
+  'menu.webpages': 'Websites',
 
   'lib.wallpaperLib': 'Wallpaper lib',
   'lib.name': 'Name',
@@ -147,6 +149,10 @@ export const en: ITranslation = {
   'marquee.fontSize': 'Font size',
   'marquee.letterSpacing': 'Letter spacing',
   'marquee.speed': 'Speed',
+
+  webpage: 'Website',
+  'webpage.name': 'Name',
+  'webpage.url': 'Url',
 
   downloadStarted: 'Download started',
   downloadExists: 'Download exists',

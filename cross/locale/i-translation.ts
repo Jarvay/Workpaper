@@ -56,6 +56,7 @@ export type ITranslation = {
   'rule.type.fixed': string;
   'rule.type.autoChange': string;
   'rule.type.marquee': string;
+  'rule.type.webpage': string;
   'rule.path': string;
   'rule.screen': string;
   'rule.interval': string;
@@ -96,6 +97,7 @@ export type ITranslation = {
   'menu.libs': string;
   'menu.albums': string;
   'menu.marquees': string;
+  'menu.webpages': string;
 
   'lib.wallpaperLib': string;
   'lib.name': string;
@@ -145,6 +147,10 @@ export type ITranslation = {
   'marquee.fontSize': string;
   'marquee.letterSpacing': string;
   'marquee.speed': string;
+
+  webpage: string;
+  'webpage.name': string;
+  'webpage.url': string;
 
   downloadStarted: string;
   downloadExists: string;
