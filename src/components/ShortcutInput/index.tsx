@@ -2,8 +2,8 @@ import React, { useRef } from 'react';
 import { Button, Input, InputProps, InputRef, Modal, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useUpdateEffect } from 'ahooks';
-import { ipcRenderer } from 'electron';
-import { Events } from '../../../cross/enums';
+import { invoke } from '@tauri-apps/api/core';
+import { Events } from '@/others/enums';
 
 export type ShortcutInputProps = Omit<InputProps, 'onChange'> & {
   onChange?: (value: string) => void;
@@ -21,7 +21,7 @@ const ShortcutInput: React.FC<ShortcutInputProps> = (props) => {
 
   useUpdateEffect(() => {
     if (inputOpen) {
-      ipcRenderer.invoke(Events.UnregisterGlobalShortcut);
+      invoke(Events.UnregisterGlobalShortcut);
       setShortcutArray([]);
     }
   }, [inputOpen]);
@@ -56,7 +56,7 @@ const ShortcutInput: React.FC<ShortcutInputProps> = (props) => {
           disabled: !shortcut,
         }}
         onCancel={() => setInputOpen(false)}
-        destroyOnClose
+        destroyOnHidden
         afterOpenChange={(open) => {
           if (open) {
             inputRef.current?.focus();

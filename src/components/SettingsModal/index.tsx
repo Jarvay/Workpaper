@@ -1,29 +1,32 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Form, Input, Modal, Select, Slider, Switch } from 'antd';
-import { ModalFormProps, Settings } from '../../../cross/interface';
+import { Button, Card, Form, Modal, Select, Slider, Space, Switch } from 'antd';
+import { ModalFormProps, Settings, TranslationFunc } from '@/others/types.ts';
 import { cloneDeep, debounce } from 'lodash';
 import { useMount, useUpdateEffect } from 'ahooks';
 import { settingsService } from '@/services/settings';
-import { Events, Locale, ScaleType, WallpaperMode } from '../../../cross/enums';
+import { Events, Locale, WallpaperMode } from '@/others/enums';
 import { useTranslation } from 'react-i18next';
 import ScaleModeComponent from '@/components/ScaleModeComponent';
 import styles from './index.module.less';
-import { ipcRenderer } from 'electron';
+import { invoke } from '@tauri-apps/api/core';
 import {
   DEFAULT_NATIVE_SCALE_MODE,
   DEFAULT_WEB_SCALE_MODE,
-} from '../../../cross/consts';
+} from '@/others/consts';
 import ShortcutInput from '@/components/ShortcutInput';
+import { Platform, platform as getPlatform } from '@tauri-apps/plugin-os';
+import { disable, enable, isEnabled } from '@tauri-apps/plugin-autostart';
+import { emit } from '@tauri-apps/api/event';
 
 export type SettingsModalProps = ModalFormProps<Settings> & {};
 
 const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [form] = Form.useForm();
   const [settings, setSettings] = useState<Settings>();
-  const [platform, setPlatform] = useState<NodeJS.Platform>();
+  const [platform, setPlatform] = useState<Platform>();
   const [isChanged, setIsChanged] = useState(false);
 
-  const { t } = useTranslation();
+  const t = useTranslation().t as TranslationFunc;
 
   const checkIsChanged = useCallback(() => {
     if (!settings) return false;
@@ -51,15 +54,18 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   }
 
   useMount(async () => {
-    setPlatform(await ipcRenderer.invoke(Events.GetPlatform));
+    setPlatform(getPlatform());
   });
 
   useUpdateEffect(() => {
     if (props.open) {
-      settingsService.get().then((s) => {
+      settingsService.get().then(async (s) => {
         setSettings(cloneDeep(s));
         form.resetFields();
-        form.setFieldsValue(s);
+        form.setFieldsValue({
+          ...s,
+          startAtLogin: await isEnabled(),
+        });
       });
     }
   }, [props.open]);
@@ -73,8 +79,8 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
           <Button
             key="apply"
             type="primary"
-            onClick={async (event) => {
-              await ipcRenderer.invoke(Events.ResetSchedule);
+            onClick={async () => {
+              await invoke(Events.ResetSchedule);
               await fetchSettings();
               setIsChanged(false);
             }}
@@ -86,15 +92,18 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
           {t('close')}
         </Button>,
       ]}
-      destroyOnClose
+      destroyOnHidden
       title={t('settings')}
     >
       <Form
         form={form}
-        labelCol={{ span: 4 }}
+        labelCol={{ span: 6 }}
         labelWrap
-        onValuesChange={async (changedValues, values) => {
-          await settingsService.save(values);
+        onValuesChange={async (_changedValues, values) => {
+          await settingsService.save({
+            ...settings,
+            ...values,
+          });
           await props.onChange?.({
             ...settings,
             ...values,
@@ -102,128 +111,151 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
           checkIsChanged();
         }}
       >
-        <Form.Item label={t('language')} name="locale">
-          <Select
-            className={styles.formItem}
-            options={[
-              { label: '简体中文', value: Locale.zhCN },
-              { label: 'English', value: Locale.enUS },
-            ]}
-          />
-        </Form.Item>
-
-        <Form.Item label={t('wallpaperMode')} name="wallpaperMode">
-          <Select
-            className={styles.formItem}
-            options={[
-              { label: t('wallpaperMode.cover'), value: WallpaperMode.Cover },
-              {
-                label: t('wallpaperMode.replace'),
-                value: WallpaperMode.Replace,
-              },
-            ]}
-            onChange={async (value) => {
-              if (value === WallpaperMode.Replace) {
-                if (platform) {
-                  form.setFieldsValue({
-                    scaleMode: DEFAULT_NATIVE_SCALE_MODE[platform as string],
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Card className={styles.settingsCard}>
+            <Form.Item label={t('language')} name="locale">
+              <Select
+                className={styles.formItem}
+                options={[
+                  { label: '简体中文', value: Locale.zhCN },
+                  { label: 'English', value: Locale.enUS },
+                ]}
+                onChange={async (value) => {
+                  await invoke(Events.UpdateTrayLocale, {
+                    locale: value,
                   });
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item label={t('startAtLogin')} name="startAtLogin">
+              <Switch
+                onChange={async (value) => {
+                  if (value) {
+                    await enable();
+                  } else {
+                    await disable();
+                  }
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item label={t('autoCheckUpdate')} name="autoCheckUpdate">
+              <Switch />
+            </Form.Item>
+          </Card>
+
+          <Card className={styles.settingsCard}>
+            <Form.Item label={t('wallpaperMode')} name="wallpaperMode">
+              <Select
+                className={styles.formItem}
+                options={[
+                  {
+                    label: t('wallpaperMode.cover'),
+                    value: WallpaperMode.Window,
+                  },
+                  {
+                    label: t('wallpaperMode.replace'),
+                    value: WallpaperMode.Native,
+                  },
+                ]}
+                onChange={async (value) => {
+                  if (value === WallpaperMode.Native) {
+                    if (platform) {
+                      form.setFieldsValue({
+                        scaleMode:
+                          DEFAULT_NATIVE_SCALE_MODE[platform as string],
+                      });
+                    }
+                  } else {
+                    form.setFieldsValue({
+                      webScaleMode: DEFAULT_WEB_SCALE_MODE,
+                    });
+                  }
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item noStyle dependencies={['wallpaperMode']}>
+              {({ getFieldsValue }) => {
+                const { wallpaperMode } = getFieldsValue() as Settings;
+                if (
+                  wallpaperMode === WallpaperMode.Native &&
+                  platform === 'linux'
+                ) {
+                  return null;
                 }
-              } else {
-                form.setFieldsValue({
-                  webScaleMode: DEFAULT_WEB_SCALE_MODE,
-                });
-              }
-            }}
-          />
-        </Form.Item>
 
-        <Form.Item noStyle dependencies={['wallpaperMode']}>
-          {({ getFieldsValue }) => {
-            const { wallpaperMode } = getFieldsValue() as Settings;
-            if (
-              wallpaperMode === WallpaperMode.Replace &&
-              platform === 'linux'
-            ) {
-              return null;
-            }
+                return (
+                  <>
+                    <ScaleModeComponent wallpaperMode={WallpaperMode.Native}>
+                      {(scaleModeOptions) => {
+                        return (
+                          <Form.Item
+                            hidden={wallpaperMode === WallpaperMode.Window}
+                            label={t('scaleMode')}
+                            name="scaleMode"
+                          >
+                            <Select
+                              className={styles.formItem}
+                              options={scaleModeOptions}
+                            />
+                          </Form.Item>
+                        );
+                      }}
+                    </ScaleModeComponent>
 
-            return (
-              <>
-                <ScaleModeComponent scaleType={ScaleType.Native}>
-                  {(scaleModeOptions) => {
-                    return (
-                      <Form.Item
-                        hidden={wallpaperMode === WallpaperMode.Cover}
-                        label={t('scaleMode')}
-                        name="scaleMode"
-                      >
-                        <Select
-                          className={styles.formItem}
-                          options={scaleModeOptions}
-                        />
-                      </Form.Item>
-                    );
-                  }}
-                </ScaleModeComponent>
+                    <ScaleModeComponent wallpaperMode={WallpaperMode.Window}>
+                      {(scaleModeOptions) => {
+                        return (
+                          <Form.Item
+                            hidden={wallpaperMode === WallpaperMode.Native}
+                            label={t('scaleMode')}
+                            name="webScaleMode"
+                          >
+                            <Select
+                              className={styles.formItem}
+                              options={scaleModeOptions}
+                            />
+                          </Form.Item>
+                        );
+                      }}
+                    </ScaleModeComponent>
+                  </>
+                );
+              }}
+            </Form.Item>
+          </Card>
 
-                <ScaleModeComponent scaleType={ScaleType.Web}>
-                  {(scaleModeOptions) => {
-                    return (
-                      <Form.Item
-                        hidden={wallpaperMode === WallpaperMode.Replace}
-                        label={t('scaleMode')}
-                        name="webScaleMode"
-                      >
-                        <Select
-                          className={styles.formItem}
-                          options={scaleModeOptions}
-                        />
-                      </Form.Item>
-                    );
-                  }}
-                </ScaleModeComponent>
-              </>
-            );
-          }}
-        </Form.Item>
+          <Card className={styles.settingsCard}>
+            <Form.Item
+              label={t('settings.pausePlayShortcut')}
+              name="pausePlayShortcut"
+            >
+              <ShortcutInput />
+            </Form.Item>
 
-        <Form.Item label={t('settings.downloadsDir')} name="downloadsDir">
-          <Input.Search
-            style={{ width: '70%' }}
-            enterButton={<Button type="primary">{t('choose')}</Button>}
-            onSearch={async () => {
-              const file = await ipcRenderer.invoke(Events.SelectDir);
-              form.setFieldValue('downloadsDir', file?.[0]);
-              await settingsService.save(form.getFieldsValue());
-              await props.onChange?.(form.getFieldsValue());
-              checkIsChanged();
-            }}
-          />
-        </Form.Item>
+            <Form.Item label={t('settings.volume')} name="volume">
+              <Slider
+                min={0}
+                max={100}
+                onChange={debounce((volume) => {
+                  emit(Events.SetLiveWallpaperVolume, volume);
+                }, 200)}
+              />
+            </Form.Item>
 
-        <Form.Item
-          label={t('settings.pausePlayShortcut')}
-          name="pausePlayShortcut"
-        >
-          <ShortcutInput />
-        </Form.Item>
-
-        <Form.Item label={t('settings.volume')} name="volume">
-          <Slider
-            min={0}
-            max={100}
-            onChange={debounce((volume) => {
-              ipcRenderer.invoke(Events.SetLiveWallpaperVolume, volume);
-              settingsService.get().then((settings) => {
-                settingsService.save({
-                  ...settings,
-                  volume,
-                });
-              });
-            }, 200)}
-          />
-        </Form.Item>
+            <Form.Item label={t('settings.mute')} name="mute">
+              <Switch
+                onChange={debounce((muted) => {
+                  emit(Events.SetLiveWallpaperMuted, {
+                    muted,
+                  });
+                }, 200)}
+              />
+            </Form.Item>
+          </Card>
+        </Space>
       </Form>
     </Modal>
   );

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Button, List, Popconfirm, Space, Tag } from 'antd';
 import WeekdayModal from './components/WeekdayModal';
-import { FormMode } from '../../../cross/enums';
+import { FormMode } from '@/others/enums';
 import { useMount } from 'ahooks';
 import { weekdayService } from '@/services/weekday';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import WeekComponent from '@/components/WeekComponent';
-import { Weekday } from '../../../cross/interface';
+import { Weekday } from '@/others/types.ts';
 import PageContainer from '@/components/PageContainer';
 import {
   DeleteOutlined,

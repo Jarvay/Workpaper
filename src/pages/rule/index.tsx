@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { ruleService } from '@/services/rule';
-import { useMount, useUnmount } from 'ahooks';
-import { ipcRenderer } from 'electron';
-import {
-  RuleType,
-  Events,
-  FormMode,
-  WallpaperType,
-} from '../../../cross/enums';
+import { useMount } from 'ahooks';
+import { FormMode, RuleType, WallpaperType } from '@/others/enums';
 import { ColumnsType } from 'antd/es/table/InternalTable';
 import { Button, Divider, Popconfirm, Space, Tag } from 'antd';
 import WallpaperRule from './components/WallpaperRuleModal';
@@ -19,7 +13,7 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import { weekdayService } from '@/services/weekday';
-import { Album, Rule, Weekday } from '../../../cross/interface';
+import { Album, Rule, Weekday } from '@/others/types.ts';
 import { useTranslation } from 'react-i18next';
 import WeekComponent from '@/components/WeekComponent';
 import PageContainer from '@/components/PageContainer';
@@ -59,16 +53,12 @@ const RuleIndex: React.FC = () => {
     fetchAlbums();
   });
 
-  useUnmount(() => {
-    ipcRenderer.removeAllListeners(Events.ResetSchedule);
-  });
-
   const columns: ColumnsType<Rule> = [
     {
       title: t('rule.timeSlot'),
       dataIndex: 'time',
       width: 180,
-      render: (value, record) => {
+      render: (_value, record) => {
         return (
           <span>
             {record.start} - {record.end}
@@ -97,7 +87,7 @@ const RuleIndex: React.FC = () => {
       dataIndex: 'albumId',
       width: 120,
       ellipsis: true,
-      render: (value, record) => {
+      render: (_value, record) => {
         const album = albums.find((album) => album.id === record.albumId);
         return album?.name;
       },
@@ -133,7 +123,7 @@ const RuleIndex: React.FC = () => {
       dataIndex: 'options',
       width: 180,
       fixed: 'right',
-      render: (value, record) => {
+      render: (_value, record) => {
         return (
           <Space split={<Divider type="vertical" />}>
             <EditOutlined
@@ -217,12 +207,13 @@ const RuleIndex: React.FC = () => {
         />
 
         <WallpaperRule
+          mode={FormMode.Update}
+          weekdayId={weekdayId}
           open={updateModalOpen}
           modalProps={{
             onCancel: () => setUpdateModalOpen(false),
           }}
           values={currentRow}
-          mode={FormMode.Update}
           onChange={async () => {
             setUpdateModalOpen(false);
             await refresh();

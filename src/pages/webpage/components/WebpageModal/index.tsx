@@ -1,23 +1,25 @@
 import React from 'react';
-import { ModalFormProps, Webpage } from '../../../../../cross/interface';
-import { Form, Input, message, Modal } from 'antd';
+import { ModalFormProps, Webpage } from '@/others/types.ts';
+import { Form, Input, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { FormMode } from '../../../../../cross/enums';
+import { FormMode } from '@/others/enums';
 import { useUpdateEffect } from 'ahooks';
 import { webpageService } from '@/services/webpage';
+import { useMessageApi } from '@/components/GlobalContext';
 
 export type WebpageModalProps = ModalFormProps<Webpage> & {};
 
 const WebpageModal: React.FC<WebpageModalProps> = (props) => {
   const [form] = Form.useForm<Webpage>();
 
+  const messageApi = useMessageApi();
   const { t } = useTranslation();
 
   async function doCreate() {
     try {
       const values = await form.validateFields();
       await webpageService.create(values as Webpage);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -31,7 +33,7 @@ const WebpageModal: React.FC<WebpageModalProps> = (props) => {
         ...props.values,
         ...values,
       } as Webpage);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);

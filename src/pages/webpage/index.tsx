@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useMount, useUnmount } from 'ahooks';
-import { ipcRenderer } from 'electron';
-import { Events, FormMode, WallpaperWebsiteType } from '../../../cross/enums';
+import { useMount } from 'ahooks';
+import { FormMode } from '@/others/enums';
 import { ColumnsType } from 'antd/es/table/InternalTable';
 import { Button, Divider, Popconfirm, Space } from 'antd';
 import {
@@ -10,14 +9,13 @@ import {
   GlobalOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { Webpage } from '../../../cross/interface';
+import { Webpage } from '@/others/types.ts';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '@/components/PageContainer';
 import CenterTable from '@/components/CenterTable';
-import { marqueeService } from '@/services/marquee';
 import { webpageService } from '@/services/webpage';
 import WebpageModal from '@/pages/webpage/components/WebpageModal';
-import { useNavigate } from 'react-router-dom';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 const WebpageIndex: React.FC = () => {
   const [dataSource, setDataSource] = useState<Webpage[]>([]);
@@ -37,10 +35,6 @@ const WebpageIndex: React.FC = () => {
 
   useMount(async () => {
     await refresh();
-  });
-
-  useUnmount(() => {
-    ipcRenderer.removeAllListeners(Events.ResetSchedule);
   });
 
   const columns: ColumnsType<Webpage> = [
@@ -66,7 +60,7 @@ const WebpageIndex: React.FC = () => {
             <GlobalOutlined
               className="icon-button"
               onClick={async () => {
-                ipcRenderer.invoke(Events.OpenWindow, record.url);
+                openUrl(record.url);
               }}
             />
 
@@ -81,7 +75,7 @@ const WebpageIndex: React.FC = () => {
             <Popconfirm
               title={t('deleteConfirmTips')}
               onConfirm={async () => {
-                await marqueeService.delete(record.id as string);
+                await webpageService.delete(record.id as string);
                 await refresh();
               }}
             >

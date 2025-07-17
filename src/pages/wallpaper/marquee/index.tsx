@@ -1,61 +1,61 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import ReactFastMarquee from 'react-fast-marquee';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
-import { MarqueeEventArg } from '../../../../cross/interface';
-import { Events } from '../../../../cross/enums';
+import { EventCallback, UnlistenFn } from '@tauri-apps/api/event';
+import { MarqueeEventArg } from '@/others/types.ts';
+import { Events } from '@/others/enums';
 import { useMount, useUnmount } from 'ahooks';
-import { useParams } from 'react-router-dom';
 import styles from './index.module.less';
+import { emitToSelf, emitWinReadyEvent, listenSelf } from '@/others/utils.ts';
 
 const Marquee: React.FC = () => {
   const [arg, setArg] = useState<MarqueeEventArg>();
 
-  const { displayId } = useParams();
+  const unlistenFnListRef = useRef<UnlistenFn[]>([]);
 
-  const marqueeWallpaperHandler: (
-    event: IpcRendererEvent,
-    ...args: any[]
-  ) => void = (_, arg: any) => {
-    setArg(arg);
+  const marqueeWallpaperHandler: EventCallback<any> = (event) => {
+    setArg(event.payload);
   };
 
-  function registerMarqueeWallpaperEvents() {
-    ipcRenderer.on(Events.SetMarqueeWallpaper, marqueeWallpaperHandler);
+  async function registerMarqueeWallpaperEvents() {
+    unlistenFnListRef.current.push(
+      await listenSelf(Events.SetMarqueeWallpaper, marqueeWallpaperHandler),
+    );
   }
 
   function unregisterMarqueeWallpaperEvents() {
-    ipcRenderer.off(Events.SetMarqueeWallpaper, marqueeWallpaperHandler);
+    unlistenFnListRef.current.forEach((item) => item());
   }
 
   useMount(async () => {
-    ipcRenderer.send(Events.WallpaperWinReady, Number(displayId));
+    await registerMarqueeWallpaperEvents();
 
-    registerMarqueeWallpaperEvents();
+    await emitWinReadyEvent();
   });
 
   useUnmount(() => {
     unregisterMarqueeWallpaperEvents();
   });
 
-  const album = arg?.marquee;
+  const marquee = arg?.marquee;
+  if (!marquee) return null;
 
   return (
     <ReactFastMarquee
-      speed={album?.speed}
+      speed={marquee.speed}
       className={styles.wallpaperContainer}
-      onMount={() => {
-        ipcRenderer.send(Events.MarqueeWallpaperLoaded, Number(displayId));
+      onMount={async () => {
+        await emitToSelf(Events.MarqueeWallpaperLoaded);
       }}
       style={{
-        color: album?.textColor?.toString(),
-        backgroundColor: album?.backgroundColor?.toString(),
-        fontSize: album?.fontSize ? `${album.fontSize}px` : undefined,
-        letterSpacing: album?.letterSpacing
-          ? `${album.letterSpacing}px`
+        color: marquee.textColor?.toString(),
+        backgroundColor: marquee?.backgroundColor?.toString(),
+        fontSize: marquee.fontSize ? `${marquee.fontSize}px` : undefined,
+        letterSpacing: marquee.letterSpacing
+          ? `${marquee.letterSpacing}px`
           : undefined,
       }}
     >
-      {arg?.marquee.text}
+      {marquee.text}
     </ReactFastMarquee>
   );
 };

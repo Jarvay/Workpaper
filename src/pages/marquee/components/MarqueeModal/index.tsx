@@ -1,26 +1,27 @@
 import React from 'react';
-import { Marquee, ModalFormProps } from '../../../../../cross/interface';
+import { Marquee, ModalFormProps } from '@/others/types.ts';
 import {
   ColorPicker,
   ColorPickerProps,
   Form,
   Input,
   InputNumber,
-  message,
   Modal,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { FormMode, WallpaperType } from '../../../../../cross/enums';
+import { FormMode } from '@/others/enums';
 import { useUpdateEffect } from 'ahooks';
-import { ColorFactory } from 'antd/es/color-picker/color';
-import { DEFAULT_MARQUEE } from '../../../../../cross/consts';
+import { AggregationColor } from 'antd/es/color-picker/color';
+import { DEFAULT_MARQUEE } from '@/others/consts';
 import { marqueeService } from '@/services/marquee';
+import { useMessageApi } from '@/components/GlobalContext';
 
 export type MarqueeModalProps = ModalFormProps<Marquee> & {};
 
 const MarqueeModal: React.FC<MarqueeModalProps> = (props) => {
   const [form] = Form.useForm<Marquee>();
 
+  const messageApi = useMessageApi();
   const { t } = useTranslation();
 
   function getHexString(value: ColorPickerProps['value']) {
@@ -28,7 +29,10 @@ const MarqueeModal: React.FC<MarqueeModalProps> = (props) => {
       throw new Error('type of value is not right');
     }
     if (typeof value === 'string') {
-      return new ColorFactory(value).toHexString();
+      return new AggregationColor(value).toHexString();
+    }
+    if (!(value instanceof AggregationColor)) {
+      throw new Error('type of value is not right');
     }
 
     return value.toHexString();
@@ -46,7 +50,7 @@ const MarqueeModal: React.FC<MarqueeModalProps> = (props) => {
     try {
       const values = transformValues(await form.validateFields());
       await marqueeService.create(values as Marquee);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -60,7 +64,7 @@ const MarqueeModal: React.FC<MarqueeModalProps> = (props) => {
         ...props.values,
         ...values,
       } as Marquee);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);

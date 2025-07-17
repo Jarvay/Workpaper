@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useMount } from 'ahooks';
 import { ColumnsType } from 'antd/es/table/InternalTable';
-import { WallpaperWebsite } from '../../../cross/interface';
+import { WallpaperWebsite } from '@/others/types.ts';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '@/components/PageContainer';
 import CenterTable from '@/components/CenterTable';
-import { Button, Divider, message, Popconfirm, Space, Tag } from 'antd';
-import { Events, FormMode, WallpaperWebsiteType } from '../../../cross/enums';
+import { Button, Divider, Popconfirm, Space, Tag } from 'antd';
+import { FormMode, WallpaperWebsiteType } from '@/others/enums';
 import WallpaperWebsiteModal from '@/pages/lib/components/WallpaperWebsiteModal';
 import { websiteService } from '@/services/website';
-import { useNavigate } from 'react-router-dom';
-import { ipcRenderer } from 'electron';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -18,6 +16,8 @@ import {
   PlusOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
+import { useMessageApi } from '@/components/GlobalContext';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 const LibIndex: React.FC = () => {
   const [dataSource, setDataSource] = useState<WallpaperWebsite[]>([]);
@@ -26,8 +26,8 @@ const LibIndex: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<WallpaperWebsite>();
   const [syncing, setSyncing] = useState(false);
 
+  const messageApi = useMessageApi();
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   async function refresh() {
     setDataSource(await websiteService.get());
@@ -65,11 +65,8 @@ const LibIndex: React.FC = () => {
               className="icon-button"
               onClick={async () => {
                 switch (record.type) {
-                  case WallpaperWebsiteType.Api:
-                    navigate(`/website/${record.id}`);
-                    break;
                   case WallpaperWebsiteType.Website:
-                    await ipcRenderer.invoke(Events.OpenExternal, record.url);
+                    await openUrl(record.url);
                     break;
                 }
               }}
@@ -115,7 +112,7 @@ const LibIndex: React.FC = () => {
                 await websiteService.sync();
                 await refresh();
                 setSyncing(false);
-                message.success(t('operationSuccess'));
+                messageApi.success(t('operationSuccess'));
               }}
             >
               <SyncOutlined />

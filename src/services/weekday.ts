@@ -1,12 +1,12 @@
-import { Weekday } from '../../cross/interface';
+import { Weekday } from '@/others/types.ts';
 import { BaseService } from '@/services/base';
-import { ipcRenderer } from 'electron';
-import { Events } from '../../cross/enums';
+import { invoke } from '@tauri-apps/api/core';
+import { Events } from '@/others/enums';
 
 export class WeekdayService extends BaseService<'weekdays', Weekday> {
   async save(list: Weekday[]): Promise<void> {
     await super.save(list);
-    await ipcRenderer.invoke(Events.ResetSchedule);
+    await invoke(Events.ResetSchedule);
   }
 
   getKeyInDB(): 'weekdays' {

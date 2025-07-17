@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "jarvay.workpaper",
+  "bundle": {
+    "targets": ["nsis"],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "nsis": {
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico",
+        "languages": ["SimpChinese", "English"],
+        "installMode": "perMachine"
+      }
+    }
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Workpaper",
+        "label": "main",
+        "width": 800,
+        "height": 600,
+        "maximized": true,
+        "visible": false
+      }
+    ],
+    "security": {
+      "capabilities": ["desktop-capability", "desktop-windows-capability"]
+    }
+  }
+}

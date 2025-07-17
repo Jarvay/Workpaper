@@ -1,10 +1,10 @@
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Card, Drawer, DrawerProps, Image, List, Progress, Space } from 'antd';
 import { useMount, useUnmount, useUpdateEffect } from 'ahooks';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
-import { Events } from '../../../cross/enums';
-import { DownloadEvent } from '../../../cross/interface';
+import { Events } from '@/others/enums';
+import { DownloadEvent } from '@/others/types.ts';
 import { omit } from 'lodash';
+import { listen, UnlistenFn } from '@tauri-apps/api/event';
 
 export type DownloadDrawerActions = {
   getList: () => DownloadItem[];
@@ -21,16 +21,18 @@ const DownloadDrawer = forwardRef<DownloadDrawerActions, DownloadDrawerProps>(
   (props, ref) => {
     const [downloadList, setDownloadList] = useState<DownloadItem[]>([]);
 
+    const downloadUnlistenFnRef = useRef<UnlistenFn>();
+
     useImperativeHandle(ref, () => {
       return {
         getList: () => downloadList,
       };
     });
 
-    const downloadEventListener: (
-      event: IpcRendererEvent,
-      ...args: any[]
-    ) => void = (_, event: DownloadEvent) => {
+    const downloadEventListener: (event: any, ...args: any[]) => void = (
+      _,
+      event: DownloadEvent,
+    ) => {
       if (event.event === 'start') {
         downloadList.push(omit(event, 'event'));
       }
@@ -45,17 +47,24 @@ const DownloadDrawer = forwardRef<DownloadDrawerActions, DownloadDrawerProps>(
       setDownloadList(downloadList);
     };
 
-    useMount(() => {
-      ipcRenderer.on(Events.OnDownloadUpdated, downloadEventListener);
+    async function registerListener() {
+      downloadUnlistenFnRef.current?.();
+      downloadUnlistenFnRef.current = await listen(
+        Events.OnDownloadUpdated,
+        downloadEventListener,
+      );
+    }
+
+    useMount(async () => {
+      registerListener();
     });
 
     useUpdateEffect(() => {
-      ipcRenderer.off(Events.OnDownloadUpdated, downloadEventListener);
-      ipcRenderer.on(Events.OnDownloadUpdated, downloadEventListener);
+      registerListener();
     }, [downloadList]);
 
-    useUnmount(() => {
-      ipcRenderer.off(Events.OnDownloadUpdated, downloadEventListener);
+    useUnmount(async () => {
+      downloadUnlistenFnRef.current?.();
     });
 
     return (
@@ -71,7 +80,7 @@ const DownloadDrawer = forwardRef<DownloadDrawerActions, DownloadDrawerProps>(
       >
         <List<DownloadItem>
           dataSource={downloadList}
-          renderItem={(item, index) => {
+          renderItem={(item) => {
             return (
               <List.Item>
                 <Card

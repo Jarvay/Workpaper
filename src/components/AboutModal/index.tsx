@@ -1,34 +1,34 @@
 import React, { useState } from 'react';
-import { ModalFormProps } from '../../../cross/interface';
+import { ModalFormProps } from '@/others/types.ts';
 import { useTranslation } from 'react-i18next';
 import styles from './index.module.less';
 import { useUpdateEffect } from 'ahooks';
-import { ipcRenderer } from 'electron';
-import { Events } from '../../../cross/enums';
 import Update from '@/components/Update';
 import { Badge, Button, Descriptions, Modal, ModalProps, Space } from 'antd';
+import { Update as UpdateInfo } from '@tauri-apps/plugin-updater';
+import { getVersion } from '@tauri-apps/api/app';
 
 export type AboutModalProps = ModalFormProps & {
-  versionInfo?: VersionInfo;
+  update?: UpdateInfo;
   open: ModalProps['open'];
 };
 
 const AboutModal: React.FC<AboutModalProps> = (props) => {
   const { t } = useTranslation();
   const [version, setVersion] = useState('');
-  const [versionInfo, setVersionInfo] = useState<VersionInfo>();
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo>();
 
-  async function getVersion() {
-    const ver = await ipcRenderer.invoke(Events.GetVersion);
+  async function getAppVersion() {
+    const ver = await getVersion();
     setVersion(ver);
   }
 
   useUpdateEffect(() => {
-    setVersionInfo(props.versionInfo);
+    setUpdateInfo(props.update);
     if (props.open) {
-      getVersion();
+      getAppVersion();
     }
-  }, [props.versionInfo, props.open]);
+  }, [props.update, props.open]);
 
   return (
     <Modal
@@ -38,7 +38,7 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
       footer={
         <Button onClick={props.modalProps?.onCancel}>{t('close')}</Button>
       }
-      destroyOnClose
+      destroyOnHidden
     >
       <Space direction="vertical">
         <Descriptions
@@ -54,8 +54,8 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
               key: '2',
               label: t('latestVersion'),
               children: (
-                <Badge dot count={versionInfo?.update ? 1 : 0}>
-                  <span>{versionInfo?.newVersion || '-'}</span>
+                <Badge dot count={!!updateInfo ? 1 : 0}>
+                  <span>{updateInfo?.version || '-'}</span>
                 </Badge>
               ),
             },
@@ -63,9 +63,9 @@ const AboutModal: React.FC<AboutModalProps> = (props) => {
         />
 
         <Update
-          versionInfo={versionInfo}
-          onUpdateAvailable={(v) => {
-            setVersionInfo(v);
+          update={updateInfo}
+          onUpdateAvailable={(update) => {
+            setUpdateInfo(update);
           }}
         />
       </Space>

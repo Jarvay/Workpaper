@@ -1,37 +1,12 @@
-import {
-  BeanWithId,
-  ConfigData,
-  DBTableKey,
-  IDBService,
-} from '../../cross/interface';
-import { ipcRenderer } from 'electron';
-import { Events } from '../../cross/enums';
+import { ConfigData } from '@/others/types.ts';
+import { AppStore } from '@/services/store.ts';
 
-export class ConfigServiceRenderer<Key extends keyof ConfigData>
-  implements IDBService<ConfigData>
-{
-  setItem<Key extends keyof ConfigData>(key: Key, data: ConfigData[Key]) {
-    return ipcRenderer.invoke(Events.SetDBItem, key, data);
+export class ConfigServiceRenderer<Key extends keyof ConfigData> {
+  setItem(key: Key, data: ConfigData[Key]) {
+    return AppStore.default().set(key, data);
   }
 
-  async getItem<Key extends keyof ConfigData>(
-    key: Key,
-  ): Promise<ConfigData[Key]> {
-    return await ipcRenderer.invoke(Events.GetDBItem, key);
+  getItem(key: Key): Promise<ConfigData[Key]> {
+    return AppStore.default().get(key) as Promise<ConfigData[Key]>;
   }
 }
-
-export class TableServiceRenderer<
-  Key extends DBTableKey,
-  T extends BeanWithId,
-> {
-  setRows(key: Key, data: T[]) {
-    return ipcRenderer.invoke(Events.SetDBItem, key, data);
-  }
-
-  async getRows(key: Key): Promise<T[]> {
-    return await ipcRenderer.invoke(Events.GetDBItem, key);
-  }
-}
-
-export const configServiceRenderer = new ConfigServiceRenderer();

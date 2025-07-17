@@ -1,15 +1,11 @@
 import React from 'react';
-import {
-  ModalFormProps,
-  WallpaperWebsite,
-} from '../../../../../cross/interface';
+import { ModalFormProps, WallpaperWebsite } from '@/others/types.ts';
 import {
   Button,
   Col,
   Form,
   Input,
   InputNumber,
-  message,
   Modal,
   Radio,
   Row,
@@ -22,11 +18,12 @@ import {
   WallpaperWebsiteRequestParamType,
   WallpaperWebsiteType,
   WebsitePlaceholder,
-} from '../../../../../cross/enums';
+} from '@/others/enums';
 import styles from './index.module.less';
 import { websiteService } from '@/services/website';
 import { useUpdateEffect } from 'ahooks';
 import { MinusCircleOutlined } from '@ant-design/icons';
+import { useMessageApi } from '@/components/GlobalContext';
 
 export interface WallpaperWebsiteModalProps
   extends ModalFormProps<WallpaperWebsite> {}
@@ -35,6 +32,7 @@ const WallpaperWebsiteModal: React.FC<WallpaperWebsiteModalProps> = (props) => {
   const [form] = Form.useForm();
 
   const { t } = useTranslation();
+  const messageApi = useMessageApi();
 
   async function doCreate() {
     try {
@@ -42,7 +40,7 @@ const WallpaperWebsiteModal: React.FC<WallpaperWebsiteModalProps> = (props) => {
       await websiteService.create({
         ...values,
       } as WallpaperWebsite);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -56,7 +54,7 @@ const WallpaperWebsiteModal: React.FC<WallpaperWebsiteModalProps> = (props) => {
         ...values,
         id: props.values?.id,
       } as WallpaperWebsite);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -98,7 +96,7 @@ const WallpaperWebsiteModal: React.FC<WallpaperWebsiteModalProps> = (props) => {
         </Form.Item>
 
         <Form.List name={['request', 'params']}>
-          {(fields, operation, meta) => {
+          {(fields, operation) => {
             return (
               <Form.Item label={t('lib.request.params')}>
                 <div className={`${styles.requestParamsList}`}>

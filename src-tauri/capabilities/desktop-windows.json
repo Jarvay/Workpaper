@@ -1,0 +1,7 @@
+{
+  "identifier": "desktop-windows-capability",
+  "description": "permissions for desktop windows applications",
+  "windows": ["main"],
+  "platforms": ["windows"],
+  "permissions": ["wallpaper:default"]
+}

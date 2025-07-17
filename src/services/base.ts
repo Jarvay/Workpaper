@@ -1,35 +1,32 @@
-import { BeanWithId, DBTableKey } from '../../cross/interface';
-import { TableServiceRenderer } from '@/services/config-service';
-import { generateId } from '../../cross/utils';
+import { BeanWithId, DBTableKey } from '@/others/types.ts';
+import { generateId } from '@/others/utils';
+import { AppStore } from '@/services/store.ts';
 
 export enum UpsertType {
   Create,
   Update,
 }
 
-export abstract class BaseService<
-  K extends DBTableKey,
-  T extends BeanWithId,
-> extends TableServiceRenderer<K, T> {
+export abstract class BaseService<K extends DBTableKey, T extends BeanWithId> {
   abstract getKeyInDB(): K;
 
   async save(list: T[]) {
-    return await this.setRows(this.getKeyInDB(), list);
+    return await AppStore.default().set(this.getKeyInDB(), list);
   }
 
-  async get() {
-    return (await this.getRows(this.getKeyInDB())) || [];
+  async get(): Promise<T[]> {
+    return (await AppStore.default().get(this.getKeyInDB())) || [];
   }
 
   async beforeCreate(item: T): Promise<T> {
     return item;
   }
 
-  async beforeUpsert(item: T, type: UpsertType) {
+  async beforeUpsert(item: T, _type: UpsertType) {
     return item;
   }
 
-  async afterUpsert(item: T, type: UpsertType) {}
+  async afterUpsert(_item: T, _type: UpsertType) {}
 
   async create(item: T) {
     item = await this.beforeCreate(item);

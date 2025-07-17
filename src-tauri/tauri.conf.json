@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "workpaper",
+  "version": "1.0.0",
+  "identifier": "jarvay.workpaper.app",
+  "build": {
+    "beforeDevCommand": "yarn dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "yarn build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Workpaper",
+        "label": "main",
+        "width": 800,
+        "height": 600,
+        "maximized": true,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": null,
+      "capabilities": ["desktop-capability"],
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
+    "resources": ["resources/**/*"]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM1MUVBNTUwMkI2NkQ1QzcKUldUSDFXWXJVS1VlTlJPdzVpTmpqekRncGlhRjA1UWczL1hIRGJHUDlMKzk2L0NCcmdLL25BL0wK",
+      "endpoints": []
+    }
+  }
+}

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Button, Image, List } from 'antd';
 import { cloneDeep } from 'lodash';
-import { Events, WallpaperType } from '../../../../../cross/enums';
-import { ipcRenderer } from 'electron';
+import { Events, WallpaperType } from '@/others/enums';
+import { convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { useTranslation } from 'react-i18next';
 import { useUpdateEffect } from 'ahooks';
 import ClosableBox from '@/components/ClosableBox';
 import {
   AlbumFileListItem,
   ToAlbumFileListItemParams,
-} from '../../../../../cross/interface';
+} from '@/others/types.ts';
+import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '@/others/consts.ts';
+import { open } from '@tauri-apps/plugin-dialog';
 
 export type AlbumFileListProps = {
   id?: string;
@@ -39,16 +41,16 @@ const AlbumFileList: React.FC<AlbumFileListProps> = (props) => {
       case WallpaperType.Image:
         return (
           <Image
-            src={`file://${item.thumb}`}
+            src={convertFileSrc(item.thumb)}
             preview={{
-              src: `file://${item.path}`,
+              src: convertFileSrc(item.path),
             }}
             style={style}
             alt=""
           />
         );
       case WallpaperType.Video:
-        return <video src={`file://${item.path}`} style={style} />;
+        return <video src={convertFileSrc(item.path)} style={style} />;
     }
   }
 
@@ -91,16 +93,14 @@ const AlbumFileList: React.FC<AlbumFileListProps> = (props) => {
         loading={loading}
         onClick={async () => {
           try {
-            const event =
+            const extensions =
               wallpaperType === WallpaperType.Image
-                ? Events.SelectImage
-                : Events.SelectVideo;
-            const files: string[] | undefined = await ipcRenderer.invoke(
-              event,
-              [
-                'multiSelections',
-              ] as Electron.OpenDialogSyncOptions['properties'],
-            );
+                ? IMAGE_EXT_LIST
+                : VIDEO_EXT_LIST;
+            const files = await open({
+              multiple: true,
+              filters: [{ name: 'Wallpaper', extensions }],
+            });
 
             if (!files) return;
 
@@ -108,7 +108,7 @@ const AlbumFileList: React.FC<AlbumFileListProps> = (props) => {
 
             let result: AlbumFileListItem[] = [];
             if (wallpaperType === WallpaperType.Image) {
-              result = await ipcRenderer.invoke(Events.ToAlbumListItem, {
+              result = await invoke(Events.ToAlbumListItem, {
                 files,
                 width: 96,
                 quality: 60,

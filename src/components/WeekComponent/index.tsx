@@ -23,7 +23,7 @@ const WeekComponent: React.FC<WeekComponentProps> = (props) => {
   ]);
 
   const weekOptions: DefaultOptionType[] = [];
-  weekMap.forEach((value, key, map) => {
+  weekMap.forEach((value, key) => {
     weekOptions.push({
       label: value,
       value: key,

@@ -5,7 +5,6 @@ import {
   Image,
   Input,
   InputNumber,
-  message,
   Modal,
   Radio,
   Select,
@@ -19,15 +18,13 @@ import {
   ModalFormProps,
   Rule,
   Webpage,
-} from '../../../../../cross/interface';
+} from '@/others/types.ts';
 import {
-  RuleType,
-  Events,
   FormMode,
+  RuleType,
   WallpaperDirection,
   WallpaperType,
-} from '../../../../../cross/enums';
-import { ipcRenderer } from 'electron';
+} from '@/others/enums';
 import { useMount, useUpdateEffect } from 'ahooks';
 import { ruleService } from '@/services/rule';
 import { cloneDeep, omit } from 'lodash';
@@ -37,6 +34,10 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { albumService } from '@/services/album';
 import { marqueeService } from '@/services/marquee';
 import { webpageService } from '@/services/webpage';
+import { IMAGE_EXT_LIST, VIDEO_EXT_LIST } from '@/others/consts.ts';
+import { open } from '@tauri-apps/plugin-dialog';
+import { convertFileSrc } from '@tauri-apps/api/core';
+import { useMessageApi } from '@/components/GlobalContext';
 
 export type FormRule = Rule & {
   time: [Dayjs, Dayjs];
@@ -56,6 +57,7 @@ const WallpaperRuleModal: React.FC<
     return albums.find((a) => a.id === albumId);
   }, [albumId]);
 
+  const messageApi = useMessageApi();
   const { t } = useTranslation();
 
   function fetchOptions() {
@@ -81,7 +83,7 @@ const WallpaperRuleModal: React.FC<
         end: dayjs(values.time[1]).format('HH:mm'),
         weekdayId: props.weekdayId,
       } as Rule);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -97,7 +99,7 @@ const WallpaperRuleModal: React.FC<
         start: dayjs(values.time[0]).format('HH:mm'),
         end: dayjs(values.time[1]).format('HH:mm'),
       } as Rule);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -137,14 +139,14 @@ const WallpaperRuleModal: React.FC<
             }}
             width={size}
             height={size}
-            src={`file://${path}`}
+            src={convertFileSrc(path)}
           />
         );
         break;
       case WallpaperType.Video:
         children = (
           <video
-            src={`file://${path}`}
+            src={convertFileSrc(path)}
             style={{
               width: `${size}px`,
               maxHeight: `${size}px`,
@@ -200,15 +202,8 @@ const WallpaperRuleModal: React.FC<
                 const wallpaperType: WallpaperType =
                   getFieldValue('wallpaperType');
                 return (
-                  <Form.List
-                    name="paths"
-                    rules={[
-                      {
-                        validator: async (_, names) => {},
-                      },
-                    ]}
-                  >
-                    {(fields, { add, remove }, { errors }) => (
+                  <Form.List name="paths">
+                    {(fields, { add, remove }) => (
                       <>
                         {fields.map((field, index) => (
                           <Form.Item
@@ -236,12 +231,16 @@ const WallpaperRuleModal: React.FC<
                                   onClick={async () => {
                                     const { paths } =
                                       form.getFieldsValue() as Rule;
-                                    const event =
+                                    const extensions =
                                       wallpaperType === WallpaperType.Image
-                                        ? Events.SelectImage
-                                        : Events.SelectVideo;
-                                    const files =
-                                      await ipcRenderer.invoke(event);
+                                        ? IMAGE_EXT_LIST
+                                        : VIDEO_EXT_LIST;
+                                    const files = await open({
+                                      multiple: true,
+                                      filters: [
+                                        { name: 'Wallpaper', extensions },
+                                      ],
+                                    });
                                     if (!files) return;
                                     paths[index] = files?.[0];
                                     form.setFieldsValue({
@@ -351,7 +350,7 @@ const WallpaperRuleModal: React.FC<
       }}
     >
       <Form<Rule>
-        form={form}
+        form={form as any}
         labelCol={{ span: 5 }}
         labelWrap
         initialValues={
@@ -373,7 +372,7 @@ const WallpaperRuleModal: React.FC<
           rules={[
             { required: true },
             {
-              validator: (rule, value) => {
+              validator: (_, value) => {
                 return new Promise<void>(async (resolve, reject) => {
                   if (!value) {
                     return resolve();
@@ -385,7 +384,7 @@ const WallpaperRuleModal: React.FC<
                   const isConflicts = await ruleService.isConflicts(
                     start,
                     end,
-                    props.values?.weekdayId as string,
+                    props.weekdayId as string,
                     props.values?.id as string,
                   );
                   if (isConflicts) {
@@ -410,7 +409,7 @@ const WallpaperRuleModal: React.FC<
           rules={[{ required: true }]}
         >
           <Radio.Group
-            onChange={(e) => {
+            onChange={() => {
               form.setFieldsValue({
                 paths: [''],
                 isRandom: false,

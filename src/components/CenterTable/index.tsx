@@ -1,4 +1,3 @@
-import React from 'react';
 import type { TableProps } from 'antd';
 import { Table } from 'antd';
 import { AnyObject } from 'antd/es/_util/type';

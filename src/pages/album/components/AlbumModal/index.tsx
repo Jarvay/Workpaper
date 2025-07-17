@@ -1,18 +1,18 @@
 import React from 'react';
-import { Album, ModalFormProps } from '../../../../../cross/interface';
-import { Button, Form, Input, InputNumber, message, Modal, Radio } from 'antd';
+import { Album, ModalFormProps } from '@/others/types.ts';
+import { Button, Form, Input, Modal, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
 import {
   AlbumType,
-  Events,
   FormMode,
   WallpaperDirection,
   WallpaperType,
-} from '../../../../../cross/enums';
+} from '@/others/enums';
 import { albumService } from '@/services/album';
-import { ipcRenderer } from 'electron';
 import { useUpdateEffect } from 'ahooks';
 import AlbumFileList from '@/pages/album/components/AlbumFileList';
+import { open } from '@tauri-apps/plugin-dialog';
+import { useMessageApi } from '@/components/GlobalContext';
 
 export type AlbumModalProps = ModalFormProps<Album> & {};
 
@@ -21,12 +21,13 @@ const AlbumModal: React.FC<AlbumModalProps> = (props) => {
   const wallpaperType: WallpaperType = Form.useWatch('wallpaperType', form);
 
   const { t } = useTranslation();
+  const messageApi = useMessageApi();
 
   async function doCreate() {
     try {
       const values = await form.validateFields();
       await albumService.create(values as Album);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -40,7 +41,7 @@ const AlbumModal: React.FC<AlbumModalProps> = (props) => {
         ...props.values,
         ...values,
       } as Album);
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
       await props.onChange?.();
     } catch (e) {
       console.warn(e);
@@ -77,7 +78,6 @@ const AlbumModal: React.FC<AlbumModalProps> = (props) => {
             wallpaperType: WallpaperType.Image,
             type: AlbumType.Directory,
             direction: WallpaperDirection.Horizontal,
-            column: 3,
           } as Partial<Album>
         }
       >
@@ -92,7 +92,7 @@ const AlbumModal: React.FC<AlbumModalProps> = (props) => {
         <Form.Item label={t('album.wallpaperType')} name="wallpaperType">
           <Radio.Group
             disabled={props.mode === FormMode.Update}
-            onChange={(e) => {
+            onChange={() => {
               form.setFieldsValue({
                 paths: [],
               });
@@ -115,6 +115,7 @@ const AlbumModal: React.FC<AlbumModalProps> = (props) => {
             <>
               <Form.Item label={t('album.direction')} name="direction">
                 <Radio.Group
+                  disabled={props.mode === FormMode.Update}
                   options={[
                     {
                       label: t('album.direction.horizontal'),
@@ -131,29 +132,12 @@ const AlbumModal: React.FC<AlbumModalProps> = (props) => {
                   }}
                 />
               </Form.Item>
-
-              <Form.Item dependencies={['direction']} noStyle>
-                {({ getFieldValue }) => {
-                  const direction = getFieldValue('direction');
-                  const isVertical = WallpaperDirection.Vertical === direction;
-                  return (
-                    isVertical && (
-                      <Form.Item
-                        label={t('rule.column')}
-                        name="column"
-                        rules={[{ required: true }]}
-                      >
-                        <InputNumber min={1} precision={0} step={1} />
-                      </Form.Item>
-                    )
-                  );
-                }}
-              </Form.Item>
             </>
           )}
 
           <Form.Item label={t('album.type')} name="type">
             <Radio.Group
+              disabled={props.mode === FormMode.Update}
               options={[
                 {
                   label: t('album.type.directory'),
@@ -182,11 +166,13 @@ const AlbumModal: React.FC<AlbumModalProps> = (props) => {
                           <Button type="primary">{t('choose')}</Button>
                         }
                         onSearch={async () => {
-                          const file = await ipcRenderer.invoke(
-                            Events.SelectDir,
-                          );
+                          const file = await open({
+                            multiple: false,
+                            directory: true,
+                          });
+                          if (!file) return;
                           form.setFieldsValue({
-                            dir: file?.[0],
+                            dir: file,
                           });
                         }}
                       />

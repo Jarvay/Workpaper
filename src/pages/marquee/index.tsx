@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { albumService } from '@/services/album';
-import { useMount, useUnmount } from 'ahooks';
-import { ipcRenderer } from 'electron';
-import { Events, FormMode } from '../../../cross/enums';
+import { useMount } from 'ahooks';
+import { FormMode } from '@/others/enums';
 import { ColumnsType } from 'antd/es/table/InternalTable';
 import { Button, ColorPicker, Divider, Popconfirm, Space } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Marquee } from '../../../cross/interface';
+import { Marquee } from '@/others/types.ts';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '@/components/PageContainer';
 import CenterTable from '@/components/CenterTable';
 import { marqueeService } from '@/services/marquee';
 import MarqueeModal from '@/pages/marquee/components/MarqueeModal';
+import { ruleService } from '@/services/rule.ts';
+import { useMessageApi } from '@/components/GlobalContext';
 
 const MarqueeIndex: React.FC = () => {
   const [dataSource, setDataSource] = useState<Marquee[]>([]);
@@ -21,6 +21,7 @@ const MarqueeIndex: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const { t } = useTranslation();
+  const messageApi = useMessageApi();
 
   async function refresh() {
     setLoading(true);
@@ -31,10 +32,6 @@ const MarqueeIndex: React.FC = () => {
 
   useMount(async () => {
     await refresh();
-  });
-
-  useUnmount(() => {
-    ipcRenderer.removeAllListeners(Events.ResetSchedule);
   });
 
   const columns: ColumnsType<Marquee> = [
@@ -53,7 +50,7 @@ const MarqueeIndex: React.FC = () => {
       title: t('marquee.textColor'),
       dataIndex: 'textColor',
       width: 120,
-      render: (value, record) => {
+      render: (value) => {
         return <ColorPicker value={value} disabled />;
       },
     },
@@ -61,7 +58,7 @@ const MarqueeIndex: React.FC = () => {
       title: t('marquee.backgroundColor'),
       dataIndex: 'backgroundColor',
       width: 100,
-      render: (value, record) => {
+      render: (value) => {
         return <ColorPicker value={value} disabled />;
       },
     },
@@ -89,6 +86,14 @@ const MarqueeIndex: React.FC = () => {
             <Popconfirm
               title={t('deleteConfirmTips')}
               onConfirm={async () => {
+                const using = (await ruleService.get()).some(
+                  (item) => item.marqueeId === record.id,
+                );
+                if (using) {
+                  messageApi.warning(t('usingTips'));
+                  return;
+                }
+
                 await marqueeService.delete(record.id as string);
                 await refresh();
               }}

@@ -1,7 +1,5 @@
 import i18next from 'i18next';
-import { Events } from '../../cross/enums';
-import { ipcRenderer } from 'electron';
-import { Settings } from '../../cross/interface';
+import { Settings } from '@/others/types.ts';
 import { ConfigServiceRenderer } from '@/services/config-service';
 import { isEqual } from 'lodash';
 
@@ -16,14 +14,23 @@ class SettingsService extends ConfigServiceRenderer<'settings'> {
       await i18next.changeLanguage(settings.locale);
     }
     if (isEqual(settings, oldSettings)) {
-      await ipcRenderer.invoke(Events.InitSettings, settings);
+      await this.setItem(SettingsService.SETTINGS_KEY, settings);
     } else {
-      await ipcRenderer.invoke(Events.SettingsChange, settings);
+      await this.setItem(SettingsService.SETTINGS_KEY, settings);
     }
   }
 
+  async setSettingsItem<Key extends keyof Settings>(
+    key: Key,
+    value: Settings[Key],
+  ) {
+    const settings = await this.get();
+    settings[key] = value;
+    await this.setItem(SettingsService.SETTINGS_KEY, settings);
+  }
+
   async get() {
-    return await this.getItem('settings');
+    return await this.getItem(SettingsService.SETTINGS_KEY);
   }
 }
 

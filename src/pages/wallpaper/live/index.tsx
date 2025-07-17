@@ -1,18 +1,19 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { ipcRenderer, type IpcRendererEvent } from 'electron';
-import { Events } from '../../../../cross/enums';
-import { useParams } from 'react-router-dom';
+import React, { useMemo, useRef, useState } from 'react';
+import { Events } from '@/others/enums';
 import { useMount, useUnmount, useUpdateEffect } from 'ahooks';
 import styles from './index.module.less';
 import { settingsService } from '@/services/settings';
-import {
-  LiveWallpaperEventArg,
-  Rule,
-  Settings,
-} from '../../../../cross/interface';
+import { LiveWallpaperEventArg, Rule, Settings } from '@/others/types.ts';
 import { Carousel } from 'antd';
 import { CarouselRef } from 'antd/es/carousel';
-import { randomByRange } from '../../../../cross/utils';
+import {
+  emitToSelf,
+  emitWinReadyEvent,
+  listenSelf,
+  randomByRange,
+} from '@/others/utils';
+import { EventCallback, UnlistenFn } from '@tauri-apps/api/event';
+import { convertFileSrc } from '@tauri-apps/api/core';
 
 const LiveWallpaper: React.FC = () => {
   const [paths, setPaths] = useState<string[]>([]);
@@ -22,8 +23,6 @@ const LiveWallpaper: React.FC = () => {
   const [rule, setRule] = useState<Rule>();
   const [isInitialed, setIsInitialed] = useState(false);
 
-  const { displayId } = useParams();
-
   const videoRefs = useRef<HTMLVideoElement[]>([]);
   const carouselRef = useRef<CarouselRef>();
 
@@ -31,64 +30,70 @@ const LiveWallpaper: React.FC = () => {
     return [currentIndex, nextIndex];
   }, [paths, currentIndex, nextIndex]);
 
-  const liveWallpaperHandler: (
-    event: IpcRendererEvent,
-    ...args: any[]
-  ) => void = (_, arg: LiveWallpaperEventArg) => {
+  const pathSources = useMemo(() => {
+    return paths.map((item) => convertFileSrc(item));
+  }, [paths]);
+
+  const unlistenFnListRef = useRef<UnlistenFn[]>([]);
+
+  const liveWallpaperHandler: EventCallback<LiveWallpaperEventArg> = ({
+    payload: arg,
+  }) => {
     setRule(arg.rule);
     setPaths(arg.paths);
   };
 
-  const liveWallpaperMutedHandler: (
-    event: IpcRendererEvent,
-    ...args: any[]
-  ) => void = (_, muted: boolean) => {
+  const liveWallpaperMutedHandler: (event: any, ...args: any[]) => void = (
+    _,
+    muted: boolean,
+  ) => {
     videoRefs.current[currentIndex].muted = muted;
   };
 
-  const liveWallpaperVolumeHandler: (
-    event: IpcRendererEvent,
-    ...args: any[]
-  ) => void = (_, volume: number) => {
-    videoRefs.current[currentIndex].volume = volume;
+  const liveWallpaperVolumeHandler: EventCallback<{ volume: number }> = ({
+    payload,
+  }) => {
+    videoRefs.current[currentIndex].volume = payload.volume;
   };
 
-  const liveWallpaperPauseHandler = () => {
-    videoRefs.current[currentIndex]?.pause();
+  const liveWallpaperToggleHandler = () => {
+    const player = videoRefs.current[currentIndex];
+    if (!player) return;
+    if (player.paused) {
+      player.play();
+    } else {
+      player.pause();
+    }
   };
 
-  const liveWallpaperPlayHandler = () => {
-    videoRefs.current[currentIndex]?.play();
-  };
+  async function registerLiveWallpaperEvents() {
+    unlistenFnListRef.current = [
+      await listenSelf(Events.SetLiveWallpaper, liveWallpaperHandler),
 
-  function registerLiveWallpaperEvents() {
-    ipcRenderer.on(Events.SetLiveWallpaper, liveWallpaperHandler);
+      await listenSelf(Events.SetLiveWallpaperMuted, liveWallpaperMutedHandler),
 
-    ipcRenderer.on(Events.SetLiveWallpaperMuted, liveWallpaperMutedHandler);
+      await listenSelf(
+        Events.SetLiveWallpaperVolume,
+        liveWallpaperVolumeHandler,
+      ),
 
-    ipcRenderer.on(Events.SetLiveWallpaperVolume, liveWallpaperVolumeHandler);
-
-    ipcRenderer.on(Events.PauseLiveWallpaper, liveWallpaperPauseHandler);
-    ipcRenderer.on(Events.PlayLiveWallpaper, liveWallpaperPlayHandler);
+      await listenSelf(
+        Events.ToggleLiveWallpaperStatus,
+        liveWallpaperToggleHandler,
+      ),
+    ];
   }
 
   function unregisterLiveWallpaperEvents() {
-    ipcRenderer.removeAllListeners(Events.SetLiveWallpaper);
-
-    ipcRenderer.removeAllListeners(Events.SetLiveWallpaperMuted);
-
-    ipcRenderer.removeAllListeners(Events.SetLiveWallpaperVolume);
-
-    ipcRenderer.removeAllListeners(Events.PauseLiveWallpaper);
-    ipcRenderer.removeAllListeners(Events.PlayLiveWallpaper);
+    unlistenFnListRef.current.forEach((item) => item());
   }
 
   useMount(async () => {
-    registerLiveWallpaperEvents();
+    await registerLiveWallpaperEvents();
 
     setSettings(await settingsService.get());
 
-    ipcRenderer.send(Events.WallpaperWinReady, Number(displayId));
+    await emitWinReadyEvent();
   });
 
   useUnmount(() => {
@@ -128,7 +133,7 @@ const LiveWallpaper: React.FC = () => {
         await videoRefs.current[currentSlide].play();
       }}
     >
-      {paths.map((path, index) => {
+      {pathSources.map((path, index) => {
         return (
           <div key={path}>
             {!visibleIndexes.includes(index) ? null : (
@@ -143,11 +148,8 @@ const LiveWallpaper: React.FC = () => {
                 className={styles.liveWallpaperContainer}
                 muted
                 autoPlay={currentIndex === index}
-                onLoadedMetadata={() => {
-                  ipcRenderer.send(
-                    Events.LiveWallpaperLoaded,
-                    Number(displayId),
-                  );
+                onLoadedMetadata={async () => {
+                  await emitToSelf(Events.LiveWallpaperLoaded);
                 }}
                 loop={paths.length === 1}
                 onEnded={() => {

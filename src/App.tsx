@@ -1,5 +1,12 @@
 import './styles/App.less';
-import { ConfigProvider, FloatButton, Layout, Menu, MenuProps } from 'antd';
+import {
+  ConfigProvider,
+  FloatButton,
+  Layout,
+  Menu,
+  MenuProps,
+  message,
+} from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import { RouterProvider } from 'react-router-dom';
@@ -11,19 +18,22 @@ import {
   SettingOutlined,
 } from '@ant-design/icons';
 import SettingsModal from '@/components/SettingsModal';
-import { useCallback, useRef, useState } from 'react';
-import { Events, Locale } from '../cross/enums';
+import { useRef, useState } from 'react';
+import { Locale } from '@/others/enums';
 import { ConfigProviderProps } from 'antd/es/config-provider';
 import { settingsService } from '@/services/settings';
 import { useMount, useUnmount } from 'ahooks';
-import { Settings } from '../cross/interface';
-import { ipcRenderer } from 'electron';
+import { Settings } from '@/others/types.ts';
 import AboutModal from '@/components/AboutModal';
 import { useTranslation } from 'react-i18next';
 import DownloadDrawer, {
   DownloadDrawerActions,
 } from '@/components/DownloadDrawer';
 import { GlobalProvider } from '@/components/GlobalContext';
+import { UnlistenFn } from '@tauri-apps/api/event';
+import './App.css';
+import { check, Update } from '@tauri-apps/plugin-updater';
+import { debug } from '@tauri-apps/plugin-log';
 
 const LOCALE_MAP = new Map([
   [Locale.zhCN, zhCN],
@@ -51,14 +61,18 @@ function App() {
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [isWallpaperMode, setIsWallpaperMode] = useState<boolean>(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [versionInfo, setVersionInfo] = useState<VersionInfo>();
+  const [update, setUpdate] = useState<Update>();
   const [locale, setLocale] = useState<ConfigProviderProps['locale']>();
   const [selectedKeys, setSelectedKeys] = useState<MenuProps['selectedKeys']>();
   const [downloadDrawerOpen, setDownloadDrawerOpen] = useState(false);
+  const [settings, setSettings] = useState<Settings>();
 
   const downloadDrawerRef = useRef<DownloadDrawerActions>();
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const { t } = useTranslation();
+  const updateUnlistenFnRef = useRef<UnlistenFn>();
 
   const menuItems: MenuProps['items'] = [
     {
@@ -84,16 +98,16 @@ function App() {
   ];
 
   async function checkUpdate() {
-    const isPackaged = await ipcRenderer.invoke(Events.IsPackaged);
-    if (!isPackaged) return;
-
-    ipcRenderer.on('update-can-available', onUpdateCanAvailable);
-
     const settings = await settingsService.get();
     if (settings.autoCheckUpdate) {
       try {
-        await ipcRenderer.invoke('check-update');
+        const updateInfo = await check();
+        await debug(`checkUpdate ${JSON.stringify(updateInfo)}`);
+        if (!updateInfo) return;
+        setUpdateAvailable(true);
+        setUpdate(updateInfo);
       } catch (e) {
+        console.error(e);
         setTimeout(
           async () => {
             await checkUpdate();
@@ -104,19 +118,10 @@ function App() {
     }
   }
 
-  const onUpdateCanAvailable = useCallback(
-    (_event: Electron.IpcRendererEvent, arg1: VersionInfo) => {
-      if (arg1.update) {
-        setUpdateAvailable(true);
-        setVersionInfo(arg1);
-      }
-    },
-    [],
-  );
-
   useMount(async () => {
-    const settings = await settingsService.get();
-    setLocale(LOCALE_MAP.get(settings.locale));
+    const settingsData = await settingsService.get();
+    setSettings(settingsData);
+    setLocale(LOCALE_MAP.get(settingsData.locale));
 
     if (window.location.hash.startsWith('#/wallpaper')) {
       setIsWallpaperMode(true);
@@ -126,15 +131,18 @@ function App() {
   });
 
   useUnmount(() => {
-    ipcRenderer.off('update-can-available', onUpdateCanAvailable);
+    updateUnlistenFnRef.current?.();
   });
 
   return (
     <GlobalProvider
       value={{
         downloadDrawerRef: downloadDrawerRef.current,
+        messageApi,
+        settings,
       }}
     >
+      {contextHolder}
       <ConfigProvider locale={locale} theme={{ cssVar: true }}>
         {!isWallpaperMode ? (
           <Layout style={{ width: '100%', height: '100%' }}>
@@ -186,6 +194,13 @@ function App() {
                 open={settingsOpen}
                 modalProps={{
                   onCancel: () => setSettingsOpen(false),
+                  width: '35%',
+                  styles: {
+                    body: {
+                      height: '400px',
+                      overflowY: 'auto',
+                    },
+                  },
                 }}
                 onChange={(settings) => {
                   setLocale(
@@ -199,7 +214,7 @@ function App() {
                 modalProps={{
                   onCancel: () => setAboutModalOpen(false),
                 }}
-                versionInfo={versionInfo}
+                update={update}
               />
 
               <DownloadDrawer

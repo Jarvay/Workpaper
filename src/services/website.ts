@@ -1,4 +1,4 @@
-import { WallpaperWebsite } from '../../cross/interface';
+import { WallpaperWebsite } from '@/others/types.ts';
 import { BaseService } from '@/services/base';
 import axios from 'axios';
 import { message } from 'antd';

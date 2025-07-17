@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { albumService } from '@/services/album';
-import { useMount, useUnmount } from 'ahooks';
-import { ipcRenderer } from 'electron';
+import { useMount } from 'ahooks';
 import {
   AlbumType,
-  Events,
   FormMode,
   WallpaperDirection,
   WallpaperType,
-} from '../../../cross/enums';
+} from '@/others/enums';
 import { ColumnsType } from 'antd/es/table/InternalTable';
 import { Button, Divider, Popconfirm, Space } from 'antd';
 import AlbumModal from './components/AlbumModal';
@@ -18,10 +16,13 @@ import {
   FolderOpenFilled,
   PlusOutlined,
 } from '@ant-design/icons';
-import { Album } from '../../../cross/interface';
+import { Album } from '@/others/types.ts';
 import { useTranslation } from 'react-i18next';
 import PageContainer from '@/components/PageContainer';
 import CenterTable from '@/components/CenterTable';
+import { openPath } from '@tauri-apps/plugin-opener';
+import { ruleService } from '@/services/rule.ts';
+import { useMessageApi } from '@/components/GlobalContext';
 
 const AlbumIndex: React.FC = () => {
   const [dataSource, setDataSource] = useState<Album[]>([]);
@@ -32,6 +33,8 @@ const AlbumIndex: React.FC = () => {
 
   const { t } = useTranslation();
 
+  const messageApi = useMessageApi();
+
   async function refresh() {
     setLoading(true);
     const albums = await albumService.get();
@@ -41,10 +44,6 @@ const AlbumIndex: React.FC = () => {
 
   useMount(async () => {
     await refresh();
-  });
-
-  useUnmount(() => {
-    ipcRenderer.removeAllListeners(Events.ResetSchedule);
   });
 
   const columns: ColumnsType<Album> = [
@@ -72,7 +71,7 @@ const AlbumIndex: React.FC = () => {
       title: t('album.type'),
       dataIndex: 'type',
       width: 120,
-      render: (value, record) => {
+      render: (value) => {
         switch (value) {
           default:
             return '-';
@@ -99,7 +98,7 @@ const AlbumIndex: React.FC = () => {
                 <FolderOpenFilled
                   className="icon-button"
                   onClick={async () => {
-                    await ipcRenderer.invoke(Events.OpenPath, value);
+                    await openPath(value);
                   }}
                 />
               </Space>
@@ -143,6 +142,14 @@ const AlbumIndex: React.FC = () => {
             <Popconfirm
               title={t('deleteConfirmTips')}
               onConfirm={async () => {
+                const using = (await ruleService.get()).some(
+                  (item) => item.albumId === record.id,
+                );
+                if (using) {
+                  messageApi.warning(t('usingTips'));
+                  return;
+                }
+
                 await albumService.delete(record.id as string);
                 await refresh();
               }}

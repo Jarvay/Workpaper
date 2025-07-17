@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { ModalFormProps, Weekday } from '../../../../../cross/interface';
-import { Checkbox, Col, Form, message, Modal, Row } from 'antd';
+import { ModalFormProps, Weekday } from '@/others/types.ts';
+import { Checkbox, Col, Form, Modal, Row } from 'antd';
 import { useUpdateEffect } from 'ahooks';
-import { FormMode } from '../../../../../cross/enums';
+import { FormMode } from '@/others/enums';
 import { weekdayService } from '@/services/weekday';
 import WeekComponent from '@/components/WeekComponent';
 import { useTranslation } from 'react-i18next';
+import { useMessageApi } from '@/components/GlobalContext';
 
 const WeekdayModal: React.FC<ModalFormProps> = (props) => {
   const [form] = Form.useForm();
 
   const [existDays, setExistDays] = useState<number[]>([]);
 
+  const messageApi = useMessageApi();
   const { t } = useTranslation();
 
   async function doCreate() {
@@ -21,7 +23,7 @@ const WeekdayModal: React.FC<ModalFormProps> = (props) => {
         ...values,
       } as Weekday);
       await props.onChange?.();
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
     } catch (e) {
       console.warn(e);
     }
@@ -36,7 +38,7 @@ const WeekdayModal: React.FC<ModalFormProps> = (props) => {
         id: props.values?.id,
       } as Weekday);
       await props.onChange?.();
-      message.success(t('operationSuccess'));
+      messageApi.success(t('operationSuccess'));
     } catch (e) {
       console.warn(e);
     }
@@ -78,7 +80,7 @@ const WeekdayModal: React.FC<ModalFormProps> = (props) => {
       width="200px"
     >
       <WeekComponent>
-        {(weekMap, weekOptions) => {
+        {(_, weekOptions) => {
           return (
             <Form form={form}>
               <Form.Item

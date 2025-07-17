@@ -1,8 +1,8 @@
-import { timeToSeconds } from '../../cross/date';
-import { Rule } from '../../cross/interface';
+import { timeToSeconds } from '@/others/date';
+import { Rule } from '@/others/types.ts';
 import { BaseService } from '@/services/base';
-import { ipcRenderer } from 'electron';
-import { RuleType, Events } from '../../cross/enums';
+import { invoke } from '@tauri-apps/api/core';
+import { Events, RuleType } from '@/others/enums';
 
 export class RuleService extends BaseService<'rules', Rule> {
   getKeyInDB(): 'rules' {
@@ -11,7 +11,7 @@ export class RuleService extends BaseService<'rules', Rule> {
 
   async save(list: Rule[]): Promise<void> {
     await super.save(list);
-    await ipcRenderer.invoke(Events.ResetSchedule);
+    await invoke(Events.ResetSchedule);
   }
 
   async beforeUpsert(item: Rule): Promise<Rule> {
@@ -20,9 +20,6 @@ export class RuleService extends BaseService<'rules', Rule> {
       item.screenRandom = false;
     }
 
-    if (item.type === RuleType.Marquee) {
-      item.interval = undefined;
-    }
     return item;
   }
 

@@ -1,24 +1,18 @@
-import React, { useCallback, useState } from 'react';
-import { Button, message, Modal, Progress, Space } from 'antd';
+import React, { useState } from 'react';
+import { Button, Modal, Progress, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { ipcRenderer } from 'electron';
-import type { ProgressInfo, UpdateCheckResult } from 'electron-updater';
+import { invoke } from '@tauri-apps/api/core';
 import { useMount, useUnmount, useUpdateEffect } from 'ahooks';
-import { hasIn } from 'lodash';
-
-type UpdateError = {
-  message: string;
-  error: Error;
-};
-
-type CheckUpdateResult = null | UpdateError | UpdateCheckResult;
+import { check, Update as UpdateInfo } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
 
 export type UpdateProps = {
-  onUpdateAvailable?: (versionInfo: VersionInfo) => void;
-  versionInfo?: VersionInfo;
+  onUpdateAvailable?: (update: UpdateInfo) => void;
+  update?: UpdateInfo;
 };
 
 const Update: React.FC<UpdateProps> = (props) => {
+  const { update } = props;
   const { t } = useTranslation();
 
   const [loading, setLoading] = useState(false);
@@ -27,75 +21,38 @@ const Update: React.FC<UpdateProps> = (props) => {
   const [progress, setProgress] = useState(0);
   const [downloading, setDownloading] = useState(false);
 
-  const onUpdateCanAvailable = useCallback(
-    (_event: Electron.IpcRendererEvent, arg1: VersionInfo) => {
-      setUpdateAvailable(arg1.update);
-      props.onUpdateAvailable?.(arg1);
-    },
-    [],
-  );
-
-  const onUpdateError = useCallback(
-    (_event: Electron.IpcRendererEvent, arg1: ErrorType) => {
-      console.error('onUpdateError', arg1);
-    },
-    [],
-  );
-
-  const onDownloadProgress = useCallback(
-    (_event: Electron.IpcRendererEvent, arg1: ProgressInfo) => {
-      console.log('onDownloadProgress', arg1);
-      setProgress(Number(arg1.percent.toFixed(2)));
-    },
-    [],
-  );
-
-  const onUpdateDownloaded = useCallback(
-    (_event: Electron.IpcRendererEvent, ...args: any[]) => {
-      setProgress(100);
-    },
-    [],
-  );
+  const [totalLength, setTotalLength] = useState(0);
 
   function showInstallModal() {
     Modal.confirm({
       content: t('updateTips'),
       onOk: async () => {
-        await ipcRenderer.invoke('quit-and-install');
         setDownloading(false);
+        await update?.install();
+        await relaunch();
       },
     });
   }
 
   useMount(() => {
-    ipcRenderer.on('update-can-available', onUpdateCanAvailable);
-    ipcRenderer.on('update-error', onUpdateError);
-    ipcRenderer.on('download-progress', onDownloadProgress);
-    ipcRenderer.on('update-downloaded', onUpdateDownloaded);
-
-    if (props.versionInfo?.update) {
+    if (update) {
       setUpdateAvailable(true);
     }
   });
 
-  useUnmount(() => {
-    ipcRenderer.off('update-can-available', onUpdateCanAvailable);
-    ipcRenderer.off('update-error', onUpdateError);
-    ipcRenderer.off('download-progress', onDownloadProgress);
-    ipcRenderer.off('update-downloaded', onUpdateDownloaded);
-  });
-
-  useUpdateEffect(() => {
-    if (props.versionInfo?.update) {
-      setUpdateAvailable(true);
-    }
-  }, [props.versionInfo]);
+  useUnmount(() => {});
 
   useUpdateEffect(() => {
     if (progress >= 100) {
       showInstallModal();
     }
   }, [progress]);
+
+  useUpdateEffect(() => {
+    if (update) {
+      setUpdateAvailable(true);
+    }
+  }, [update]);
 
   return (
     <>
@@ -109,14 +66,9 @@ const Update: React.FC<UpdateProps> = (props) => {
           loading={loading}
           onClick={async () => {
             setLoading(true);
-            const result: CheckUpdateResult =
-              await ipcRenderer.invoke('check-update');
+            const result = await check();
             setLoading(false);
             if (!result) return;
-            if (hasIn(result, 'error') && hasIn(result, 'message')) {
-              message.error((result as UpdateError).message);
-              return;
-            }
           }}
         >
           {t('checkUpdate')}
@@ -130,7 +82,19 @@ const Update: React.FC<UpdateProps> = (props) => {
           disabled={downloading}
           onClick={async () => {
             setDownloading(true);
-            await ipcRenderer.invoke('start-download');
+            await update?.download((progress) => {
+              switch (progress.event) {
+                case 'Started':
+                  setTotalLength(progress.data.contentLength || 0);
+                  break;
+                case 'Progress':
+                  setProgress(progress.data.chunkLength / totalLength);
+                  break;
+                case 'Finished':
+                  setProgress(100);
+                  break;
+              }
+            });
           }}
         >
           {t('download')}
@@ -156,7 +120,7 @@ const Update: React.FC<UpdateProps> = (props) => {
                 width: '100%',
               }}
               onClick={async () => {
-                await ipcRenderer.invoke('quit-and-install');
+                await invoke('quit-and-install');
               }}
             >
               {t('update')}
